@@ -402,7 +402,8 @@
 <!-- User products display -->
 <div class="user-products-section" *ngIf="userProducts.length > 0 && !isLoadingProducts">
   <div class="products-grid">
-    <div class="product-card" *ngFor="let product of userProducts; trackBy: trackByProductId" (click)="openProductDetails(getProductId(product))">
+    <div class="product-card" *ngFor="let product of userProducts; trackBy: trackByProductId"
+       (click)="product ? openProductDetails(product) : null">
       
       <!-- სურათების სლაიდერი -->
       <div class="product-images">

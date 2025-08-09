@@ -1052,14 +1052,51 @@ export class DashboardComponent implements OnInit {
     return null;
   }
 
-  openProductDetails(product: any): void {
-    const productId = this.getProductId(product);
-    if (productId) {
-      this.router.navigate(['/product-details', productId]);
-    } else {
-      this.showSnackBar('პროდუქტის იდენტიფიკატორი ვერ მოიძებნა');
-    }
+openProductDetails(product: any): void {
+  const productId = this.getProductId(product);
+  
+  if (!productId) {
+    console.error('პროდუქტის ID ვერ მოიძებნა');
+    this.showSnackBar('პროდუქტის ID ვერ მოიძებნა');
+    return;
   }
+
+  // ✅ Fixed: Check if title exists before generating slug
+  let slug = '';
+  if (product && product.title) {
+    slug = this.generateSlug(product.title);
+  } else {
+    // ✅ Fallback slug if title is missing
+    slug = 'product';
+    console.warn('პროდუქტის title ვერ მოიძებნა, დეფოლტი slug-ის გამოყენება');
+  }
+
+  console.log('🔗 Navigating to product details:', { productId, slug, title: product?.title });
+  this.router.navigate(['/product-details', productId, slug]);
+}
+
+// ✅ Fixed generateSlug function
+generateSlug(title: any): string {
+  // ✅ Handle null, undefined, empty string
+  if (!title || title === null || title === undefined || title === '') {
+    console.warn('generateSlug: title is empty or null, returning default');
+    return 'product';
+  }
+  
+  try {
+    return title
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')           // Replace spaces with hyphens
+      .replace(/[^\w\-ქწერტყუიოპასდფგჰჯკლზხცვბნმ]+/g, '')  // Keep Georgian letters and basic chars
+      .replace(/\-\-+/g, '-')        // Replace multiple hyphens with single
+      .replace(/^-+|-+$/g, '');      // Remove leading/trailing hyphens
+  } catch (error) {
+    console.error('generateSlug error:', error, 'title:', title);
+    return 'product';
+  }
+}
 
   trackByProductId(index: number, product: Product): any {
     return product?._id || product?.id || index;
