@@ -1,0 +1,31 @@
+<!-- src/app/components/auth/verify-email/verify-email.component.html -->
+<div class="verify-container">
+    <div class="verify-box">
+      <div *ngIf="isVerifying" class="loading">
+        <div class="spinner"></div>
+        <p>{{ message }}</p>
+      </div>
+      
+      <div *ngIf="!isVerifying" class="result">
+        <div *ngIf="isSuccess" class="success">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64">
+            <circle cx="12" cy="12" r="11" fill="#28a745" />
+            <path fill="white" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
+          </svg>
+          <h2>ვერიფიკაცია წარმატებულია!</h2>
+          <p>{{ message }}</p>
+          <button class="btn btn-primary" (click)="navigateToLogin()">შესვლა</button>
+        </div>
+        
+        <div *ngIf="!isSuccess" class="error">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64">
+            <circle cx="12" cy="12" r="11" fill="#dc3545" />
+            <path fill="white" d="M13.41 12l4.3-4.29a1 1 0 1 0-1.42-1.42L12 10.59l-4.29-4.3a1 1 0 0 0-1.42 1.42l4.3 4.29-4.3 4.29a1 1 0 0 0 1.42 1.42l4.29-4.3 4.29 4.3a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42z" />
+          </svg>
+          <h2>ვერიფიკაციის შეცდომა</h2>
+          <p>{{ message }}</p>
+          <button class="btn btn-primary" routerLink="/auth/register">რეგისტრაცია</button>
+        </div>
+      </div>
+    </div>
+  </div>

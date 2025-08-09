@@ -1,0 +1,373 @@
+:host {
+      display: block;
+      height: 100vh;
+    }
+    
+    .admin-dashboard {
+      display: flex;
+      height: 100%;
+    }
+    
+    /* საიდბარის სტილი */
+    .admin-nav {
+      width: 250px;
+      background-color: #343a40;
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .admin-header {
+      padding: 20px;
+      border-bottom: 1px solid #495057;
+    }
+    
+    .admin-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    
+    .nav-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex-grow: 1;
+    }
+    
+    .nav-item {
+      padding: 15px 20px;
+      border-bottom: 1px solid #495057;
+      transition: background-color 0.3s;
+    }
+    
+    .nav-item a {
+      color: #f8f9fa;
+      text-decoration: none;
+      display: block;
+    }
+    
+    .nav-item:hover {
+      background-color: #495057;
+    }
+    
+    .nav-item.active {
+      background-color: #007bff;
+    }
+    
+    .nav-footer {
+      padding: 20px;
+      border-top: 1px solid #495057;
+    }
+    
+    .logout-button {
+      width: 100%;
+      padding: 10px;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .logout-button:hover {
+      background-color: #5a6268;
+    }
+    
+    /* მთავარი კონტენტის სტილი */
+    .admin-content {
+      flex-grow: 1;
+      padding: 20px;
+      background-color: #f8f9fa;
+      overflow-y: auto;
+    }
+    
+    .content-header {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .content-header h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #343a40;
+    }
+    
+    /* მომხმარებლების სექციის სტილი */
+    .users-section {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    
+    .users-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .users-header h3 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #343a40;
+    }
+    
+    .search-box input {
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      width: 300px;
+    }
+    
+    /* ცხრილის სტილი */
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    .users-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .users-table th,
+    .users-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .users-table th {
+      background-color: #f8f9fa;
+      color: #495057;
+      font-weight: 600;
+    }
+    
+    .users-table tr:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .badge {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .badge-success {
+      background-color: #28a745;
+      color: white;
+    }
+    
+    .badge-warning {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    
+    .actions-cell {
+      white-space: nowrap;
+    }
+    
+    .action-btn {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      margin-right: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .view-btn {
+      background-color: #17a2b8;
+      color: white;
+    }
+    
+    .edit-btn {
+      background-color: #007bff;
+      color: white;
+    }
+    
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .action-btn:hover {
+      opacity: 0.9;
+    }
+    
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* ჩატვირთვის და შეცდომის სტილი */
+    .loading-indicator {
+      text-align: center;
+      padding: 40px 0;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(0, 123, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #007bff;
+      display: inline-block;
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 10px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .error-message {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    
+    .error-message button {
+      background-color: #721c24;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+    
+    .no-results {
+      text-align: center;
+      padding: 40px 0;
+      color: #6c757d;
+      font-style: italic;
+    }
+    
+    /* მოდალის სტილი */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background-color: white;
+      width: 600px;
+      max-width: 90%;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-header h3 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6c757d;
+    }
+    
+    .modal-body {
+      padding: 20px;
+    }
+    
+    .user-profile {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .user-avatar {
+      width: 120px;
+      height: 120px;
+    }
+    
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #dee2e6;
+    }
+    
+    .user-info {
+      flex-grow: 1;
+    }
+    
+    .user-info p {
+      margin-bottom: 10px;
+    }
+    
+    .verified {
+      color: #28a745;
+      font-weight: 500;
+    }
+    
+    .not-verified {
+      color: #ffc107;
+      font-weight: 500;
+    }
+    
+    .modal-footer {
+      padding: 15px 20px;
+      border-top: 1px solid #dee2e6;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    .btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .btn-success {
+      background-color: #28a745;
+      color: white;
+    }
+    
+    .btn-warning {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .btn:hover {
+      opacity: 0.9;
+    }

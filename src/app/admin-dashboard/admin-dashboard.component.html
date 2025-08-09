@@ -1,0 +1,179 @@
+<div class="admin-dashboard">
+  <!-- ადმინ პანელის ნავიგაცია -->
+  <nav class="admin-nav">
+    <div class="admin-header">
+      <h2>ადმინისტრატორის პანელი</h2>
+    </div>
+    <ul class="nav-links">
+      <li class="nav-item active">
+        <a href="javascript:void(0)">მომხმარებლები</a>
+      </li>
+      <li class="nav-item">
+        <a href="javascript:void(0)">პროდუქტები</a>
+      </li>
+      <li class="nav-item">
+        <a href="javascript:void(0)">სტატისტიკა</a>
+      </li>
+    </ul>
+    <div class="nav-footer">
+      <button class="logout-button" (click)="logout()">გამოსვლა</button>
+    </div>
+  </nav>
+
+  <!-- მთავარი კონტენტი -->
+  <main class="admin-content">
+    <header class="content-header">
+      <h1>მომხმარებლების მართვა</h1>
+    </header>
+
+    <!-- მომხმარებლების სია -->
+    <section class="users-section">
+      <div class="users-header">
+        <h3>მომხმარებლების სია</h3>
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="მოძებნეთ მომხმარებელი..." 
+            [(ngModel)]="searchTerm"
+            (input)="searchUsers()">
+        </div>
+      </div>
+
+      <!-- ჩატვირთვის ინდიკატორი -->
+      <div *ngIf="loading" class="loading-indicator">
+        <div class="spinner"></div>
+        <p>მიმდინარეობს ჩატვირთვა...</p>
+      </div>
+
+      <!-- შეცდომის ჩვენება -->
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+        <button (click)="loadUsers()">ხელახლა ცდა</button>
+      </div>
+
+      <!-- მომხმარებლების ცხრილი -->
+      <div class="table-container" *ngIf="!loading && !error">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>სახელი</th>
+              <th>გვარი</th>
+              <th>ელ. ფოსტა</th>
+              <th>პირადი ნომერი</th>
+              <th>ვერიფიკაცია</th>
+              <th>რეგისტრაციის თარიღი</th>
+              <th>მოქმედებები</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of filteredUsers">
+              <td>{{ user.name }}</td>
+              <td>{{ user.secondName || '-' }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.personalNumber || '-' }}</td>
+              <td>
+                <span class="badge" [ngClass]="user.isVerified ? 'badge-success' : 'badge-warning'">
+                  {{ user.isVerified ? 'ვერიფიცირებული' : 'დაუმოწმებელი' }}
+                </span>
+              </td>
+              <td>{{ user.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="actions-cell">
+                <button class="action-btn view-btn" (click)="viewUserDetails(user._id!)">
+                  <i class="fa fa-eye"></i>
+                </button>
+                <button class="action-btn edit-btn" (click)="toggleUserVerification(user)">
+                  {{ user.isVerified ? 'გაუქმება' : 'ვერიფიკაცია' }}
+                </button>
+                <button 
+                  class="action-btn delete-btn" 
+                  (click)="deleteUser(user._id!)"
+                  [disabled]="deletingUserId === user._id">
+                  <i class="fa fa-trash"></i>
+                  <span *ngIf="deletingUserId === user._id">...</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- მომხმარებლები ვერ მოიძებნა -->
+        <div *ngIf="filteredUsers.length === 0" class="no-results">
+          მომხმარებლები ვერ მოიძებნა
+        </div>
+      </div>
+
+      <!-- Debug ღილაკი - მხოლოდ development მოდისთვის -->
+      <div class="debug-section" style="margin-top: 20px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+        <h4>Debug Information:</h4>
+        <button (click)="debugSelectedUser()" class="btn btn-info">
+          Console-ში selectedUser-ის შემოწმება
+        </button>
+        <p>selectedUser: {{ selectedUser ? 'არსებობს' : 'null' }}</p>
+        <p>modalLoading: {{ modalLoading }}</p>
+      </div>
+    </section>
+
+    <!-- მომხმარებლის დეტალური ხედვა მოდალში -->
+    <div class="modal" *ngIf="selectedUser || modalLoading" (click)="closeModal($event)">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>მომხმარებლის დეტალები</h3>
+          <button class="close-btn" (click)="closeModal()">&times;</button>
+        </div>
+        
+        <!-- მოდალის ლოდინგ -->
+        <div *ngIf="modalLoading" class="modal-loading">
+          <div class="spinner"></div>
+          <p>მიმდინარეობს დეტალების ჩატვირთვა...</p>
+        </div>
+
+        <!-- მომხმარებლის ინფორმაცია -->
+        <div *ngIf="selectedUser && !modalLoading" class="modal-body">
+          <div class="user-profile">
+            <div class="user-avatar">
+              <img 
+                [src]="selectedUser.profileImage || 'assets/images/default-avatar.jpg'" 
+                alt="მომხმარებლის ფოტო"
+                onerror="this.src='assets/images/default-avatar.jpg'">
+            </div>
+            <div class="user-info">
+              <p><strong>სახელი:</strong> {{ selectedUser.name || '-' }}</p>
+              <p><strong>გვარი:</strong> {{ selectedUser.secondName || '-' }}</p>
+              <p><strong>ელ. ფოსტა:</strong> {{ selectedUser.email || '-' }}</p>
+              <p><strong>ტელეფონი:</strong> {{ selectedUser.phone || '-' }}</p>
+              <p><strong>პირადი ნომერი:</strong> {{ selectedUser.personalNumber || '-' }}</p>
+              <p><strong>დაბადების თარიღი:</strong> 
+                <span *ngIf="selectedUser.dateOfBirth; else noBirthDate">
+                  {{ selectedUser.dateOfBirth | date: 'dd/MM/yyyy' }}
+                </span>
+                <ng-template #noBirthDate>-</ng-template>
+              </p>
+              <p><strong>ვერიფიკაცია:</strong> 
+                <span [ngClass]="selectedUser.isVerified ? 'verified' : 'not-verified'">
+                  {{ selectedUser.isVerified ? 'ვერიფიცირებული' : 'დაუმოწმებელი' }}
+                </span>
+              </p>
+              <p><strong>რეგისტრაციის თარიღი:</strong> {{ selectedUser.createdAt | date: 'dd/MM/yyyy HH:mm' }}</p>  
+            </div>
+          </div>
+        </div>
+
+        <!-- მოდალის ქვედა ნაწილი -->
+        <div *ngIf="selectedUser && !modalLoading" class="modal-footer">
+          <button 
+            class="btn btn-danger" 
+            (click)="deleteUser(selectedUser._id!); closeModal()">
+            მომხმარებლის წაშლა
+          </button>
+          <button 
+            class="btn" 
+            [ngClass]="selectedUser.isVerified ? 'btn-warning' : 'btn-success'"
+            (click)="toggleUserVerification(selectedUser)">
+            {{ selectedUser.isVerified ? 'ვერიფიკაციის გაუქმება' : 'ვერიფიკაცია' }}
+          </button>
+          <button class="btn btn-secondary" (click)="closeModal()">დახურვა</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

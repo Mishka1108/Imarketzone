@@ -1,0 +1,219 @@
+<div class="product-details-container">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p class="loading-text">იტვირთება პროდუქტის დეტალები...</p>
+  </div>
+  
+  <!-- Error State -->
+  <div class="error-container" *ngIf="!isLoading && error">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h2 class="error-title">შეცდომა</h2>
+    <p class="error-message">{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="goBack()" class="error-button">
+      <mat-icon>arrow_back</mat-icon>
+      უკან დაბრუნება
+    </button>
+  </div>
+  
+  <!-- Product Details -->
+  <div class="product-wrapper" *ngIf="!isLoading && product && !error">
+    <!-- Header with Back Button -->
+    <div class="product-header">
+      <button mat-icon-button (click)="goBack()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="page-title">პროდუქტის დეტალები</h1>
+    </div>
+
+    <div class="product-content">
+      <!-- Image Gallery Section with Enhanced Swiper -->
+      <div class="image-gallery-section">
+        <div class="swiper-container">
+          <!-- Main Image Swiper with Zoom -->
+          <swiper-container 
+            class="main-swiper"
+            slides-per-view="1"
+            space-between="10"
+            loop="productImages.length > 1"
+            navigation="true"
+            pagination="{ clickable: true }"
+            zoom="true"
+            grab-cursor="true"
+            keyboard="{ enabled: true }"
+            mousewheel="{ thresholdDelta: 70 }">
+            <swiper-slide *ngFor="let image of productImages; let i = index">
+              <div class="swiper-zoom-container">
+                <div class="main-image-container">
+                  <img 
+                    [src]="image" 
+                    [alt]="product.title + ' - სურათი ' + (i + 1)" 
+                    (error)="onImageError($event)"
+                    (click)="openImageModal(image, i)"
+                    class="main-image zoomable-image"
+                    loading="lazy" />
+                  <div class="zoom-indicator">
+                    <mat-icon>zoom_in</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </swiper-slide>
+          </swiper-container>
+
+          <!-- Thumbnail Navigation -->
+          <div class="thumbnail-container" *ngIf="productImages.length > 1">
+            <div class="thumbnail-wrapper">
+              <div 
+                class="thumbnail-item" 
+                *ngFor="let image of productImages; let i = index"
+                [class.active]="i === currentImageIndex"
+                (click)="changeImage(i)">
+                <img 
+                  [src]="image" 
+                  [alt]="'Thumbnail ' + (i + 1)"
+                  (error)="onThumbnailError($event)"
+                  class="thumbnail-image" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Info Section -->
+      <div class="product-info-section">
+        <mat-card class="product-card">
+          <mat-card-header>
+            <mat-card-title class="product-title">{{ product.title }}</mat-card-title>
+            <mat-card-subtitle class="product-price">{{ formatPrice(product.price) }}</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <!-- Basic Info -->
+            <div class="info-section">
+              <h3 class="section-title">
+                <mat-icon>info</mat-icon>
+                ძირითადი ინფორმაცია
+              </h3>
+              
+              <div class="info-grid">
+                <mat-chip class="info-chip" *ngIf="product.category">
+                  <mat-icon matChipAvatar>category</mat-icon>
+                  {{ product.category }}
+                </mat-chip>
+                
+                <mat-chip class="info-chip" *ngIf="product.year">
+                  <mat-icon matChipAvatar>calendar_today</mat-icon>
+                  {{ product.year}}
+                </mat-chip>
+                
+                <mat-chip class="info-chip" *ngIf="product.cities">
+                  <mat-icon matChipAvatar>location_on</mat-icon>
+                  {{ product.cities }}
+                </mat-chip>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="info-section" *ngIf="product.description">
+              <h3 class="section-title">
+                <mat-icon>description</mat-icon>
+                აღწერა
+              </h3>
+              <div class="description-text">{{ product.description }}</div>
+            </div>
+
+            <!-- Seller Info -->
+            <div class="info-section seller-section">
+              <h3 class="section-title">
+                <mat-icon>person</mat-icon>
+                გამყიდველის ინფორმაცია
+              </h3>
+              
+              <div class="seller-info">
+                <div class="seller-detail" *ngIf="product.userName">
+                  <mat-icon class="seller-icon">account_circle</mat-icon>
+                  <span class="seller-label">სახელი:</span>
+                  <span class="seller-value">{{ product.userName }}</span>
+                </div>
+                
+                <div class="seller-detail" *ngIf="product.phone && product.phone !== 'არ არის მითითებული'">
+                  <mat-icon class="seller-icon">phone</mat-icon>
+                  <span class="seller-label">ტელეფონი:</span>
+                  <span class="seller-value">{{ product.phone }}</span>
+                </div>
+                
+                <div class="seller-detail" *ngIf="product.email && product.email !== 'არ არის მითითებული'">
+                  <mat-icon class="seller-icon">email</mat-icon>
+                  <span class="seller-label">ელ. ფოსტა:</span>
+                  <span class="seller-value">{{ product.email }}</span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+
+          <!-- Contact Actions -->
+          <mat-card-actions class="contact-actions">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              class="contact-button"
+              *ngIf="product.phone && product.phone !== 'არ არის მითითებული'"
+              (click)="callPhone()">
+              <mat-icon>phone</mat-icon>
+              <span>დარეკვა</span>
+            </button>
+            
+            <button 
+              mat-raised-button 
+              color="accent"
+              class="contact-button"
+              *ngIf="product.email && product.email !== 'არ არის მითითებული'"
+              (click)="sendEmail()">
+              <mat-icon>email</mat-icon>
+              <span>იმეილი</span>
+            </button>
+             <button 
+              mat-raised-button 
+              color="accent"
+              class="contact-button"
+              (click)="shareProduct()">
+              <mat-icon>share</mat-icon>
+              <span>გააზიარეთ</span>
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Modal for Full Screen View -->
+  <div class="image-modal" *ngIf="showImageModal" (click)="closeImageModal()">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeImageModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+      
+      <div class="modal-navigation" *ngIf="productImages.length > 1">
+        <button class="nav-button prev" (click)="prevModalImage()" [disabled]="currentModalIndex === 0">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button class="nav-button next" (click)="nextModalImage()" [disabled]="currentModalIndex === productImages.length - 1">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+      
+      <div class="modal-image-container">
+        <img 
+          [src]="productImages[currentModalIndex]" 
+          [alt]="product?.title + ' - სურათი ' + (currentModalIndex + 1)"
+          class="modal-image"
+          (error)="onImageError($event)" />
+      </div>
+      
+      <div class="modal-indicator" *ngIf="productImages.length > 1">
+        {{ currentModalIndex + 1 }} / {{ productImages.length }}
+      </div>
+    </div>
+  </div>
+</div>

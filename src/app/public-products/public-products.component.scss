@@ -1,0 +1,139 @@
+.products-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .products-header {
+    margin-bottom: 20px;
+    
+    h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+      color: #333;
+    }
+  }
+  
+  .search-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    
+    mat-form-field {
+      flex: 1;
+      min-width: 200px;
+      max-width: 300px;
+    }
+    
+    button {
+      height: 52px;
+      margin-top: 4px;
+    }
+  }
+  
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    
+    p {
+      margin-top: 16px;
+      color: #666;
+    }
+  }
+  
+  .no-products {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+  }
+  
+ .products-grid{
+   display: flex ;
+    flex-wrap: wrap;
+    gap: 20px;
+ 
+.card6 {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* ეს უკვე არის თქვენს კოდში */
+  justify-content: center; /* ამ ხაზის დამატება */
+  font-size: 18px;
+  font-weight: bold;
+  background: white;
+  border: 1px solid #aaa;
+  height: 350px;
+  gap: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  transition: transform 0.3s ease-in-out;
+}
+
+  .card6:hover {
+    transform: scale(1.05);  /* Slightly enlarge card on hover */
+  }
+swiper-container {
+  width: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* ამ ხაზის დამატება */
+}
+
+/* ან თუ გსურთ სურათები თავისთავად იყოს ცენტრში */
+swiper-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+  img {
+  margin-top: 10px;
+  width: 150px;
+  height: 175px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+  .name {
+    font-size: 15px;
+    width: 250px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .price {
+    font-size: 16px;
+    color: green;
+    font-weight: bold;
+  }
+
+  .btndiv {
+    display: flex;
+    gap: 15px;
+
+    .icon-button {
+      display: flex;
+      align-items: center;
+      background-color: green;
+      color: white;
+      border-radius: 50%;
+      mat-icon:active{
+        color: red !important;
+      } 
+     
+      &:hover {
+        background-color: darkgreen;
+      }
+    
+
+      mat-icon {
+        color: white;
+      }
+    }
+  }
+}

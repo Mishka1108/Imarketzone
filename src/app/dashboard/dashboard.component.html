@@ -1,0 +1,492 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h1>პროფილის გვერდი</h1>
+  </header>
+  <div class="card-header">
+    <h2>მომხმარებლის ინფორმაცია</h2>
+  </div>
+</div>
+
+<div class="profile">
+  <!-- პირველი კომპონენტი -->
+  <div class="profile-information">
+    <div class="image-upload-container">
+      <!-- გამოსწორებული პროფილის სურათის input ყველა ბრაუზერისთვის -->
+      <input 
+        type="file" 
+        id="profileImageInput" 
+        accept="image/*,image/jpeg,image/jpg,image/png,image/gif,image/webp" 
+        capture="environment"
+        style="position: absolute; left: -9999px; opacity: 0; width: 1px; height: 1px; overflow: hidden;"
+        (change)="onFileSelected($event, 'profile')"
+        #profileInput
+        tabindex="-1"
+      />
+    
+      <!-- ალტერნატიული hidden input ანდროიდისთვის -->
+      <input 
+        type="file" 
+        id="profileImageInputAlt" 
+        accept="image/*" 
+        style="display: none;"
+        (change)="onAlternativeFileSelected($event, 'profile')"
+      />
+
+      <img 
+        [src]="currentUser?.profileImage || 'https://i.ibb.co/GvshXkLK/307ce493-b254-4b2d-8ba4-d12c080d6651.jpg'" 
+        id="profileImagePreview" 
+        class="profileimg" 
+        alt="Profile Image"
+        (click)="triggerFileInput()"
+        style="cursor: pointer;"
+      />
+
+      <!-- ანდროიდისთვის ალტერნატიული ღილაკი -->
+      <label for="profileImageInputAlt" class="android-upload-btn" 
+             style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; font-size: 12px;">
+        📷 ალტერნატიული ფოტო
+      </label>
+
+      <button class="btn" mat-flat-button (click)="logout()">გასვლა</button>
+    </div>
+    
+    <div class="user-info" *ngIf="currentUser">
+      <div class="username">
+        <span class="name">{{currentUser.name}}</span>
+        <span class="name">{{currentUser.secondName}}</span>
+      </div>
+      <div>
+        <p>ტელეფონი: {{currentUser.phone}}</p>
+        <p>ელფოსტა: {{currentUser.email}}</p>
+        <p>პირადი ნომერი: {{currentUser.personalNumber}}</p>
+      </div>
+      
+      <!-- ✅ ENHANCED: Product limit display with loading state -->
+      <div class="user-actions">
+        <div class="product-counter" [class.loading]="isLoadingProducts">
+          <span class="pro">პროდუქტის რაოდენობა:</span>
+          <span class="num" 
+                [ngClass]="{'limit-reached': isProductLimitReached(), 'limit-near': getCurrentProductsCount() >= 4}">
+            <span *ngIf="!isLoadingProducts">{{getCurrentProductsCount()}} / {{MAX_PRODUCTS_ALLOWED}}</span>
+            <span *ngIf="isLoadingProducts">⏳ ტვირთავს...</span>
+          </span>
+        </div>
+        
+        <!-- ✅ ENHANCED: Clear limit status messages -->
+        <div class="limit-status" *ngIf="!isLoadingProducts">
+          <p *ngIf="isProductLimitReached()" class="limit-warning">
+            ⚠️ მიღწეულია პროდუქტების მაქსიმალური რაოდენობა ({{MAX_PRODUCTS_ALLOWED}})!
+          </p>
+          <p *ngIf="!isProductLimitReached() && getCurrentProductsCount() >= 4" class="limit-near-warning">
+            ⚡ მალე მიაღწევთ ლიმიტს! დარჩენილია {{getRemainingProductsCount()}} ადგილი
+          </p>
+          <p *ngIf="canAddMoreProducts() && getCurrentProductsCount() < 4" class="remaining-products">
+            ✅ შეგიძლიათ დაამატოთ კიდევ {{getRemainingProductsCount()}} პროდუქტი
+          </p>
+        </div>
+        
+        <!-- ✅ Loading state for limit status -->
+        <div class="limit-status" *ngIf="isLoadingProducts">
+          <p class="loading-status">🔄 პროდუქტების რაოდენობა მოწმდება...</p>
+        </div>
+      </div>
+      
+      <!-- ✅ ENHANCED: Button with proper disable logic and loading states -->
+      <div class="btndiv">
+        <button 
+          mat-flat-button 
+          class="btn add-product-btn" 
+          (click)="toggleProductForm()" 
+          [disabled]="(!canAddMoreProducts() && !productFormVisible) || isLoadingProducts || isUploading"
+          [ngClass]="{
+            'btn-disabled': (!canAddMoreProducts() && !productFormVisible) || isLoadingProducts,
+            'btn-close': productFormVisible,
+            'btn-add': !productFormVisible && canAddMoreProducts(),
+            'btn-loading': isLoadingProducts
+          }">
+          
+          <!-- Loading states -->
+          <span *ngIf="isLoadingProducts">⏳ ტვირთავს...</span>
+          <span *ngIf="isUploading && !isLoadingProducts">📤 იტვირთება...</span>
+          
+          <!-- Normal states -->
+          <span *ngIf="!isLoadingProducts && !isUploading && productFormVisible">❌ ფორმის დახურვა</span>
+          <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && canAddMoreProducts()">➕ პროდუქტის დამატება</span>
+          <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && !canAddMoreProducts()">🚫 ლიმიტი მიღწეულია</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ ENHANCED: Product form with limit checks -->
+<div class="conteiner">
+  <div class="card3" *ngIf="productFormVisible && canAddMoreProducts()">
+    <!-- ✅ Dynamic header with remaining count -->
+    <h2>შეიყვანეთ პროდუქტის ინფორმაცია 
+      <small>(დარჩენილია {{getRemainingProductsCount()}} ადგილი)</small>
+    </h2>
+    
+    <form [formGroup]="productForm" class="card4" (ngSubmit)="addProduct()">
+      <mat-form-field class="example-full-width">
+        <mat-label>პროდუქტის სახელი</mat-label>
+        <input matInput formControlName="title">
+        <mat-error *ngIf="productForm.controls.title.hasError('required')">
+          სახელი აუცილებელია
+        </mat-error>
+      </mat-form-field>
+      
+      <mat-form-field class="example-full-width">
+        <mat-label>პროდუქტის კატეგორია</mat-label>
+        <input type="text" matInput formControlName="category" [matAutocomplete]="auto">
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option *ngFor="let category of filteredCategories" [value]="category">
+            {{ category }}
+          </mat-option>
+        </mat-autocomplete>
+        <mat-error *ngIf="productForm.controls.category.hasError('required')">
+          კატეგორია აუცილებელია
+        </mat-error>
+      </mat-form-field>
+      
+      <mat-form-field class="example-full-width">
+        <mat-label>გამოშვების წელი</mat-label>
+        <input matInput type="number" formControlName="year">
+        <mat-error *ngIf="productForm.controls.year.hasError('required')">
+          წელი აუცილებელია
+        </mat-error>
+        <mat-error *ngIf="productForm.controls.year.hasError('min') || productForm.controls.year.hasError('max')">
+          მიუთითეთ სწორი წელი (2000-დან დღემდე)
+        </mat-error>
+      </mat-form-field>
+      
+      <mat-form-field class="example-full-width">
+        <mat-label>ფასი</mat-label>
+        <input matInput type="number" formControlName="price">
+        <mat-error *ngIf="productForm.controls.price.hasError('required')">
+          ფასი აუცილებელია
+        </mat-error>
+        <mat-error *ngIf="productForm.controls.price.hasError('min')">
+          ფასი უნდა იყოს დადებითი რიცხვი
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="example-full-width">
+        <mat-label>ტელეფონის ნომერი</mat-label>
+        <input matInput type="tel" formControlName="phone">
+        <mat-error *ngIf="productForm.controls.phone.hasError('required')">
+          ტელეფონის ნომერი აუცილებელია
+        </mat-error>
+        <mat-error *ngIf="productForm.controls.phone.hasError('pattern')">
+          ტელეფონის ნომერი უნდა იყოს 9-დან 15-მდე ციფრი
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="example-full-width">
+        <mat-label>იმეილი</mat-label>
+        <input matInput type="email" formControlName="email">
+        <mat-error *ngIf="productForm.controls.email.hasError('required')">
+          იმეილი აუცილებელია
+        </mat-error>
+        <mat-error *ngIf="productForm.controls.email.hasError('email')">
+          მიუთითეთ სწორი იმეილი
+        </mat-error>
+      </mat-form-field>
+      
+      <mat-form-field class="example-full-width">
+        <mat-label>აღწერა</mat-label>
+        <textarea matInput formControlName="description" rows="4"></textarea>
+        <mat-error *ngIf="productForm.controls.description.hasError('required')">
+          აღწერა აუცილებელია
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="example-full-width">
+        <mat-label>ქალაქი</mat-label>
+        <input type="text" matInput formControlName="city" [matAutocomplete]="autoCity">
+        <mat-autocomplete #autoCity="matAutocomplete">
+          <mat-option *ngFor="let city of filteredCities" [value]="city">
+            {{ city }}
+          </mat-option>
+        </mat-autocomplete>
+        <mat-error *ngIf="productForm.controls['city'].hasError('required')">
+          ქალაქი აუცილებელია
+        </mat-error>
+      </mat-form-field>
+
+      <!-- პროდუქტის სურათის ატვირთვა -->
+      <div class="image-upload-section">
+        <h3>პროდუქტის სურათები (მაქს. 3 სურათი)</h3>
+        
+        <!-- პირველი სურათი -->
+        <div class="image-upload-group">
+          <h4>სურათი 1</h4>
+          <input 
+            type="file" 
+            id="productImageInput1" 
+            accept="image/*,image/jpeg,image/jpg,image/png,image/gif,image/webp" 
+            capture="environment"
+            style="position: absolute; left: -9999px; opacity: 0; width: 1px; height: 1px; overflow: hidden;"
+            (change)="onFileSelected($event, 'product', 0)"
+            #productInput1
+            tabindex="-1"
+          />
+
+          <!-- ალტერნატიული hidden input ანდროიდისთვის -->
+          <input 
+            type="file" 
+            id="productImageInput1Alt" 
+            accept="image/*" 
+            style="display: none;"
+            (change)="onAlternativeFileSelected($event, 'product', 0)"
+          />
+
+          <div class="image-upload-area" (click)="triggerProductImageInput(0)"> 
+            <div *ngIf="!productImagePreviews[0]" class="upload-placeholder">
+              <span class="upload-icon">📷</span>
+              <p>დააჭირეთ პირველი სურათის ასარჩევად</p>
+            </div>
+            <img *ngIf="productImagePreviews[0]" [src]="productImagePreviews[0]" class="product-image-preview" alt="Product Preview 1" />
+            <button *ngIf="productImagePreviews[0]" type="button" class="remove-image-btn" (click)="removeProductImage(0); $event.stopPropagation()">
+              ✕
+            </button>
+          </div>
+
+          <!-- ანდროიდისთვის ალტერნატიული ღილაკი -->
+          <label for="productImageInput1Alt" class="android-upload-btn" 
+                style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; font-size: 12px;">
+            📷 ალტ. სურათი 1
+          </label>
+        </div>
+
+        <!-- მეორე სურათი -->
+        <div class="image-upload-group">
+          <h4>სურათი 2</h4>
+          <input 
+            type="file" 
+            id="productImageInput2" 
+            accept="image/*,image/jpeg,image/jpg,image/png,image/gif,image/webp" 
+            capture="environment"
+            style="position: absolute; left: -9999px; opacity: 0; width: 1px; height: 1px; overflow: hidden;"
+            (change)="onFileSelected($event, 'product', 1)"
+            #productInput2
+            tabindex="-1"
+          />
+
+          <!-- ალტერნატიული hidden input ანდროიდისთვის -->
+          <input 
+            type="file" 
+            id="productImageInput2Alt" 
+            accept="image/*" 
+            style="display: none;"
+            (change)="onAlternativeFileSelected($event, 'product', 1)"
+          />
+
+          <div class="image-upload-area" (click)="triggerProductImageInput(1)"> 
+            <div *ngIf="!productImagePreviews[1]" class="upload-placeholder">
+              <span class="upload-icon">📷</span>
+              <p>დააჭირეთ მეორე სურათის ასარჩევად</p>
+            </div>
+            <img *ngIf="productImagePreviews[1]" [src]="productImagePreviews[1]" class="product-image-preview" alt="Product Preview 2" />
+            <button *ngIf="productImagePreviews[1]" type="button" class="remove-image-btn" (click)="removeProductImage(1); $event.stopPropagation()">
+              ✕
+            </button>
+          </div>
+
+          <!-- ანდროიდისთვის ალტერნატიული ღილაკი -->
+          <label for="productImageInput2Alt" class="android-upload-btn" 
+                style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; font-size: 12px;">
+            📷 ალტ. სურათი 2
+          </label>
+        </div>
+
+        <!-- მესამე სურათი -->
+        <div class="image-upload-group">
+          <h4>სურათი 3</h4>
+          <input 
+            type="file" 
+            id="productImageInput3" 
+            accept="image/*,image/jpeg,image/jpg,image/png,image/gif,image/webp" 
+            capture="environment"
+            style="position: absolute; left: -9999px; opacity: 0; width: 1px; height: 1px; overflow: hidden;"
+            (change)="onFileSelected($event, 'product', 2)"
+            #productInput3
+            tabindex="-1"
+          />
+
+          <!-- ალტერნატიული hidden input ანდროიდისთვის -->
+          <input 
+            type="file" 
+            id="productImageInput3Alt" 
+            accept="image/*" 
+            style="display: none;"
+            (change)="onAlternativeFileSelected($event, 'product', 2)"
+          />
+
+          <div class="image-upload-area" (click)="triggerProductImageInput(2)"> 
+            <div *ngIf="!productImagePreviews[2]" class="upload-placeholder">
+              <span class="upload-icon">📷</span>
+              <p>დააჭირეთ მესამე სურათის ასარჩევად</p>
+            </div>
+            <img *ngIf="productImagePreviews[2]" [src]="productImagePreviews[2]" class="product-image-preview" alt="Product Preview 3" />
+            <button *ngIf="productImagePreviews[2]" type="button" class="remove-image-btn" (click)="removeProductImage(2); $event.stopPropagation()">
+              ✕
+            </button>
+          </div>
+
+          <!-- ანდროიდისთვის ალტერნატიული ღილაკი -->
+          <label for="productImageInput3Alt" class="android-upload-btn" 
+                style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; font-size: 12px;">
+            📷 ალტ. სურათი 3
+          </label>
+        </div>
+
+        <!-- სურათების სტატისტიკა -->
+        <div class="image-upload-stats" style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+          <p><strong>ატვირთული სურათები: {{getUploadedImagesCount()}} / {{MAX_PRODUCT_IMAGES}}</strong></p>
+          <p *ngIf="!hasProductImages()" style="color: #ff9800;">
+            ⚠️ მინიმუმ ერთი სურათი აუცილებელია
+          </p>
+          <p *ngIf="hasProductImages()" style="color: #4caf50;">
+            ✅ სურათები წარმატებით ატვირთულია
+          </p>
+        </div>
+      </div>
+      
+      <!-- ✅ ENHANCED: Form actions with double-check and loading states -->
+      <div class="form-actions">
+        <button 
+          mat-flat-button 
+          type="submit" 
+          class="btn submit-btn" 
+          [disabled]="productForm.invalid || isUploading || isCompressing || !canAddMoreProducts() || !hasProductImages()">
+          
+          <span *ngIf="isCompressing">🖼️ სურათი იკუმშება...</span>
+          <span *ngIf="isUploading && !isCompressing">📤 პროდუქტი იტვირთება...</span>
+          <span *ngIf="!isUploading && !isCompressing">🎯 პროდუქტის დამატება ({{getRemainingProductsCount()}} ადგილი)</span>
+        </button>
+        <button mat-flat-button type="button" class="btn cancel-btn" (click)="toggleProductForm()" [disabled]="isUploading || isCompressing">
+          ❌ გაუქმება
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <!-- ✅ NEW: Message when form is hidden due to limit -->
+  <div class="card3 limit-reached-card" *ngIf="productFormVisible && !canAddMoreProducts()" style="text-align: center; padding: 30px; background: #fff3cd; border: 2px solid #ffc107;">
+    <h2 style="color: #856404;">🚫 პროდუქტების ლიმიტი მიღწეულია!</h2>
+    <p style="color: #856404; font-size: 16px;">
+      თქვენ უკვე გაქვთ {{MAX_PRODUCTS_ALLOWED}} პროდუქტი. ახლის დასამატებლად, პირველ ყვეყანაზე წაშალეთ რომელიმე არსებული პროდუქტი.
+    </p>
+    <button mat-flat-button class="btn" (click)="toggleProductForm()" style="background: #ffc107; color: #856404;">
+      ✅ გასაგებია
+    </button>
+  </div>
+</div>
+
+<!-- ✅ ENHANCED: Products section header with clear count and loading state -->
+<div class="products-header" style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
+  <h2 class="userproducts">ჩემი პროდუქტები</h2> 
+  <div class="products-count" style="background: #e3f2fd; padding: 8px 16px; border-radius: 20px; font-weight: bold;">
+    <span *ngIf="!isLoadingProducts">📦 {{getCurrentProductsCount()}} / {{MAX_PRODUCTS_ALLOWED}} პროდუქტი</span>
+    <span *ngIf="isLoadingProducts">⏳ ტვირთავს...</span>
+  </div>
+</div>
+
+<!-- ✅ Loading indicator for products -->
+<div class="products-loading" *ngIf="isLoadingProducts" style="text-align: center; padding: 40px;">
+  <mat-progress-spinner diameter="50" color="primary" mode="indeterminate"></mat-progress-spinner>
+  <p style="margin-top: 15px; color: #666;">🔄 პროდუქტები იტვირთება...</p>
+</div>
+
+<!-- User products display -->
+<div class="user-products-section" *ngIf="userProducts.length > 0 && !isLoadingProducts">
+  <div class="products-grid">
+    <div class="product-card" *ngFor="let product of userProducts; trackBy: trackByProductId" (click)="openProductDetails(getProductId(product))">
+      
+      <!-- სურათების სლაიდერი -->
+      <div class="product-images">
+        <swiper-container 
+          slides-per-view="1" 
+          pagination="true" 
+          navigation="true"
+          class="product-swiper">
+          
+          <swiper-slide *ngFor="let image of getAllProductImages(product); let i = index; trackBy: trackByImageUrl">
+            <img [src]="image" 
+                 class="swiperimage" 
+                 [alt]="product.title + ' - სურათი ' + (i + 1)"
+                 (error)="onImageError($event)">
+          </swiper-slide>
+          
+          <!-- თუ სურათი არ არის, default image -->
+          <swiper-slide *ngIf="getAllProductImages(product).length === 0">
+            <img src="/assets/default-product.jpg" 
+                 class="swiperimage" 
+                 [alt]="product.title + ' - default სურათი'">
+          </swiper-slide>
+          
+        </swiper-container>
+        
+        <!-- სურათების რაოდენობის მაჩვენებელი -->
+        <ng-container *ngIf="getAllProductImages(product) as images">
+          <div class="image-counter" *ngIf="images.length > 1">
+            {{ images.length }} სურათი
+          </div>
+        </ng-container>
+      </div>
+      
+      <!-- პროდუქტის ინფორმაცია -->
+      <div class="product-info">
+        <h3>{{ product.title }}</h3>
+        <p class="product-category">{{ product.category }}</p>
+        <p class="product-price">{{ product.price }} ₾</p>
+        <p class="product-year">წელი: {{ product.year }}</p>
+        <p class="product-location">{{ product.cities }}</p>
+        <p class="product-date">დამატებულია: {{ formatDate(product.createdAt) }}</p>
+      </div>
+      
+      <!-- მოქმედების ღილაკები -->
+      <div class="product-actions">
+        <button mat-flat-button class="delete-btn" (click)="deleteProduct(product._id!); $event.stopPropagation()">
+          🗑️ წაშლა
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ NEW: Empty state when no products and not loading -->
+<div class="no-products-message" *ngIf="userProducts.length === 0 && !isLoadingProducts" style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px; margin: 20px 0;">
+  <div style="font-size: 64px; margin-bottom: 20px;">📦</div>
+  <h3 style="color: #6c757d; margin-bottom: 15px;">პროდუქტები ჯერ არ გაქვთ დამატებული</h3>
+  <p style="color: #6c757d; margin-bottom: 20px;">
+    შეგიძლიათ დაამატოთ მაქსიმუმ {{MAX_PRODUCTS_ALLOWED}} პროდუქტი
+  </p>
+  <button 
+    mat-flat-button 
+    class="btn" 
+    (click)="toggleProductForm()" 
+    *ngIf="canAddMoreProducts()"
+    style="background: #007bff; color: white; padding: 12px 24px;">
+    ➕ პირველი პროდუქტის დამატება
+  </button>
+</div>
+
+<!-- ✅ ENHANCED: Global loading overlay for uploads -->
+<div class="loading-overlay" *ngIf="(isUploading || isCompressing) && !isLoadingProducts" 
+     style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+  <div class="loading-spinner" style="text-align: center; color: white; background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px);">
+    <mat-progress-spinner diameter="60" color="primary" mode="indeterminate"></mat-progress-spinner>
+    <div style="margin-top: 20px;">
+      <h3 style="color: white; margin-bottom: 10px;">
+        <span *ngIf="isCompressing">🖼️ სურათები იკუმშება</span>
+        <span *ngIf="isUploading && !isCompressing">📤 პროდუქტი იტვირთება</span>
+      </h3>
+      <p style="color: #ccc; font-size: 14px;">
+        <span *ngIf="isCompressing">გთხოვთ მოითმინოთ, სურათები მუშავდება...</span>
+        <span *ngIf="isUploading && !isCompressing">მონაცემები სერვერზე იგზავნება...</span>
+      </p>
+    </div>
+  </div>
+</div>

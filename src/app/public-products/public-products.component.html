@@ -1,0 +1,80 @@
+<div class="products-container">
+  <header class="products-header">
+    <h1>ყველა პროდუქტი</h1>
+    <div class="search-filters">
+      <mat-form-field appearance="outline">
+        <mat-label>ძიება</mat-label>
+        <input matInput [(ngModel)]="searchTerm" (keyup.enter)="applyFilters()">
+        <button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="გასუფთავება" (click)="clearSearch()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline">
+        <mat-label>კატეგორია</mat-label>
+        <mat-select [(ngModel)]="selectedCategory" (selectionChange)="applyFilters()">
+          <mat-option [value]="">ყველა კატეგორია</mat-option>
+          <mat-option *ngFor="let category of categories" [value]="category">
+            {{ category }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline">
+        <mat-label>ქალაქი</mat-label>
+        <input type="text"
+               matInput
+               [matAutocomplete]="auto"
+               [(ngModel)]="selectedCity"
+               (ngModelChange)="applyFilters()" />
+        <mat-autocomplete #auto="matAutocomplete" autoActiveFirstOption>
+          <mat-option [value]="">ყველა ქალაქი</mat-option>
+          <mat-option *ngFor="let city of filteredCities" [value]="city">
+            {{ city }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline">
+        <mat-label>ფასი (მინ)</mat-label>
+        <input matInput type="number" [(ngModel)]="minPrice" (change)="applyFilters()">
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline">
+        <mat-label>ფასი (მაქს)</mat-label>
+        <input matInput type="number" [(ngModel)]="maxPrice" (change)="applyFilters()">
+      </mat-form-field>
+      
+      <button mat-raised-button color="primary" (click)="applyFilters()">ძიება</button>
+      <button mat-raised-button color="accent" (click)="resetFilters()">გასუფთავება</button>
+    </div>
+  </header>
+  
+  <div class="loading" *ngIf="isLoading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>იტვირთება პროდუქტები...</p>
+  </div>
+  
+  <div class="no-products" *ngIf="!isLoading && products.length === 0">
+    <p>პროდუქტები ვერ მოიძებნა ან არ არის დამატებული</p>
+  </div>
+  
+  <div class="products-grid" *ngIf="!isLoading && products.length > 0">
+    <div class="card6" *ngFor="let pro of products" (click)="openProductDetails(pro)">
+      
+      <!-- სურათების swiper - გამოიყენება getAllProductImages ფუნქცია -->
+      <swiper-container navigation="true" pagination="true" (click)="$event.stopPropagation()">
+        <swiper-slide *ngFor="let image of getAllProductImages(pro)">
+          <img [src]="image" class="swiperimage" [alt]="pro.title">
+        </swiper-slide>
+        <!-- თუ არ არის სურათები, ნაჩვენები იქნება placeholder -->
+      </swiper-container>
+      
+      <span class="name">{{pro.title}}</span>
+      <span class="price">{{pro.price}} ₾</span>
+      <span class="city">{{pro.cities}}</span>
+      
+      <!-- სურათების რაოდენობის ჩვენება (არჩევითი) -->
+    </div>
+  </div>
+</div>
