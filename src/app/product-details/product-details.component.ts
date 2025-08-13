@@ -1,3 +1,4 @@
+import { Title, Meta } from '@angular/platform-browser';
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
@@ -44,8 +45,26 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     private router: Router,
     private productService: ProductService,
     private location: Location,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private titleService: Title,
+  private metaService: Meta
   ) {}
+  
+
+  private setSEOData(product: Product): void {
+  const title = `${product.title} | Imarketzone`;
+  const description = product.description || 'იყიდება პროდუქტი Imarketzone-ზე საუკეთესო ფასად.';
+  const image = product.image || 'https://www.imarketzone.ge/assets/images/placeholder.jpg';
+  const url = window.location.href;
+
+  this.titleService.setTitle(title);
+
+  this.metaService.updateTag({ name: 'description', content: description });
+  this.metaService.updateTag({ property: 'og:title', content: title });
+  this.metaService.updateTag({ property: 'og:description', content: description });
+  this.metaService.updateTag({ property: 'og:image', content: image });
+  this.metaService.updateTag({ property: 'og:url', content: url });
+}
 
   ngOnInit(): void {
     console.log('=== PRODUCT DETAILS DEBUG START ===');
@@ -163,6 +182,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
           this.product = matchedProduct;
           if (this.product) {
             this.productImages = this.getAllProductImages(this.product);
+            this.setSEOData(this.product);
           }
           this.isLoading = false;
         } else {

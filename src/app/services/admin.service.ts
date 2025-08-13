@@ -10,6 +10,12 @@ import { AdminAuthService } from './admin-auth.service';
   providedIn: 'root'
 })
 export class AdminService {
+  getUserProducts(userId: string) {
+    throw new Error('Method not implemented.');
+  }
+  removeProductFromUser(arg0: string, productId: string) {
+    throw new Error('Method not implemented.');
+  }
   private apiUrl = environment.apiUrl;
   
   constructor(
