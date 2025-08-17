@@ -1,0 +1,107 @@
+// sitemap.service.ts - Angular 19 compatible
+import { Injectable, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SitemapService {
+  private document = inject(DOCUMENT);
+  private readonly baseUrl = 'https://imarketzone.com'; 
+
+  private readonly categories = [
+    'ტელეფონები',
+    'ტექნიკა', 
+    'ავტომობილები',
+    'ტანსაცმელი',
+    'სათამაშოები',
+    'კომპიუტერები'
+  ] as const;
+
+  generateSitemap(): string {
+    const now = new Date().toISOString().split('T')[0];
+    
+    const urls = [
+      // Home page
+      {
+        loc: this.baseUrl + '/',
+        lastmod: now,
+        changefreq: 'daily',
+        priority: '1.0'
+      },
+      // Category pages
+      ...this.categories.map(category => ({
+        loc: `${this.baseUrl}/public-products?category=${encodeURIComponent(category)}`,
+        lastmod: now,
+        changefreq: 'daily',
+        priority: '0.8'
+      })),
+      // Other pages
+      {
+        loc: this.baseUrl + '/login',
+        lastmod: now,
+        changefreq: 'monthly',
+        priority: '0.6'
+      },
+      {
+        loc: this.baseUrl + '/register',
+        lastmod: now,
+        changefreq: 'monthly',
+        priority: '0.6'
+      }
+    ];
+
+    const urlsXml = urls.map(url => 
+      `  <url>
+    <loc>${url.loc}</loc>
+    <lastmod>${url.lastmod}</lastmod>
+    <changefreq>${url.changefreq}</changefreq>
+    <priority>${url.priority}</priority>
+  </url>`
+    ).join('\n');
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlsXml}
+</urlset>`;
+  }
+
+  downloadSitemap(): void {
+    const sitemap = this.generateSitemap();
+    const blob = new Blob([sitemap], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = this.document.createElement('a');
+    link.href = url;
+    link.download = 'sitemap.xml';
+    link.click();
+    
+    URL.revokeObjectURL(url);
+  }
+
+  generateRobotsTxt(): string {
+    return `User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/auth/
+Disallow: /user/
+
+Sitemap: ${this.baseUrl}/sitemap.xml
+
+# Georgian marketplace - ყიდვა გაყიდვა`;
+  }
+
+  downloadRobotsTxt(): void {
+    const robotsTxt = this.generateRobotsTxt();
+    const blob = new Blob([robotsTxt], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = this.document.createElement('a');
+    link.href = url;
+    link.download = 'robots.txt';
+    link.click();
+    
+    URL.revokeObjectURL(url);
+  }
+}

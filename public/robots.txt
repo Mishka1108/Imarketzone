@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Block admin and private areas
+Disallow: /admin/
+Disallow: /private/
+Disallow: /api/auth/
+Disallow: /user/profile/edit
+Disallow: /dashboard/
+
+# Allow important pages
+Allow: /public-products
+Allow: /login
+Allow: /register
+
+# Georgian marketplace - ყიდვა გაყიდვა საქართველოში
+# Online marketplace for buying and selling
+
+Sitemap: https://imarketzone.ge/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
