@@ -29,6 +29,16 @@
               "src/favicon.ico",
               "src/assets",
               {
+                "glob": "googlef5ab51a0fe7b5e75",
+                "input": "public",
+                "output": "/"
+              },
+              {
+                "glob": "tec72lg3e6hv",
+                "input": "public",
+                "output": "/"
+              },
+              {
                 "glob": "sitemap.xml",
                 "input": "public",
                 "output": "/"
