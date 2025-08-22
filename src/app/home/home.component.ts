@@ -1,3 +1,5 @@
+// home.component.ts - განახლებული ნაწილი
+
 import { Component, OnInit, HostListener } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
@@ -17,10 +19,9 @@ export class HomeComponent implements OnInit {
   searchQuery: string = '';
   showSuggestions: boolean = false;
   filteredSuggestions: any[] = [];
-  allProducts: any[] = []; // Real products from API
+  allProducts: any[] = []; 
   isLoadingProducts: boolean = false;
   
-  // Sample data - you can replace with real data from API
   categories: string[] = [
     'ტელეფონები', 'ტექნიკა', 'ავტომობილები', 'ტანსაცმელი', 
     'სათამაშოები', 'კომპიუტერები', 'სპორტი', 'წიგნები'
@@ -33,11 +34,109 @@ export class HomeComponent implements OnInit {
   ) {}
   
   ngOnInit() {
-    // Load real products
     this.loadAllProducts();
   }
 
-  // Load products from API
+  // ✅ განახლებული selectProduct მეთოდი - პროდუქტის დეტალებზე გადასვლით
+  selectProduct(product: any): void {
+    console.log('პროდუქტი არჩეულია:', product);
+    this.searchQuery = product.title;
+    this.showSuggestions = false;
+    
+    // ✅ პროდუქტის URL-ის გენერირება title-ის მიხედვით
+    const productUrl = this.generateProductUrl(product.title);
+    console.log('გადავდივართ URL-ზე:', productUrl);
+    
+    // ✅ პროდუქტის დეტალების გვერდზე გადასვლა
+    this.router.navigate([productUrl]).then(success => {
+      if (success) {
+        console.log('✅ წარმატებით გადავედით პროდუქტის დეტალებზე');
+      } else {
+        console.error('❌ გადასვლა ვერ მოხერხდა, ვცადოთ ალტერნატიული გზა');
+        // ალტერნატიული გზა - ID-ს გამოყენებით (თუ არსებობს)
+        if (product._id || product.id) {
+          this.router.navigate(['/product-details', product._id || product.id]);
+        }
+      }
+    }).catch(error => {
+      console.error('გადასვლის შეცდომა:', error);
+    });
+  }
+
+  // ✅ პროდუქტის URL-ის გენერირების მეთოდი (ProductDetailsComponent-ის მსგავსად)
+  private generateProductUrl(title: string): string {
+    const slug = title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s\-ა-ჰ]/g, '') // სპეციალური სიმბოლოების წაშლა
+      .replace(/\s+/g, '-')         // სივრცეების ჩანაცვლება ტირეებით
+      .replace(/\-+/g, '-')        // მრავალი ტირის ერთით ჩანაცვლება
+      .replace(/^-+|-+$/g, '');    // პირველი და ბოლო ტირეების წაშლა
+    
+    // URL encoding ქართული ტექსტისთვის
+    const encodedSlug = encodeURIComponent(slug);
+    
+    return `/product-details/${encodedSlug}`;
+  }
+
+  // ✅ ალტერნატიული მეთოდი - მხოლოდ ID-ს გამოყენებით (საჭიროების შემთხვევაში)
+  navigateToProductById(productId: string): void {
+    this.router.navigate(['/product-details', productId]);
+  }
+
+  // ✅ ალტერნატიული მეთოდი - როუტინგის query params-ით
+  navigateToProductWithParams(product: any): void {
+    this.router.navigate(['/product-details'], {
+      queryParams: {
+        id: product._id || product.id,
+        title: product.title,
+        slug: this.generateSlug(product.title)
+      }
+    });
+  }
+
+  // ✅ slug-ის გენერირება
+  private generateSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s\-ა-ჰ]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/\-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  // ✅ განახლებული onSearch მეთოდი (უცვლელი)
+  onSearch(): void {
+    if (this.searchQuery.trim()) {
+      this.scrollToTop();
+      this.showSuggestions = false;
+      console.log(`ძებნა: ${this.searchQuery}`);
+      
+      this.seoService.updatePageSEO('search', this.searchQuery);
+      this.router.navigate(['/public-products'], { 
+        queryParams: { search: this.searchQuery.trim() } 
+      });
+    }
+  }
+
+  // ✅ selectCategory მეთოდი (უცვლელი)
+  selectCategory(category: string): void {
+    this.searchQuery = category;
+    this.showSuggestions = false;
+    this.onCategoryClick(category);
+  }
+
+  onCategoryClick(category: string): void {
+    this.scrollToTop();
+    console.log(`კატეგორია დაჭერილია: ${category}`);
+    this.seoService.updatePageSEO('category', category);
+    this.router.navigate(['/public-products'], { 
+      queryParams: { category: category } 
+    });
+  }
+
+  // დანარჩენი მეთოდები იგივეა...
   private loadAllProducts(): void {
     if (this.isLoadingProducts) {
       console.log('Already loading products, skipping...');
@@ -51,7 +150,6 @@ export class HomeComponent implements OnInit {
       next: (response: any) => {
         console.log('Raw API Response:', response);
         
-        // Handle different response formats
         let products = [];
         if (response.products) {
           products = response.products;
@@ -69,7 +167,6 @@ export class HomeComponent implements OnInit {
         console.log('Successfully loaded products:', this.allProducts.length);
         console.log('Sample product:', this.allProducts[0]);
         
-        // Update suggestions if we have a search query
         if (this.searchQuery.trim().length > 0) {
           this.updateSuggestions();
         }
@@ -78,21 +175,24 @@ export class HomeComponent implements OnInit {
         console.error('Error loading products:', error);
         this.isLoadingProducts = false;
         
-        // Fallback to sample data for testing
+        // Fallback data
         this.allProducts = [
           { 
+            _id: '1',
             title: 'Samsung Galaxy S24', 
             image: 'https://via.placeholder.com/40', 
             category: 'ტელეფონები',
             price: 1200 
           },
           { 
+            _id: '2',
             title: 'iPhone 15 Pro', 
             image: 'https://via.placeholder.com/40', 
             category: 'ტელეფონები',
             price: 1500 
           },
           { 
+            _id: '3',
             title: 'MacBook Pro', 
             image: 'https://via.placeholder.com/40', 
             category: 'კომპიუტერები',
@@ -102,7 +202,6 @@ export class HomeComponent implements OnInit {
         
         console.log('Using fallback products:', this.allProducts.length);
         
-        // Update suggestions if we have a search query
         if (this.searchQuery.trim().length > 0) {
           this.updateSuggestions();
         }
@@ -110,7 +209,6 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  // Close suggestions when clicking outside
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: any) {
     const searchContainer = document.querySelector('.search-container');
@@ -123,7 +221,6 @@ export class HomeComponent implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Handle search input changes
   onSearchInput(event: any): void {
     const value = event.target.value;
     this.searchQuery = value;
@@ -135,13 +232,11 @@ export class HomeComponent implements OnInit {
     if (value.trim().length > 0) {
       this.showSuggestions = true;
       
-      // If products are not loaded yet, try to load them
       if (this.allProducts.length === 0 && !this.isLoadingProducts) {
         console.log('Products not loaded yet, loading...');
         this.loadAllProducts();
       }
       
-      // Update suggestions anyway (will show categories at least)
       this.updateSuggestions();
     } else {
       this.showSuggestions = false;
@@ -149,7 +244,6 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  // Update suggestions based on search query
   private updateSuggestions(): void {
     const query = this.searchQuery.toLowerCase();
     const categories = this.getFilteredCategories();
@@ -163,7 +257,6 @@ export class HomeComponent implements OnInit {
     this.filteredSuggestions = [...categories, ...products];
   }
 
-  // Get filtered categories
   getFilteredCategories(): string[] {
     if (!this.searchQuery.trim()) return [];
     const query = this.searchQuery.toLowerCase();
@@ -172,7 +265,6 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  // Get filtered products
   getFilteredProducts(): any[] {
     if (!this.searchQuery.trim()) {
       console.log('No search query, returning empty array');
@@ -188,13 +280,8 @@ export class HomeComponent implements OnInit {
     console.log(`Searching for "${query}" in ${this.allProducts.length} products`);
     
     const filtered = this.allProducts.filter(product => {
-      // Check title
       const titleMatch = product.title && product.title.toLowerCase().includes(query);
-      
-      // Check description
       const descriptionMatch = product.description && product.description.toLowerCase().includes(query);
-      
-      // Check category
       const categoryMatch = product.category && product.category.toLowerCase().includes(query);
       
       const isMatch = titleMatch || descriptionMatch || categoryMatch;
@@ -207,24 +294,9 @@ export class HomeComponent implements OnInit {
     });
     
     console.log(`Found ${filtered.length} matching products:`, filtered.map(p => p.title));
-    return filtered.slice(0, 5); // Show max 5 suggestions
+    return filtered.slice(0, 5);
   }
 
-  // Select category from suggestions
-  selectCategory(category: string): void {
-    this.searchQuery = category;
-    this.showSuggestions = false;
-    this.onCategoryClick(category);
-  }
-
-  // Select product from suggestions
-  selectProduct(product: any): void {
-    this.searchQuery = product.title;
-    this.showSuggestions = false;
-    this.onSearch();
-  }
-
-  // Helper method to get product image
   getProductImage(product: any): string {
     if (product.images && product.images.length > 0) {
       return product.images[0];
@@ -235,39 +307,10 @@ export class HomeComponent implements OnInit {
     return 'https://via.placeholder.com/40?text=No+Image';
   }
 
-  // Handle image error
   onImageError(event: any): void {
     event.target.src = 'https://via.placeholder.com/40?text=No+Image';
   }
 
-  // Main search function
-  onSearch(): void {
-    if (this.searchQuery.trim()) {
-      this.scrollToTop();
-      this.showSuggestions = false;
-      console.log(`ძებნა: ${this.searchQuery}`);
-      
-      // SEO განახლება ძებნისთვის
-      this.seoService.updatePageSEO('search', this.searchQuery);
-      
-      // გადავიდეთ პროდუქტების გვერდზე ძებნის ქუერით
-      this.router.navigate(['/public-products'], { 
-        queryParams: { search: this.searchQuery.trim() } 
-      });
-    }
-  }
-
-  onCategoryClick(category: string): void {
-    this.scrollToTop();
-    console.log(`კატეგორია დაჭერილია: ${category}`);
-    // SEO განახლება კატეგორიის მიხედვით
-    this.seoService.updatePageSEO('category', category);
-    // გადავიდეთ პროდუქტების გვერდზე არჩეული კატეგორიით
-    this.router.navigate(['/public-products'], { 
-      queryParams: { category: category } 
-    });
-  }
-  
   private addStructuredData(): void {
     const structuredData = {
       "@context": "https://schema.org",

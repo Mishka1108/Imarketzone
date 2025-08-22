@@ -5,75 +5,86 @@
         <p class="text">თქვენთვის საუკეთესო ონლაინ მარკეტპლეისი სადაც შეგიძლიათ იყიდოთ და გაყიდოთ ნებისმიერი პროდუქცია</p>
         
         <!-- ძებნის სექცია -->
-        <div class="search-section">
-            <div class="search-container">
-                <input type="text" 
-                       placeholder="რისი ძებნა გინდათ?" 
-                       [(ngModel)]="searchQuery" 
-                       (input)="onSearchInput($event)"
-                       (keyup.enter)="onSearch()"
-                       (focus)="showSuggestions = true"
-                       class="search-input">
-                <button mat-flat-button (click)="onSearch()" class="search-button">
-                    <span class="material-icons">search</span>
-                </button>
-                
-                <!-- Suggestions dropdown -->
-                <div class="suggestions-dropdown" *ngIf="showSuggestions && searchQuery.trim().length > 0">
-                    
-                    <!-- Loading state -->
-                    <div class="suggestions-section" *ngIf="isLoadingProducts">
-                        <div class="loading-item">
-                            <span class="material-icons">refresh</span>
-                            <span>იტვირთება...</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Categories section -->
-                    <div class="suggestions-section" *ngIf="getFilteredCategories().length > 0">
-                        <h4>მოძებნე კატეგორიით</h4>
-                        <div class="category-suggestions">
-                            <div class="suggestion-item category-item" 
-                                 *ngFor="let category of getFilteredCategories()" 
-                                 (click)="selectCategory(category)">
-                                <span class="material-icons">folder</span>
-                                <span>{{category}}</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Products section -->
-                    <div class="suggestions-section" *ngIf="getFilteredProducts().length > 0 && !isLoadingProducts">
-                        <h4>ნაფოვნი პროდუქტი ({{getFilteredProducts().length}})</h4>
-                        <div class="product-suggestions">
-                            <div class="suggestion-item product-item" 
-                                 *ngFor="let product of getFilteredProducts()" 
-                                 (click)="selectProduct(product)">
-                                <img [src]="getProductImage(product)" 
-                                     alt="{{product.title}}" 
-                                     class="product-image"
-                                     (error)="onImageError($event)">
-                                <div class="product-info">
-                                    <span class="product-title">{{product.title}}</span>
-                                    <span class="product-price" *ngIf="product.price">{{product.price}} ₾</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Debug info (remove in production) -->
-                   
-                    
-                    <!-- No results message -->
-                    <div class="suggestions-section" *ngIf="!isLoadingProducts && getFilteredCategories().length === 0 && getFilteredProducts().length === 0 && searchQuery.trim().length > 0">
-                        <div class="no-results">
-                            <span class="material-icons">search_off</span>
-                            <span>პროდუქტი ვერ მოიძებნა</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="search-section">
+  <div class="search-container">
+    <input type="text" 
+           placeholder="რისი ძებნა გინდათ?" 
+           [(ngModel)]="searchQuery" 
+           (input)="onSearchInput($event)"
+           (keyup.enter)="onSearch()"
+           (focus)="showSuggestions = true"
+           class="search-input">
+    <button mat-flat-button (click)="onSearch()" class="search-button">
+      <span class="material-icons">search</span>
+    </button>
+    
+    <!-- Suggestions dropdown -->
+    <div class="suggestions-dropdown" *ngIf="showSuggestions && searchQuery.trim().length > 0">
+      
+      <!-- Loading state -->
+      <div class="suggestions-section" *ngIf="isLoadingProducts">
+        <div class="loading-item">
+          <span class="material-icons">refresh</span>
+          <span>იტვირთება...</span>
         </div>
+      </div>
+      
+      <!-- Categories section -->
+      <div class="suggestions-section" *ngIf="getFilteredCategories().length > 0">
+        <h4>მოძებნე კატეგორიით</h4>
+        <div class="category-suggestions">
+          <div class="suggestion-item category-item" 
+               *ngFor="let category of getFilteredCategories()" 
+               (click)="selectCategory(category)"
+               role="button"
+               tabindex="0"
+               [attr.aria-label]="'კატეგორია: ' + category">
+            <span class="material-icons">folder</span>
+            <span>{{category}}</span>
+            <span class="material-icons category-arrow">arrow_forward_ios</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ✅ განახლებული Products section - უკეთესი UI-ით -->
+      <div class="suggestions-section" *ngIf="getFilteredProducts().length > 0 && !isLoadingProducts">
+        <h4>ნაფოვნი პროდუქტი ({{getFilteredProducts().length}})</h4>
+        <div class="product-suggestions">
+          <div class="suggestion-item product-item clickable-product" 
+               *ngFor="let product of getFilteredProducts()" 
+               (click)="selectProduct(product)"
+               role="button"
+               tabindex="0"
+               [attr.aria-label]="'პროდუქტი: ' + product.title + ', ფასი: ' + (product.price ? product.price + ' ლარი' : 'ფასი არ არის მითითებული')"
+               (keydown.enter)="selectProduct(product)"
+               (keydown.space)="selectProduct(product)">
+            <img [src]="getProductImage(product)" 
+                 alt="{{product.title}}" 
+                 class="product-image"
+                 (error)="onImageError($event)">
+            <div class="product-info">
+              <span class="product-title" [title]="product.title">{{product.title}}</span>
+              <span class="product-price" *ngIf="product.price">{{product.price}} ₾</span>
+              <span class="product-category" *ngIf="product.category">{{product.category}}</span>
+            </div>
+            <div class="product-action">
+              <span class="material-icons">arrow_forward_ios</span>
+              <span class="action-text">დეტალები</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- No results message -->
+      <div class="suggestions-section" *ngIf="!isLoadingProducts && getFilteredCategories().length === 0 && getFilteredProducts().length === 0 && searchQuery.trim().length > 0">
+        <div class="no-results">
+          <span class="material-icons">search_off</span>
+          <span>პროდუქტი ვერ მოიძებნა</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
         
         <div class="start">
             <button mat-flat-button routerLink="/login" >დაიწყე ახლავე</button>
