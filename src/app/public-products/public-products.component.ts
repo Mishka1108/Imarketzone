@@ -59,57 +59,14 @@ export class PublicProductsComponent implements OnInit {
   ];
   
   public cities: string[] = [
-    'თბილისი',
-    'ბათუმი',
-    'ქუთაისი',
-    'რუსთავი',
-    'გორი',
-    'ფოთი',
-    'ზუგდიდი',
-    'თელავი',
-    'ოზურგეთი',
-    'მარნეული',
-    'ახალციხე',
-    'ახალქალაქი',
-    'ბოლნისი',
-    'საგარეჯო',
-    'გარდაბანი',
-    'ცხინვალი',
-    'ჭიათურა',
-    'დუშეთი',
-    'დმანისი',
-    'წალკა',
-    'თეთრიწყარო',
-    'საჩხერე',
-    'ლაგოდეხი',
-    'ყვარელი',
-    'თიანეთი',
-    'კასპი',
-    'ხაშური',
-    'ხობი',
-    'წალენჯიხა',
-    'მესტია',
-    'ამბროლაური',
-    'ცაგერი',
-    'ონი',
-    'ლანჩხუთი',
-    'ჩოხატაური',
-    'ქობულეთი',
-    'სურამი',
-    'აბაშა',
-    'სენაკი',
-    'ტყიბული',
-    'წყალტუბო',
-    'ნინოწმინდა',
-    'ცაგერი',
-    'ბაკურიანი',
-    'გუდაური',
-    'წნორი',
-    'ახმეტა',
-    'ბარნოვი',
-    'ყვარელი',
-    'შორაპანი',
-    'სოხუმი'
+    'თბილისი', 'ბათუმი', 'ქუთაისი', 'რუსთავი', 'გორი', 'ფოთი', 'ზუგდიდი', 
+    'თელავი', 'ოზურგეთი', 'მარნეული', 'ახალციხე', 'ახალქალაქი', 'ბოლნისი', 
+    'საგარეჯო', 'გარდაბანი', 'ცხინვალი', 'ჭიათურა', 'დუშეთი', 'დმანისი', 
+    'წალკა', 'თეთრიწყარო', 'საჩხერე', 'ლაგოდეხი', 'ყვარელი', 'თიანეთი', 
+    'კასპი', 'ხაშური', 'ხობი', 'წალენჯიხა', 'მესტია', 'ამბროლაური', 'ცაგერი', 
+    'ონი', 'ლანჩხუთი', 'ჩოხატაური', 'ქობულეთი', 'სურამი', 'აბაშა', 'სენაკი', 
+    'ტყიბული', 'წყალტუბო', 'ნინოწმინდა', 'ცაგერი', 'ბაკურიანი', 'გუდაური', 
+    'წნორი', 'ახმეტა', 'ბარნოვი', 'ყვარელი', 'შორაპანი', 'სოხუმი'
   ];
 
   constructor(
@@ -120,7 +77,6 @@ export class PublicProductsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // ვუსმენთ query params ცვლილებებს
     this.route.queryParams.subscribe(params => {
       if (params['category']) {
         this.selectedCategory = params['category'];
@@ -135,91 +91,74 @@ export class PublicProductsComponent implements OnInit {
     this.filterCities();
   }
 
-  // პროდუქტების ჩატვირთვა ფილტრებით ან ფილტრების გარეშე
- loadProducts(): void {
-  this.isLoading = true;
+  // 🔸 გამასწორებული loadProducts ფუნქცია
+  loadProducts(): void {
+    this.isLoading = true;
 
-  const filters: any = {};
+    const filters: any = {};
 
-  if (this.selectedCategory) {
-    filters.category = this.selectedCategory;
-    console.log(`ფილტრაცია კატეგორიით: ${this.selectedCategory}`);
-  }
-  if (this.selectedCity) {
-    filters.city = this.selectedCity;
-  }
-  if (this.minPrice) {
-    filters.minPrice = this.minPrice;
-  }
-  if (this.maxPrice) {
-    filters.maxPrice = this.maxPrice;
-  }
-  if (this.searchTerm) {
-    filters.search = this.searchTerm;
-  }
+    if (this.selectedCategory) filters.category = this.selectedCategory;
+    if (this.selectedCity) filters.city = this.selectedCity;
+    if (this.minPrice) filters.minPrice = this.minPrice;
+    if (this.maxPrice) filters.maxPrice = this.maxPrice;
+    if (this.searchTerm) filters.search = this.searchTerm;
 
-  this.productService.getAllProducts(filters).subscribe({
-    next: (response) => {
-      console.log('API სრული პასუხი:', response);
+    console.log('📡 Sending filters:', filters);
 
-      let productsArray: any[] = [];
+    this.productService.getAllProducts(filters).subscribe({
+      next: (response) => {
+        console.log('📥 API Full Response:', response);
 
-      // 1️⃣ ვამოწმებთ data
-      if (Array.isArray(response?.data)) {
-        productsArray = response.data;
-      }
-      // 2️⃣ ვამოწმებთ products
-      else if (Array.isArray(response?.products)) {
-        productsArray = response.products;
-      }
-      // 3️⃣ ვამოწმებთ items (ზოგი API ამას იყენებს)
-      else if (Array.isArray(response?.items)) {
-        productsArray = response.items;
-      }
-      // 4️⃣ თუ თვითონ response არის მასივი
-      else if (Array.isArray(response)) {
-        productsArray = response;
-      }
+        let productsArray: Product[] = [];
 
-      if (!productsArray.length) {
-        this.products = [];
-        this.showSnackBar('პროდუქტები ვერ მოიძებნა');
-        this.isLoading = false;
-        return;
-      }
-
-      // 5️⃣ თუ id ველი არ არის, ვეძებთ `_id`, `productId` და ა.შ.
-      const hasIdField = productsArray.every(product => product.id);
-      if (!hasIdField) {
-        const possibleIdFields = ['_id', 'productId', 'product_id', 'uid'];
-        const firstProduct = productsArray[0];
-
-        for (const field of possibleIdFields) {
-          if (firstProduct[field]) {
-            console.log(`ნაპოვნია ალტერნატიული ID ველი: ${field}`);
-            productsArray = productsArray.map(product => ({
-              ...product,
-              id: String(product[field])
-            }));
-            break;
-          }
+        // 🔸 უკეთესი response handling
+        if (response?.success && Array.isArray(response.data)) {
+          productsArray = response.data;
+        } else if (Array.isArray(response?.products)) {
+          productsArray = response.products;
+        } else if (Array.isArray(response?.data)) {
+          productsArray = response.data;
+        } else if (Array.isArray(response?.items)) {
+          productsArray = response.items;
+        } else if (Array.isArray(response)) {
+          productsArray = response;
         }
+
+        console.log('📦 Processed Products Array:', productsArray);
+
+        if (!productsArray || productsArray.length === 0) {
+          this.products = [];
+          console.log('❌ No products found');
+          this.isLoading = false;
+          return;
+        }
+
+        // 🔸 ID normalization
+        productsArray = productsArray.map(product => ({
+          ...product,
+          id: product.id || product._id || product.productId || product.product_id || '',
+          // 🔹 ნახვების normalization
+          viewCount: product.viewCount || product.views || 0,
+          views: product.views || product.viewCount || 0
+        }));
+
+        this.products = productsArray;
+        console.log('✅ Final Products with Views:', this.products);
+        
+        // 🔸 Debug: რამდენ პროდუქტს აქვს ნახვები
+        const productsWithViews = this.products.filter(p => this.getViewCount(p) > 0);
+        console.log(`📊 ${productsWithViews.length}/${this.products.length} products have views`);
+
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('❌ Load Products Error:', error);
+        this.showSnackBar('პროდუქტების ჩატვირთვა ვერ მოხერხდა');
+        this.isLoading = false;
       }
+    });
+  }
 
-      this.products = productsArray;
-      console.log('ჩატვირთული პროდუქტები:', this.products);
-
-      this.isLoading = false;
-    },
-    error: (error) => {
-      console.error('პროდუქტების ჩატვირთვის შეცდომა:', error);
-      this.showSnackBar('პროდუქტების ჩატვირთვა ვერ მოხერხდა');
-      this.isLoading = false;
-    }
-  });
-}
-
-  
   // ფილტრების გამოყენება
   applyFilters(): void {
     this.loadProducts();
@@ -233,31 +172,57 @@ export class PublicProductsComponent implements OnInit {
   }
 
   filterCities(): void {
-    const search = this.selectedCity?.toLowerCase();
-    this.filteredCities = this.cities.filter(city => city.toLowerCase().includes(search));
+    const search = this.selectedCity?.toLowerCase() || '';
+    this.filteredCities = this.cities.filter(city => 
+      city.toLowerCase().includes(search)
+    );
   }
 
   // ფილტრების გასუფთავება
   resetFilters(): void {
     this.searchTerm = '';
     this.selectedCategory = '';
+    this.selectedCity = '';
     this.minPrice = null;
     this.maxPrice = null;
     this.loadProducts();
   }
 
-  // შეცვლილი პროდუქტის დეტალების გვერდზე გადასვლა
+  // 🔸 გამასწორებული პროდუქტის დეტალების გახსნა
   openProductDetails(product: Product): void {
     const productId = this.getProductId(product);
     
     if (!productId) {
-      console.error('პროდუქტის ID ვერ მოიძებნა');
+      console.error('❌ Product ID not found');
       this.showSnackBar('პროდუქტის ID ვერ მოიძებნა');
       return;
     }
 
+    console.log(`👁️ Opening product ${productId}, recording view...`);
+
     const slug = this.generateSlug(product.title);
+    
+    // 🔹 ნავიგაცია პირველ რიგში
     this.router.navigate(['/product-details', productId, slug]);
+    
+    // 🔹 ნახვის რეგისტრაცია background-ში
+    this.productService.recordView(productId).subscribe({
+      next: (response) => {
+        console.log('✅ View recorded successfully:', response);
+        // 🔸 ლოკალურად ვაუცდიზრებთ ნახვების რაოდენობას
+        const productIndex = this.products.findIndex(p => this.getProductId(p) === productId);
+        if (productIndex !== -1) {
+          const currentViews = this.getViewCount(this.products[productIndex]);
+          this.products[productIndex].viewCount = currentViews + 1;
+          this.products[productIndex].views = currentViews + 1;
+          console.log(`📊 Updated local view count: ${currentViews + 1}`);
+        }
+      },
+      error: (error) => {
+        console.warn('⚠️ View recording failed:', error);
+        // ნახვის რეგისტრაცია არ უნდა შეაფერხოს ნავიგაციას
+      }
+    });
   }
 
   // პროდუქტის ID-ის მიღება
@@ -274,36 +239,38 @@ export class PublicProductsComponent implements OnInit {
     });
   }
 
-  // მთავარი სურათი (პირველი)
+  // სლუგის გენერაცია
+  generateSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\wა-ჰ\-]+/g, '')
+      .replace(/\-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  // მთავარი სურათი
   getMainImage(product: Product): string {
     const images = this.getAllProductImages(product);
     return images[0];
   }
-  
-  generateSlug(title: string): string {
-    return title
-      .toLowerCase()
-      .replace(/\s+/g, '-')            // space -> dash
-      .replace(/[^\wა-ჰ\-]+/g, '')     // remove special chars (keep Georgian too)
-      .replace(/\-+/g, '-')            // remove multiple dashes
-      .replace(/^-+|-+$/g, '');        // trim dashes
-  }
 
-  // დანარჩენი სურათები (2-4)
+  // დანარჩენი სურათები
   getAdditionalImages(product: Product): string[] {
     const images = this.getAllProductImages(product);
-    return images.slice(1, 4); // მაქსიმუმ 3 დამატებითი
+    return images.slice(1, 4);
   }
  
+  // 🔸 გამასწორებული getAllProductImages
   getAllProductImages(product: Product): string[] {
     const images: string[] = [];
     
-    // პირველ რიგში ვამატებთ ძირითად სურათს
+    // პირველ რიგში ძირითადი სურათი
     if (product.image) {
       images.push(product.image);
     }
     
-    // შემდეგ ვამატებთ სურათების მასივიდან, მხოლოდ იმ სურათებს რომლებიც არ მეორდება
+    // შემდეგ images array-დან
     if (product.images && Array.isArray(product.images)) {
       product.images.forEach(image => {
         if (image && !images.includes(image)) {
@@ -312,23 +279,50 @@ export class PublicProductsComponent implements OnInit {
       });
     }
     
-    // ძველი ველების მხარდაჭერა (უკანასკნელი თავსებადობისთვის)
+    // ძველი ველების მხარდაჭერა
     [product.productImage1, product.productImage2, product.productImage3].forEach(image => {
       if (image && !images.includes(image)) {
         images.push(image);
       }
     });
     
-    // მაქსიმუმ 3 სურათი დავტოვოთ
     const limitedImages = images.slice(0, 3);
     
-    console.log(`პროდუქტის ${product.title} სურათები:`, limitedImages);
-    
-    // თუ არ არის სურათები, placeholder დავაბრუნოთ
+    // Placeholder თუ სურათები არ არის
     if (limitedImages.length === 0) {
       limitedImages.push('assets/images/placeholder.jpg');
     }
     
     return limitedImages;
+  }
+
+  // 🔸 გამასწორებული ნახვების რაოდენობის მიღება
+  getViewCount(product: Product): number {
+    if (!product) {
+      console.warn('⚠️ Product is null/undefined');
+      return 0;
+    }
+
+    const viewCount = product.viewCount || product.views || 0;
+    
+    // 🔸 Debug logging
+    if (viewCount > 0) {
+      console.log(`📊 Product "${product.title}" has ${viewCount} views`);
+    }
+    
+    return viewCount;
+  }
+
+  // 🔸 გამასწორებული ნახვების ფორმატირება
+  formatViewCount(count: number): string {
+    if (!count || count === 0) return '0';
+    
+    if (count < 1000) {
+      return count.toString();
+    } else if (count < 1000000) {
+      return (count / 1000).toFixed(1) + 'ათ';
+    } else {
+      return (count / 1000000).toFixed(1) + 'მ';
+    }
   }
 }

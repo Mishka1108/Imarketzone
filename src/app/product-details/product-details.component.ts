@@ -11,6 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { ProductService } from '../services/product.service';
 import { Product } from '../models/product';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-product-details',
@@ -35,10 +36,21 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   currentImageIndex = 0;
   productImages: string[] = [];
   
+  // ✅ ნახვების სტატისტიკა - განახლებული
+  productViews: number = 0;
+  todayViews: number = 0;
+  weekViews: number = 0;
+  monthViews: number = 0;
+  isLoadingViews: boolean = false;
+  viewsData: any = null; // მთელი ობიექტის შესანახად
+  
   // Image modal properties
   showImageModal = false;
   currentModalIndex = 0;
   private touchStartX: number | null = null;
+
+  // Subscription management
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -47,24 +59,23 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     private location: Location,
     private snackBar: MatSnackBar,
     private titleService: Title,
-  private metaService: Meta
+    private metaService: Meta
   ) {}
-  
 
   private setSEOData(product: Product): void {
-  const title = `${product.title} | Imarketzone`;
-  const description = product.description || 'იყიდება პროდუქტი Imarketzone-ზე საუკეთესო ფასად.';
-  const image = product.image || 'https://www.imarketzone.ge/assets/images/placeholder.jpg';
-  const url = window.location.href;
+    const title = `${product.title} | Imarketzone`;
+    const description = product.description || 'იყიდება პროდუქტი Imarketzone-ზე საუკეთესო ფასად.';
+    const image = product.image || 'https://www.imarketzone.ge/assets/images/placeholder.jpg';
+    const url = window.location.href;
 
-  this.titleService.setTitle(title);
+    this.titleService.setTitle(title);
 
-  this.metaService.updateTag({ name: 'description', content: description });
-  this.metaService.updateTag({ property: 'og:title', content: title });
-  this.metaService.updateTag({ property: 'og:description', content: description });
-  this.metaService.updateTag({ property: 'og:image', content: image });
-  this.metaService.updateTag({ property: 'og:url', content: url });
-}
+    this.metaService.updateTag({ name: 'description', content: description });
+    this.metaService.updateTag({ property: 'og:title', content: title });
+    this.metaService.updateTag({ property: 'og:description', content: description });
+    this.metaService.updateTag({ property: 'og:image', content: image });
+    this.metaService.updateTag({ property: 'og:url', content: url });
+  }
 
   ngOnInit(): void {
     console.log('=== PRODUCT DETAILS DEBUG START ===');
@@ -123,33 +134,182 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     console.log('ვცდილობთ პროდუქტის ჩატვირთვას Slug-ით:', slug);
     
     return new Promise((resolve) => {
-      this.productService.getProductBySlug(slug).subscribe({
-        next: (response) => {
-          console.log('✅ პროდუქტი მოიძებნა:', response);
-          
-          this.product = response.product || response;
-          
-          if (this.product) {
-            this.productImages = this.getAllProductImages(this.product);
-            console.log('კონტაქტის ინფორმაცია კომპონენტში:', {
-              email: this.product.email,
-              phone: this.product.phone,
-              userName: this.product.userName
-            });
+      this.productService.getProductBySlug(slug)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            console.log('✅ პროდუქტი მოიძებნა:', response);
+            
+            this.product = response.product || response;
+            
+            if (this.product) {
+              this.productImages = this.getAllProductImages(this.product);
+              this.setSEOData(this.product);
+              
+              // ✅ ნახვების სტატისტიკის ჩატვირთვა
+              this.loadProductViews();
+              
+              console.log('კონტაქტის ინფორმაცია კომპონენტში:', {
+                email: this.product.email,
+                phone: this.product.phone,
+                userName: this.product.userName
+              });
+            }
+            
+            this.isLoading = false;
+            resolve(true);
+          },
+          error: (err) => {
+            console.warn(`❌ Slug "${slug}" ვერ მოიძებნა:`, err);
+            resolve(false);
           }
-          
-          this.isLoading = false;
-          resolve(true);
-        },
-        error: (err) => {
-          console.warn(`❌ Slug "${slug}" ვერ მოიძებნა:`, err);
-          resolve(false);
-        }
-      });
+        });
     });
   }
 
-  // ✅ Slug normalization
+  // ✅ განახლებული ნახვების სტატისტიკის ჩატვირთვა
+  private loadProductViews(): void {
+    if (!this.product || !this.product._id) {
+      console.warn('⚠️ Product ID not available for view loading');
+      return;
+    }
+
+    console.log('📊 Loading view statistics for product:', this.product._id);
+    this.isLoadingViews = true;
+
+    // ✅ Option 1: Combined method (რეკომენდებული)
+    this.productService.recordViewAndGetStats(this.product._id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (stats) => {
+          console.log('📊 Raw view stats received:', stats);
+          this.processViewStats(stats);
+          this.isLoadingViews = false;
+        },
+        error: (error) => {
+          console.error('❌ Combined view operation failed:', error);
+          this.isLoadingViews = false;
+          // Fallback - მაინც ვცადოთ stats-ის მიღება
+          this.getViewStatsOnly();
+        }
+      });
+  }
+
+  // ✅ ნახვების მონაცემების დამუშავება
+  private processViewStats(stats: any): void {
+    console.log('🔍 Processing view stats:', stats);
+    
+    // სხვადასხვა ველებიდან ნახვების ამოღება
+    const possibleViewFields = [
+      stats.totalViews,
+      stats.views,
+      stats.viewCount,
+      stats.data?.views,
+      stats.data?.totalViews,
+      stats.data?.viewCount,
+      stats.monthViews, // დავამატოთ monthViews როგორც ალტერნატივა
+      stats.weekViews   // დავამატოთ weekViews როგორც ალტერნატივა
+    ];
+
+    // პირველი ვალიდური მნიშვნელობის მიღება (> 0)
+    this.productViews = possibleViewFields.find(val => 
+      typeof val === 'number' && val > 0
+    ) || 0;
+
+    // თუ მაინც 0-ია, ვცადოთ ნებისმიერი ვალიდური რიცხვი >= 0
+    if (this.productViews === 0) {
+      this.productViews = possibleViewFields.find(val => 
+        typeof val === 'number' && val >= 0
+      ) || 0;
+    }
+
+    // დამატებითი სტატისტიკა
+    this.todayViews = stats.todayViews || 0;
+    this.weekViews = stats.weekViews || 0;
+    this.monthViews = stats.monthViews || 0;
+    
+    // მთელი ობიექტის შენახვა debugging-ისთვის
+    this.viewsData = stats;
+
+    console.log('✅ Processed view stats:', {
+      totalViews: this.productViews,
+      todayViews: this.todayViews,
+      weekViews: this.weekViews,
+      monthViews: this.monthViews
+    });
+  }
+
+  private getViewStatsOnly(): void {
+    if (!this.product?._id) return;
+    
+    this.productService.getProductViewStats(this.product._id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (stats) => {
+          console.log('📊 Stats only received:', stats);
+          this.processViewStats(stats);
+        },
+        error: (error) => {
+          console.warn('⚠️ Even stats loading failed:', error);
+          this.productViews = 0;
+        }
+      });
+  }
+
+  // ✅ განახლებული ნახვების ფორმატირება
+  formatViews(views: number | undefined | null): string {
+    // ✅ უფრო მკაცრი შემოწმება
+    const numViews = Number(views);
+    
+    if (isNaN(numViews) || numViews < 0) {
+      return '0';
+    }
+    
+    if (numViews >= 1000000) {
+      return Math.floor(numViews / 100000) / 10 + 'მ';
+    } else if (numViews >= 1000) {
+      return Math.floor(numViews / 100) / 10 + 'ც';
+    } else {
+      return numViews.toString();
+    }
+  }
+
+  // ✅ დამატებითი helper მეთოდები ნახვების ფორმატირებისთვის
+  getTotalViews(): number {
+    return this.productViews || 0;
+  }
+
+  getTodayViews(): number {
+    return this.todayViews || 0;
+  }
+
+  getWeekViews(): number {
+    return this.weekViews || 0;
+  }
+
+  getMonthViews(): number {
+    return this.monthViews || 0;
+  }
+
+  // ✅ დეტალური ნახვების ფორმატირება (template-ისთვის)
+  getFormattedViewsWithDetails(): string {
+    const total = this.getTotalViews();
+    const today = this.getTodayViews();
+    
+    if (total === 0) {
+      return '0 ნახვა';
+    }
+    
+    let result = this.formatViews(total) + ' ნახვა';
+    
+    if (today > 0) {
+      result += ` (დღეს: ${today})`;
+    }
+    
+    return result;
+  }
+
+  // Slug normalization
   private normalizeSlug(title: string): string {
     return title
       .toLowerCase()
@@ -164,36 +324,41 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   private trySearchProduct(searchTerm: string): void {
     console.log('🔍 ვცდილობთ პროდუქტის მოძიებას search-ით:', searchTerm);
     
-    this.productService.getAllProducts({ search: searchTerm }).subscribe({
-      next: (response) => {
-        const products = response.products || response;
-        
-        if (products && products.length > 0) {
-          // პირველი რელევანტური პროდუქტის არჩევა
-          const matchedProduct = products.find((p: any) => 
-            p.title && (
-              p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              this.normalizeSlug(p.title) === this.normalizeSlug(searchTerm)
-            )
-          ) || products[0];
+    this.productService.getAllProducts({ search: searchTerm })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const products = response.products || response;
           
-          console.log('✅ მოიძებნა პროდუქტი search-ით:', matchedProduct);
-          
-          this.product = matchedProduct;
-          if (this.product) {
-            this.productImages = this.getAllProductImages(this.product);
-            this.setSEOData(this.product);
+          if (products && products.length > 0) {
+            // პირველი რელევანტური პროდუქტის არჩევა
+            const matchedProduct = products.find((p: any) => 
+              p.title && (
+                p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                this.normalizeSlug(p.title) === this.normalizeSlug(searchTerm)
+              )
+            ) || products[0];
+            
+            console.log('✅ მოიძებნა პროდუქტი search-ით:', matchedProduct);
+            
+            this.product = matchedProduct;
+            if (this.product) {
+              this.productImages = this.getAllProductImages(this.product);
+              this.setSEOData(this.product);
+              
+              // ✅ ნახვების სტატისტიკის ჩატვირთვა
+              this.loadProductViews();
+            }
+            this.isLoading = false;
+          } else {
+            this.handleNoProductFound();
           }
-          this.isLoading = false;
-        } else {
+        },
+        error: (err) => {
+          console.error('Search error:', err);
           this.handleNoProductFound();
         }
-      },
-      error: (err) => {
-        console.error('Search error:', err);
-        this.handleNoProductFound();
-      }
-    });
+      });
   }
 
   // ✅ პროდუქტის არ მოძიებნის შემთხვევის მუშაობა
@@ -204,6 +369,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
     this.closeImageModal();
   }
 
@@ -271,30 +438,36 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   loadProduct(productId: string): void {
     console.log('ვიწყებთ პროდუქტის ჩატვირთვას ID-ით:', productId);
     
-    this.productService.getProductById(productId).subscribe({
-      next: (response) => {
-        console.log('მივიღეთ პასუხი ProductDetailsComponent-ში:', response);
-        
-        this.product = response.product || response.data?.[0] || null;
+    this.productService.getProductById(productId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          console.log('მივიღეთ პასუხი ProductDetailsComponent-ში:', response);
+          
+          this.product = response.product || response.data?.[0] || null;
 
-        
-        if (this.product) {
-          this.productImages = this.getAllProductImages(this.product);
-          console.log('კონტაქტის ინფორმაცია კომპონენტში:', {
-            email: this.product.email,
-            phone: this.product.phone,
-            userName: this.product.userName
-          });
+          if (this.product) {
+            this.productImages = this.getAllProductImages(this.product);
+            this.setSEOData(this.product);
+            
+            // ✅ ნახვების სტატისტიკის ჩატვირთვა
+            this.loadProductViews();
+            
+            console.log('კონტაქტის ინფორმაცია კომპონენტში:', {
+              email: this.product.email,
+              phone: this.product.phone,
+              userName: this.product.userName
+            });
+          }
+          
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('პროდუქტის ჩატვირთვის შეცდომა:', err);
+          this.error = 'პროდუქტის ჩატვირთვა ვერ მოხერხდა. გთხოვთ, სცადოთ ხელახლა.';
+          this.isLoading = false;
         }
-        
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('პროდუქტის ჩატვირთვის შეცდომა:', err);
-        this.error = 'პროდუქტის ჩატვირთვა ვერ მოხერხდა. გთხოვთ, სცადოთ ხელახლა.';
-        this.isLoading = false;
-      }
-    });
+      });
   }
 
   // პროდუქტის ყველა სურათის მიღება
@@ -443,7 +616,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ განახლებული shareProduct
+  // ✅ განახლებული shareProduct რეალური ნახვების რიცხვით
   shareProduct(): void {
     if (!this.product) return;
     
@@ -452,7 +625,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     );
     
     const title = this.product?.title || 'პროდუქტი';
-    const text = `შეხედეთ ამ საინტერესო პროდუქტს: ${title}`;
+    const viewsText = this.getTotalViews() > 0 ? 
+      ` - ნახვები: ${this.formatViews(this.getTotalViews())}` : '';
+    const text = `შეხედეთ ამ საინტერესო პროდუქტს: ${title}${viewsText}`;
 
     if (navigator.share) {
       navigator.share({

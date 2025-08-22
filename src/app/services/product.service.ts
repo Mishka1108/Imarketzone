@@ -74,83 +74,80 @@ export class ProductService {
   }
 
   // ✅ Enhanced getProductBySlug with comprehensive debugging
- // ✅ გამარტივებული და სწორი getProductBySlug მეთოდი
-getProductBySlug(slug: string): Observable<any> {
-  console.log(`🔍 Looking for product with slug: "${slug}"`);
-  
-  // ✅ სწორი URL - რაც ბექენდში გაქვთ განსაზღვრული
-  const url = `${this.baseUrl}/products/by-slug/${encodeURIComponent(slug)}`;
-  
-  console.log(`📡 Making request to: ${url}`);
-  
-  return this.http.get<any>(url, { 
-    headers: this.getHeaders() 
-  }).pipe(
-    timeout(10000),
-    tap(response => {
-      console.log('✅ Successfully found product:', response);
-    }),
-    map((response: any) => {
-      // ✅ ბექენდი აბრუნებს { success: true, data: product }
-      // ფრონტენდი მოელის { product: ... }
-      if (response.success && response.data) {
-        return { product: response.data };
-      }
-      return response;
-    }),
-    catchError((error: HttpErrorResponse) => {
-      console.error(`❌ Failed: ${url} - Status: ${error.status}`, error);
-      
-      // თუ 404 არის, ვცდით fallback-ს
-      if (error.status === 404) {
-        return this.fallbackSearchProduct(slug);
-      }
-      
-      return this.handleError(error);
-    })
-  );
-}
+  getProductBySlug(slug: string): Observable<any> {
+    console.log(`🔍 Looking for product with slug: "${slug}"`);
+    
+    // ✅ სწორი URL - რაც ბექენდში გაქვთ განსაზღვრული
+    const url = `${this.baseUrl}/products/by-slug/${encodeURIComponent(slug)}`;
+    
+    console.log(`📡 Making request to: ${url}`);
+    
+    return this.http.get<any>(url, { 
+      headers: this.getHeaders() 
+    }).pipe(
+      timeout(10000),
+      tap(response => {
+        console.log('✅ Successfully found product:', response);
+      }),
+      map((response: any) => {
+        // ✅ ბექენდი აბრუნებს { success: true, data: product }
+        // ფრონტენდი მოელის { product: ... }
+        if (response.success && response.data) {
+          return { product: response.data };
+        }
+        return response;
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error(`❌ Failed: ${url} - Status: ${error.status}`, error);
+        
+        // თუ 404 არის, ვცდით fallback-ს
+        if (error.status === 404) {
+          return this.fallbackSearchProduct(slug);
+        }
+        
+        return this.handleError(error);
+      })
+    );
+  }
 
   // Create different variations of the slug to try
-private fallbackSearchProduct(searchTerm: string): Observable<any> {
-  console.log('🔍 Fallback: Searching in all products for:', searchTerm);
-  
-  return this.getAllProducts({ search: searchTerm }).pipe(
-    map((response: any) => {
-      const products = response.products || response.data || response || [];
-      
-      if (!Array.isArray(products) || products.length === 0) {
-        throw new Error('პროდუქტი ვერ მოიძებნა');
-      }
-      
-      // ვეძებთ ზუსტ დამთხვევას title-ში
-      let product = products.find((p: any) => 
-        p.title && p.title.toLowerCase() === searchTerm.toLowerCase()
-      );
-      
-      // თუ ზუსტი არ არის, ვეძებთ ნაწილობრივ დამთხვევას
-      if (!product) {
-        product = products.find((p: any) => 
-          p.title && p.title.toLowerCase().includes(searchTerm.toLowerCase())
+  private fallbackSearchProduct(searchTerm: string): Observable<any> {
+    console.log('🔍 Fallback: Searching in all products for:', searchTerm);
+    
+    return this.getAllProducts({ search: searchTerm }).pipe(
+      map((response: any) => {
+        const products = response.products || response.data || response || [];
+        
+        if (!Array.isArray(products) || products.length === 0) {
+          throw new Error('პროდუქტი ვერ მოიძებნა');
+        }
+        
+        // ვეძებთ ზუსტ დამთხვევას title-ში
+        let product = products.find((p: any) => 
+          p.title && p.title.toLowerCase() === searchTerm.toLowerCase()
         );
-      }
-      
-      // თუ მაინც არ არის, ვუბრუნებთ პირველს
-      if (!product) {
-        product = products[0];
-      }
-      
-      console.log('✅ Found product via fallback:', product);
-      return { product };
-    }),
-    catchError(error => {
-      console.error('❌ Fallback search also failed:', error);
-      return throwError(() => new Error('პროდუქტი ვერ მოიძებნა'));
-    })
-  );
-}
-  // Try all slug variations across multiple endpoints
- 
+        
+        // თუ ზუსტი არ არის, ვეძებთ ნაწილობრივ დამთხვევას
+        if (!product) {
+          product = products.find((p: any) => 
+            p.title && p.title.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        }
+        
+        // თუ მაინც არ არის, ვუბრუნებთ პირველს
+        if (!product) {
+          product = products[0];
+        }
+        
+        console.log('✅ Found product via fallback:', product);
+        return { product };
+      }),
+      catchError(error => {
+        console.error('❌ Fallback search also failed:', error);
+        return throwError(() => new Error('პროდუქტი ვერ მოიძებნა'));
+      })
+    );
+  }
 
   // Recursively try endpoint/slug combinations
   private tryEndpointSlugCombinations(
@@ -352,7 +349,195 @@ private fallbackSearchProduct(searchTerm: string): Observable<any> {
     );
   }
 
-  // Rest of your existing methods remain the same...
+  // ====================================
+  // 🔥 ENHANCED VIEW TRACKING METHODS 🔥
+  // ====================================
+
+  // ✅ 1. View Recording with Enhanced Debug
+  recordView(productId: string): Observable<any> {
+    console.log('🔍 RECORD VIEW DEBUG START');
+    console.log('Product ID:', productId);
+    console.log('Current timestamp:', new Date().toISOString());
+    console.log('User IP/Session info:', navigator.userAgent);
+    
+    if (!productId || productId.trim() === '') {
+      console.error('❌ Invalid product ID for view recording');
+      return of({ success: false, message: 'Invalid product ID' });
+    }
+    
+    const viewData = {
+      productId: productId,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      referrer: document.referrer || 'direct'
+    };
+    
+    console.log('📤 Sending view data:', viewData);
+    
+    const url = `${this.baseUrl}/products/${productId}/view`;
+    console.log(`📡 POST request to: ${url}`);
+    
+    return this.http.post(url, viewData, {
+      headers: this.getHeaders()
+    }).pipe(
+      timeout(10000), // Increased timeout
+      tap(response => {
+        console.log('✅ BACKEND RESPONSE:', response);
+        console.log('Response status:', (response as any)?.status || 'unknown');
+        console.log('Response message:', (response as any)?.message || 'no message');
+        console.log('New view count:', (response as any)?.views || (response as any)?.newViewCount || 'not provided');
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ VIEW RECORDING ERROR:', error);
+        console.error('Error status:', error?.status);
+        console.error('Error message:', error?.message || error?.error?.message);
+        console.error('Full error object:', error);
+        
+        // Return mock success for fallback
+        return of({ 
+          success: false, 
+          message: 'ნახვის რეგისტრაცია ვერ მოხერხდა',
+          error: error.message,
+          fallback: true
+        });
+      })
+    );
+  }
+
+  // ✅ 2. View Stats with Enhanced Debug
+  getProductViewStats(productId: string): Observable<any> {
+    console.log('📊 GET VIEW STATS DEBUG START');
+    console.log('Requesting stats for product ID:', productId);
+    
+    if (!productId || productId.trim() === '') {
+      console.error('❌ Invalid product ID for stats');
+      return of({ views: 0, success: false });
+    }
+    
+    const url = `${this.baseUrl}/products/${productId}/views`;
+    console.log(`📡 GET request to: ${url}`);
+    
+    return this.http.get<any>(url, {
+      headers: this.getHeaders()
+    }).pipe(
+      timeout(10000),
+      tap(response => {
+        console.log('✅ STATS RESPONSE:', response);
+        console.log('Total views:', response?.views || response?.viewCount || response?.totalViews);
+        console.log('Unique views:', response?.uniqueViews || 'not provided');
+        console.log('Today views:', response?.todayViews || 'not provided');
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ VIEW STATS ERROR:', error);
+        console.error('Trying fallback stats method...');
+        
+        // Fallback - try alternative endpoint
+        return this.getFallbackViewStats(productId);
+      })
+    );
+  }
+
+  // ✅ 3. Fallback View Stats Method
+  private getFallbackViewStats(productId: string): Observable<any> {
+    console.log('🔄 Trying fallback view stats methods...');
+    
+    const fallbackEndpoints = [
+      `${this.baseUrl}/products/${productId}/statistics`,
+      `${this.baseUrl}/api/products/${productId}/views`,
+      `${this.baseUrl}/stats/products/${productId}`,
+      `${this.baseUrl}/products/${productId}` // Get full product and extract views
+    ];
+    
+    return this.tryFallbackStatsEndpoints(fallbackEndpoints, productId, 0);
+  }
+
+  private tryFallbackStatsEndpoints(endpoints: string[], productId: string, index: number): Observable<any> {
+    if (index >= endpoints.length) {
+      console.warn('⚠️ All fallback stats endpoints failed, returning 0');
+      return of({ views: 0, success: false, message: 'No stats available' });
+    }
+    
+    const endpoint = endpoints[index];
+    console.log(`🌐 Trying fallback stats: ${endpoint}`);
+    
+    return this.http.get<any>(endpoint, { headers: this.getHeaders() }).pipe(
+      timeout(5000),
+      map((response: any) => {
+        // Extract views from different response formats
+        const views = response.views || 
+                     response.viewCount || 
+                     response.totalViews || 
+                     response.data?.views ||
+                     response.product?.views ||
+                     0;
+        
+        console.log(`✅ Fallback stats successful: ${views} views`);
+        return { views, success: true, source: 'fallback' };
+      }),
+      catchError(error => {
+        console.warn(`❌ Fallback endpoint failed: ${endpoint}`);
+        return this.tryFallbackStatsEndpoints(endpoints, productId, index + 1);
+      })
+    );
+  }
+
+  // ✅ 4. Combined Method - Record + Get Stats
+  recordViewAndGetStats(productId: string): Observable<any> {
+    console.log('🔄 COMBINED VIEW OPERATION START');
+    console.log('Product ID:', productId);
+    
+    return this.recordView(productId).pipe(
+      switchMap((recordResponse) => {
+        console.log('✅ View recorded, now getting updated stats...', recordResponse);
+        
+        // Small delay to ensure backend processing
+        return of(null).pipe(
+          switchMap(() => {
+            // Wait 500ms for backend to process
+            return new Promise(resolve => setTimeout(resolve, 500));
+          }),
+          switchMap(() => this.getProductViewStats(productId))
+        );
+      }),
+      tap(stats => {
+        console.log('📈 FINAL COMBINED STATS:', stats);
+      }),
+      catchError(error => {
+        console.error('❌ Combined operation failed:', error);
+        // Return fallback stats
+        return this.getFallbackViewStats(productId);
+      })
+    );
+  }
+
+  // ✅ 5. Enhanced Product By ID with View Recording
+  getProductByIdWithView(productId: string): Observable<any> {
+    console.log(`📱 Getting product with view recording: ${productId}`);
+    
+    // Record view first, then get product
+    return this.recordView(productId).pipe(
+      switchMap((viewResponse) => {
+        console.log('View recorded, now getting product:', viewResponse);
+        return this.getProductById(productId);
+      }),
+      // Add view stats to product
+      switchMap((productResponse) => {
+        return this.getProductViewStats(productId).pipe(
+          map(stats => ({
+            ...productResponse,
+            viewStats: stats
+          })),
+          catchError(() => of(productResponse)) // If stats fail, return product anyway
+        );
+      }),
+      catchError((error) => {
+        console.warn('View recording failed, getting product anyway:', error);
+        return this.getProductById(productId);
+      })
+    );
+  }
+
+  // Rest of existing methods...
   addProduct(productData: FormData): Observable<any> {
     console.log('პროდუქტის დამატება იწყება...');
     console.log('API URL:', `${this.baseUrl}/products`);
@@ -523,5 +708,13 @@ private fallbackSearchProduct(searchTerm: string): Observable<any> {
       retry(1),
       catchError(this.handleError)
     );
+  }
+
+  // Legacy method - kept for backward compatibility
+  getProductViews(id: string | undefined): Observable<any> {
+    if (!id) {
+      return of({ views: 0, success: false });
+    }
+    return this.getProductViewStats(id);
   }
 }

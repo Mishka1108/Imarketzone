@@ -73,8 +73,14 @@
       <span class="name">{{pro.title}}</span>
       <span class="price">{{pro.price}} ₾</span>
       <span class="city">{{pro.cities}}</span>
-      
-      <!-- სურათების რაოდენობის ჩვენება (არჩევითი) -->
+        <div class="product-stats" *ngIf="getViewCount(pro) > 0">
+        <span class="views-count">
+          <mat-icon>visibility</mat-icon>
+          {{formatViewCount(getViewCount(pro))}} ნახვა
+        </span>
+      </div>
+
+    </div>
+
     </div>
   </div>
-</div>

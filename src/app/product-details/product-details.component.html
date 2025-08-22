@@ -1,3 +1,4 @@
+<!-- product-details.component.html -->
 <div class="product-details-container">
   <!-- Loading State -->
   <div class="loading-container" *ngIf="isLoading">
@@ -18,12 +19,23 @@
   
   <!-- Product Details -->
   <div class="product-wrapper" *ngIf="!isLoading && product && !error">
-    <!-- Header with Back Button -->
+    <!-- Header with Back Button and Views -->
     <div class="product-header">
-      <button mat-icon-button (click)="goBack()" class="back-button">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <h1 class="page-title">პროდუქტის დეტალები</h1>
+      <div class="header-left">
+        <button mat-icon-button (click)="goBack()" class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <h1 class="page-title">პროდუქტის დეტალები</h1>
+      </div>
+      
+      <!-- Enhanced Views Counter -->
+      <div class="views-counter" [class.loading]="isLoadingViews">
+        <mat-icon class="views-icon">visibility</mat-icon>
+        <span class="views-count">{{ getFormattedViewsWithDetails() }}</span>
+        
+        <!-- Loading indicator for views -->
+        <mat-spinner diameter="16" *ngIf="isLoadingViews" class="views-spinner"></mat-spinner>
+      </div>
     </div>
 
     <div class="product-content">
@@ -35,13 +47,13 @@
             class="main-swiper"
             slides-per-view="1"
             space-between="10"
-            loop="productImages.length > 1"
+            [loop]="productImages.length > 1"
             navigation="true"
-            pagination="{ clickable: true }"
+            pagination='{ "clickable": true }'
             zoom="true"
             grab-cursor="true"
-            keyboard="{ enabled: true }"
-            mousewheel="{ thresholdDelta: 70 }">
+            keyboard='{ "enabled": true }'
+            mousewheel='{ "thresholdDelta": 70 }'>
             <swiper-slide *ngFor="let image of productImages; let i = index">
               <div class="swiper-zoom-container">
                 <div class="main-image-container">
@@ -84,7 +96,13 @@
         <mat-card class="product-card">
           <mat-card-header>
             <mat-card-title class="product-title">{{ product.title }}</mat-card-title>
-            <mat-card-subtitle class="product-price">{{ formatPrice(product.price) }}</mat-card-subtitle>
+            <mat-card-subtitle class="product-price-info">
+              <span class="product-price">{{ formatPrice(product.price) }}</span>
+              <span class="product-meta">
+                <mat-icon class="meta-icon">schedule</mat-icon>
+                <span class="date-text">{{ formatDate(product.createdAt || product.date) }}</span>
+              </span>
+            </mat-card-subtitle>
           </mat-card-header>
 
           <mat-card-content>
@@ -103,12 +121,35 @@
                 
                 <mat-chip class="info-chip" *ngIf="product.year">
                   <mat-icon matChipAvatar>calendar_today</mat-icon>
-                  {{ product.year}}
+                  {{ product.year }}
                 </mat-chip>
                 
                 <mat-chip class="info-chip" *ngIf="product.cities">
                   <mat-icon matChipAvatar>location_on</mat-icon>
                   {{ product.cities }}
+                </mat-chip>
+
+                <!-- Enhanced Views chip with more details -->
+                <mat-chip class="info-chip views-chip" [class.loading]="isLoadingViews">
+                  <mat-icon matChipAvatar>visibility</mat-icon>
+                  <span *ngIf="!isLoadingViews">{{ getFormattedViewsWithDetails() }}</span>
+                  <span *ngIf="isLoadingViews">იტვირთება...</span>
+                </mat-chip>
+
+                <!-- Additional view statistics if available -->
+                <mat-chip class="info-chip today-views-chip" *ngIf="getTodayViews() > 0">
+                  <mat-icon matChipAvatar>today</mat-icon>
+                  დღეს: {{ getTodayViews() }}
+                </mat-chip>
+
+                <mat-chip class="info-chip week-views-chip" *ngIf="getWeekViews() > 0">
+                  <mat-icon matChipAvatar>date_range</mat-icon>
+                  კვირაში: {{ getWeekViews() }}
+                </mat-chip>
+
+                <mat-chip class="info-chip month-views-chip" *ngIf="getMonthViews() > 0">
+                  <mat-icon matChipAvatar>event</mat-icon>
+                  თვეში: {{ getMonthViews() }}
                 </mat-chip>
               </div>
             </div>
@@ -178,7 +219,7 @@
               class="contact-button"
               (click)="shareProduct()">
               <mat-icon>share</mat-icon>
-              <span>გააზიარეთ</span>
+              <span>გაზიარება</span>
             </button>
           </mat-card-actions>
         </mat-card>

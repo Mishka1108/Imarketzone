@@ -1,4 +1,5 @@
 export interface Product {
+date: string;
   id?: string;
   _id?: string;
   productId?: string;
@@ -12,6 +13,11 @@ export interface Product {
   phone?: string;
   email?: string;
   slug?: string; // slug ველი, რომელიც გამოიყენება URL-ებისთვის
+
+  //ნახვები
+   viewCount?: number;
+   views?: number; // ალტერნატიული ველი
+
 
   // ახალი images array - მთავარი სურათების ველი
   images?: string[];
