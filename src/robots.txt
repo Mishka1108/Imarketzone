@@ -1,6 +1,125 @@
+# robots.txt for imarketzone.ge
+# საქართველოს ონლაინ მარკეტპლეისი
+
 User-agent: *
 Allow: /
-Disallow: /admin/
-Disallow: /private/
 
+# მნიშვნელოვანი კატეგორიები და გვერდები
+Allow: /categories/
+Allow: /search
+Allow: /products/
+Allow: /listings/
+
+# ლოკალური ძებნის გვერდები
+Allow: /tbilisi
+Allow: /batumi
+Allow: /kutaisi
+Allow: /rustavi
+Allow: /zugdidi
+Allow: /gori
+Allow: /poti
+Allow: /samtredia
+
+# ქართული URL-ები
+Allow: /ყიდვა-გაყიდვა-*
+Allow: /კატეგორიები/*
+Allow: /ძებნა*
+Allow: /პროდუქტები/*
+
+# მნიშვნელოვანი სტატიური გვერდები
+Allow: /about
+Allow: /contact
+Allow: /help
+Allow: /terms
+Allow: /privacy
+Allow: /how-it-works
+
+# სპეციალური ლენდინგ გვერდები
+Allow: /ყიდვა-*
+Allow: /გაყიდვა-*
+Allow: /მარკეტპლეისი*
+
+# ამ გვერდების ინდექსირება არ არის საჭირო
+Disallow: /admin/
+Disallow: /api/
+Disallow: /tmp/
+Disallow: /cache/
+Disallow: /private/
+Disallow: /user/
+Disallow: /profile/
+Disallow: /dashboard/
+Disallow: /my-account/
+Disallow: /login
+Disallow: /register
+Disallow: /sign-up
+Disallow: /sign-in
+Disallow: /checkout
+Disallow: /cart
+Disallow: /basket
+Disallow: /wishlist
+Disallow: /favorites
+Disallow: /compare
+Disallow: /ajax/
+Disallow: /includes/
+Disallow: /assets/temp/
+Disallow: /uploads/temp/
+
+# ძებნის გვერდები ზოგიერთი პარამეტრით
+Disallow: /*?page=*
+Disallow: /*?sort=*
+Disallow: /*?filter=*
+Disallow: /*?view=*
+Disallow: /*?limit=*
+Disallow: /*?order=*
+Disallow: /*?direction=*
+Disallow: /*?ref=*
+Disallow: /*?utm_*
+Disallow: /*?fbclid=*
+Disallow: /*?gclid=*
+
+# დაშვებული ძებნის პარამეტრები
+Allow: /*?q=*
+Allow: /*?search=*
+Allow: /*?category=*
+Allow: /*?location=*
+Allow: /*?city=*
+
+# Crawl-delay - არ იყოს ძალიან მცირე
+Crawl-delay: 1
+
+# Sitemap მისამართები
 Sitemap: https://imarketzone.ge/sitemap.xml
+Sitemap: https://imarketzone.ge/sitemap-products.xml
+Sitemap: https://imarketzone.ge/sitemap-categories.xml
+Sitemap: https://imarketzone.ge/sitemap-locations.xml
+Sitemap: https://imarketzone.ge/sitemap-news.xml
+
+# სპეციალური User-agent-ები
+User-agent: Googlebot
+Crawl-delay: 1
+Allow: /
+
+User-agent: Bingbot
+Crawl-delay: 2
+Allow: /
+
+User-agent: YandexBot
+Crawl-delay: 2
+Allow: /
+
+# Avoid indexing these file types
+Disallow: /*.pdf$
+Disallow: /*.doc$
+Disallow: /*.docx$
+Disallow: /*.xls$
+Disallow: /*.xlsx$
+
+# Allow CSS and JS for better rendering
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.webp$
+Allow: /*.svg$

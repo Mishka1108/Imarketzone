@@ -4,6 +4,7 @@ import { NavbarComponent } from "./navbar/navbar.component";
 import { FooterComponent } from "./footer/footer.component";
 
 import { filter } from 'rxjs/internal/operators/filter';
+import { GoogleAnalyticsService } from './services/google-analytics.service';
 
 @Component({
   selector: 'app-root',
@@ -13,10 +14,18 @@ import { filter } from 'rxjs/internal/operators/filter';
 })
 export class AppComponent implements OnInit {
   title = 'imarketzone';
+ constructor(private router: Router,
+    private ga: GoogleAnalyticsService){
 
+ }
 
 
   ngOnInit(): void {
-   
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.ga.trackPageView(event.urlAfterRedirects);
+    });
   }
-}
+  }
+
