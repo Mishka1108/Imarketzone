@@ -28,6 +28,7 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
+              "src/site.webmanifest",
               {
                 "glob": "googlef5ab51a0fe7b5e75",
                 "input": "public",

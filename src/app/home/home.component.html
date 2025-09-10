@@ -109,6 +109,64 @@
     
 </div>
 
+<div *ngIf="getProductsWithHighViews().length > 0;" class="popular-products-carousel">
+  <h1 class="popular-products-title">პოპულარული პროდუქტები</h1>
+
+  <p-carousel 
+    [value]="getProductsWithHighViews()"
+    [numVisible]="3"
+    [numScroll]="3"
+    [responsiveOptions]="responsiveOptions"
+    [showIndicators]="true"
+    [showNavigators]="true"
+    [autoplayInterval]="5000"
+   
+    class="custom-carousel">
+    
+    <ng-template let-product pTemplate="item">
+      <div class="product-slide">
+        <div class="product-card">
+          <div class="product-image2">
+            <img [src]="getProductImage(product)" 
+                 [alt]="product.title"
+                 class="product-img"
+                 (error)="onImageError($event)">
+          </div>
+          
+          <div class="product-info2">
+            <h3 class="product-title">{{ product.title }}</h3>
+            <p class="product-description">{{ product.description | slice:0:100 }}...</p>
+            <div class="product-price">{{ product.price }} ლარი</div>
+            
+            <!-- Enhanced View Counter Display -->
+            <div class="product-stats">
+              <div class="category-chip">
+                <i class="pi pi-tag category-icon"></i>
+                <span>{{ product.category }}</span>
+              </div>
+              <div class="view-count" [class.loading]="isLoadingViews">
+                <i class="pi pi-eye view-icon"></i>
+                <span class="view-text">{{ formatViews(product.viewCount || 0) }} ნახვა</span>
+              </div>
+            </div>
+            
+            <!-- Enhanced View Product Button -->
+            <button mat-stroked-button
+              label="პროდუქტის ნახვა"
+              icon="pi pi-external-link"
+              styleClass="p-button-raised p-button-primary view-product-btn"
+              (click)="selectProduct(product)"  >პროდუქტის ნახვა</button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+    
+  </p-carousel>
+</div>
+
+<!-- No Popular Products Template -->
+
+
 <div class="categorymain">
         <h1>პოპულარული კატეგორიები</h1>
         <div class="category-list">
