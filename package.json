@@ -29,7 +29,7 @@
     "@nguniversal/express-engine": "^7.0.2",
     "@primeuix/themes": "^1.2.3",
     "express": "^4.18.2",
-    "primeng": "^20.1.1",
+    "primeng": "^19.0.0",
     "rxjs": "~7.8.0",
     "swiper": "^11.2.10",
     "tslib": "^2.3.0",
