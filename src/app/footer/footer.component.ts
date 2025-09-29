@@ -25,5 +25,9 @@ export class FooterComponent {
   onSocialClick(platform: string) {
     console.log('სოციალური პლატფორმა:', platform);
   }
+
+  onClick(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 

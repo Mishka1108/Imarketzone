@@ -1053,6 +1053,7 @@ export class DashboardComponent implements OnInit {
   }
 
 openProductDetails(product: any): void {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   const productId = this.getProductId(product);
   
   if (!productId) {

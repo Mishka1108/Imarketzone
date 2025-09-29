@@ -190,6 +190,7 @@ export class PublicProductsComponent implements OnInit {
 
   // 🔸 გამასწორებული პროდუქტის დეტალების გახსნა
   openProductDetails(product: Product): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     const productId = this.getProductId(product);
     
     if (!productId) {
