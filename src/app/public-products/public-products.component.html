@@ -44,10 +44,12 @@
         <mat-label>ფასი (მაქს)</mat-label>
         <input matInput type="number" [(ngModel)]="maxPrice" (change)="applyFilters()">
       </mat-form-field>
-      
-      <button mat-raised-button color="primary" (click)="applyFilters()">ძიება</button>
-      <button mat-raised-button color="accent" (click)="resetFilters()">გასუფთავება</button>
+     
     </div>
+     <div class="button-container">
+        <button mat-raised-button color="primary" class="search-button" (click)="applyFilters()">ძიება</button>
+        <button mat-raised-button color="accent" class="reset-button" (click)="resetFilters()">გასუფთავება</button>
+      </div>
   </header>
   
   <div class="loading" *ngIf="isLoading">

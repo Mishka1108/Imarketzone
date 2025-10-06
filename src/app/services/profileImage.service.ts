@@ -17,4 +17,5 @@ export class ProfileImageService {
   getCurrentProfileImage(): string {
     return this.profileImageSubject.getValue();
   }
+  
 }

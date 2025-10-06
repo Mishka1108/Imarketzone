@@ -20,6 +20,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ProfileImageService } from '../services/profileImage.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -102,13 +103,15 @@ export class DashboardComponent implements OnInit {
 
   private isAndroidChrome = false;
 
+
   constructor(
     private authService: AuthService,
     private productService: ProductService,
     private imageCompressionService: ImageCompressionService,
     private router: Router,
     private snackBar: MatSnackBar,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private profileImageService: ProfileImageService
   ) {
     this.detectAndroidChrome();
   }
@@ -885,42 +888,59 @@ export class DashboardComponent implements OnInit {
     }
   }
   
-  private async handleProfileImageSelection(file: File): Promise<void> {
-    console.log('Processing profile image:', file.name);
-    this.isUploading = true;
+private async handleProfileImageSelection(file: File): Promise<void> {
+  console.log('Processing profile image:', file.name);
+  this.isUploading = true;
+  
+  try {
+    // ✅ Base64 preview შექმნა
+    const previewUrl = await this.createImagePreview(file);
     
-    try {
-      const previewUrl = await this.createImagePreview(file);
-      const previewElement = document.getElementById('profileImagePreview') as HTMLImageElement;
-      if (previewElement) {
-        previewElement.src = previewUrl;
-        console.log('Profile image preview updated successfully');
-      }
-    } catch (error) {
-      console.error('Error creating profile image preview:', error);
-      this.showSnackBar('სურათის პრევიუს შექმნისას დაფიქსირდა შეცდომა');
+    // Dashboard-ში preview-ს განახლება
+    const previewElement = document.getElementById('profileImagePreview') as HTMLImageElement;
+    if (previewElement) {
+      previewElement.src = previewUrl;
+      console.log('Dashboard preview updated');
     }
     
-    this.authService.updateProfileImage(file)
-      .pipe(finalize(() => this.isUploading = false))
-      .subscribe({
-        next: (response) => {
-          console.log('Profile image updated successfully');
-          this.showSnackBar('პროფილის სურათი განახლდა');
-        },
-        error: (error) => {
-          console.error('Profile image update error:', error);
-          this.showSnackBar('პროფილის სურათის განახლება ვერ მოხერხდა');
-          
-          if (this.currentUser?.profileImage) {
-            const previewElement = document.getElementById('profileImagePreview') as HTMLImageElement;
-            if (previewElement) {
-              previewElement.src = this.currentUser.profileImage;
-            }
-          }
-        }
-      });
+    // ✅ ᲛᲗᲐᲕᲐᲠᲘ - Service-ში განახლება (navbar-შიც გამოჩნდება!)
+    this.profileImageService.updateProfileImage(previewUrl);
+    console.log('✅ ProfileImageService.updateProfileImage() called with new image');
+    
+  } catch (error) {
+    console.error('Error creating profile image preview:', error);
+    this.showSnackBar('სურათის პრევიუს შექმნისას დაფიქსირდა შეცდომა');
   }
+  
+  // Server-ზე ატვირთვა
+  this.authService.updateProfileImage(file)
+    .pipe(finalize(() => this.isUploading = false))
+    .subscribe({
+      next: (response) => {
+        console.log('Profile image updated on server:', response);
+        
+        // თუ სერვერიდან URL მოდის, განაახლე Service-შიც
+        if (response && response.profileImage) {
+          this.profileImageService.updateProfileImage(response.profileImage);
+        }
+        
+        this.showSnackBar('პროფილის სურათი განახლდა');
+      },
+      error: (error) => {
+        console.error('Profile image update error:', error);
+        this.showSnackBar('პროფილის სურათის განახლება ვერ მოხერხდა');
+        
+        // Error-ის შემთხვევაში default-ზე დაბრუნება
+        if (this.currentUser?.profileImage) {
+          const previewElement = document.getElementById('profileImagePreview') as HTMLImageElement;
+          if (previewElement) {
+            previewElement.src = this.currentUser.profileImage;
+          }
+          this.profileImageService.updateProfileImage(this.currentUser.profileImage);
+        }
+      }
+    });
+}
   
   private async handleProductImageSelection(file: File, imageIndex: number): Promise<void> {
     console.log(`Processing product image ${imageIndex + 1}:`, file.name);

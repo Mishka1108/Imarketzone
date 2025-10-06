@@ -1,20 +1,28 @@
 <div class="nav">
   <div class="navmenu">
-  <mat-icon (click)="toggleMenu()" class="navIcon" >{{ isShow ? 'close' : 'menu' }}</mat-icon>
-  <a routerLink="/home">
-    <img 
-      src="https://i.ibb.co/bjXGQNZL/favicon-100x100.png" 
-      class="logo" 
-      alt="Logo"
-      (click)="closeMenu()">
-  </a>
-  
+    <mat-icon (click)="toggleMenu()" class="navIcon">{{ isShow ? 'close' : 'menu' }}</mat-icon>
+    <a routerLink="/home">
+      <img 
+        src="https://i.ibb.co/bjXGQNZL/favicon-100x100.png" 
+        class="logo" 
+        alt="Logo"
+        (click)="closeMenu()">
+    </a>
   </div>
-    <div class="components"  [ngClass]="{'show-menu':isShow}"> 
-      <button mat-raised-button class="btn" routerLinkActive="active" (click)="closeMenu()"  routerLink="home">Home</button>
-      <button mat-raised-button class="btn"  routerLinkActive="active" (click)="closeMenu()" routerLink="public-products">Product</button>
-      <button mat-raised-button class="btn" routerLinkActive="active" (click)="closeMenu()" routerLink="contact">Contact</button>
-    </div>
+  
+  <div class="components" [ngClass]="{'show-menu':isShow}"> 
+    <button mat-raised-button class="btn" routerLinkActive="active" (click)="closeMenu()" routerLink="home">Home</button>
+    <button mat-raised-button class="btn" routerLinkActive="active" (click)="closeMenu()" routerLink="public-products">Product</button>
+    <button mat-raised-button class="btn" routerLinkActive="active" (click)="closeMenu()" routerLink="contact">Contact</button>
+  </div>
 
-    <img [src]="profileImageUrl" class="profileimg" (click)="closeMenu()" (click)="onProfileImageClick()" alt="">
+  <!-- დაამატე debugging ტექსტი სურათის ქვემოთ -->
+  <div style="position: relative;">
+    <img 
+      [src]="profileImageUrl" 
+      class="profileimg" 
+      (click)="closeMenu(); onProfileImageClick()" 
+      alt="Profile"
+      style="cursor: pointer;">
+  </div>
 </div>

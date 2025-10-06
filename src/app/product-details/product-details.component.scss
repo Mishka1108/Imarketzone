@@ -16,7 +16,9 @@ $mobile: 480px;
 $tablet: 768px;
 $desktop: 1024px;
 $large-desktop: 1200px;
-
+.views-icon{
+  padding: 10px;
+}
 // Mixins
 @mixin mobile-only {
   @media (max-width: $mobile) { @content; }
@@ -75,6 +77,8 @@ $large-desktop: 1200px;
         font-size: 1.2rem;
       }
     }
+
+
 
     .error-icon {
       font-size: 2.5rem;
@@ -186,7 +190,7 @@ $large-desktop: 1200px;
      .views-counter{
         margin-right: 100px !important;
         display: flex;
-        gap: 5px;
+        gap: 10px;
         font-size: 19px;
         align-items: center;
 
@@ -919,9 +923,258 @@ button:focus-visible,
   }
 }
 
+
 // Ensure modal works well on very large screens
 @media (min-width: 1920px) {
   .image-modal .modal-content {
     padding: 150px 100px 120px;
+  }
+}
+// Product Card Header Styles Only
+// =================================
+
+.product-card-header {
+  background: linear-gradient(
+    135deg,
+    rgba(108, 99, 255, 0.05) 0%,
+    rgba(108, 99, 255, 0.02) 50%,
+    rgba(255, 166, 158, 0.03) 100%
+  );
+  padding: 1.75rem 1.5rem 1.5rem;
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(
+    90deg,
+    rgba(108, 99, 255, 0.2),
+    rgba(255, 166, 158, 0.2)
+  ) 1;
+  position: relative;
+  overflow: hidden;
+
+  @media (min-width: 768px) {
+    padding: 2rem 2rem 1.75rem;
+  }
+
+  // Decorative top accent line
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      #6C63FF 0%,
+      #FFA69E 100%
+    );
+    opacity: 0.8;
+  }
+
+  // Subtle background pattern
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(
+      circle,
+      rgba(108, 99, 255, 0.06) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  .product-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+    position: relative;
+    z-index: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s ease;
+
+    @media (min-width: 768px) {
+      font-size: 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (min-width: 1024px) {
+      font-size: 1.65rem;
+    }
+
+    // Gradient text effect on hover
+    &:hover {
+      background: linear-gradient(135deg, #6C63FF 0%, #FFA69E 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+
+  .product-price-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+
+    @media (min-width: 768px) {
+      gap: 1.5rem;
+    }
+
+    .product-price {
+      font-size: 1.75rem;
+      color: #4CAF50;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      padding: 0.35rem 1rem;
+      background: linear-gradient(
+        135deg,
+        rgba(76, 175, 80, 0.1) 0%,
+        rgba(76, 175, 80, 0.05) 100%
+      );
+      border-radius: 12px;
+      border: 2px solid rgba(76, 175, 80, 0.2);
+      display: inline-block;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+
+      @media (min-width: 768px) {
+        font-size: 2rem;
+        padding: 0.4rem 1.25rem;
+        border-radius: 14px;
+      }
+
+      // Shimmer effect
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        animation: shimmer 3s infinite;
+      }
+
+      &:hover {
+        transform: scale(1.05);
+        border-color: rgba(76, 175, 80, 0.4);
+        box-shadow: 0 4px 16px rgba(76, 175, 80, 0.25);
+      }
+    }
+
+    .product-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #7a7a7a;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.5rem 0.85rem;
+      background: rgba(122, 122, 122, 0.06);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+
+      @media (min-width: 768px) {
+        font-size: 1rem;
+        padding: 0.6rem 1rem;
+        border-radius: 12px;
+      }
+
+      .meta-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #6C63FF;
+        transition: transform 0.3s ease;
+
+        @media (min-width: 768px) {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .date-text {
+        color: #7a7a7a;
+        letter-spacing: 0.01em;
+      }
+
+      &:hover {
+        background: rgba(108, 99, 255, 0.08);
+        
+        .meta-icon {
+          transform: rotate(360deg);
+        }
+      }
+    }
+  }
+}
+
+// Shimmer animation
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+// Mobile responsive
+@media (max-width: 480px) {
+  .product-card-header {
+    padding: 1.5rem 1.25rem 1.25rem;
+
+    .product-title {
+      font-size: 1.35rem;
+    }
+
+    .product-price-info {
+      gap: 0.75rem;
+
+      .product-price {
+        font-size: 1.6rem;
+        padding: 0.3rem 0.85rem;
+      }
+
+      .product-meta {
+        font-size: 0.9rem;
+        padding: 0.45rem 0.75rem;
+      }
+    }
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  .product-card-header,
+  .product-title,
+  .product-price,
+  .product-meta,
+  .meta-icon {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .product-price::before {
+    animation: none !important;
   }
 }

@@ -5,6 +5,7 @@ import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { environment } from '../environment';
+import { ProfileImageService } from './profileImage.service'; // ✅ IMPORT
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class AuthService {
 
   constructor(
     private http: HttpClient,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private profileImageService: ProfileImageService // ✅ INJECT
   ) {
     this.loadUserFromStorage();
   }
@@ -29,31 +31,27 @@ export class AuthService {
     if (!token) return true;
     
     try {
-      // JWT token-ის payload-ის გაშლა
       const payload = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Math.floor(Date.now() / 1000);
       
-      // თუ exp field არსებობს, შევამოწმოთ
       if (payload.exp) {
         return payload.exp < currentTime;
       }
       
-      // თუ exp field არ არსებობს, ვთვლით რომ token ძველია
       return false;
     } catch (error) {
       console.error('Error parsing token:', error);
-      return true; // თუ token-ის parsing ვერ მოხერხდა, ვთვლით ვადაგასულად
+      return true;
     }
   }
 
-   public loadUserFromStorage(): void {
+  public loadUserFromStorage(): void {
     if (!this.isBrowser()) return;
 
     const userJson = localStorage.getItem('currentUser');
     const token = localStorage.getItem('token');
     
     if (userJson && token) {
-      // პირველ რიგში შევამოწმოთ token-ის ვალიდურობა
       if (this.isTokenExpired(token)) {
         console.log('Token expired, clearing storage');
         this.clearAuthData();
@@ -64,7 +62,12 @@ export class AuthService {
         const user = JSON.parse(userJson);
         this.currentUserSubject.next(user);
         
-        // მხოლოდ მაშინ დავირფრეშოთ, როცა token ვალიდურია
+        // ✅ UPDATE PROFILE IMAGE SERVICE ON LOAD
+        if (user && user.profileImage) {
+          console.log('Loading profile image from storage:', user.profileImage);
+          this.profileImageService.updateProfileImage(user.profileImage);
+        }
+        
         this.refreshUserData().subscribe({
           next: (refreshedUser) => {
             if (refreshedUser) {
@@ -88,9 +91,13 @@ export class AuthService {
       localStorage.removeItem('token');
     }
     this.currentUserSubject.next(null);
+    
+    // ✅ RESET PROFILE IMAGE TO DEFAULT
+    this.profileImageService.updateProfileImage(
+      'https://i.ibb.co/GvshXkLK/307ce493-b254-4b2d-8ba4-d12c080d6651.jpg'
+    );
   }
 
-  // Updated method with better error handling
   refreshUserData(): Observable<any> {
     const token = this.getToken();
     
@@ -110,12 +117,17 @@ export class AuthService {
         if (user && this.isBrowser()) {
           localStorage.setItem('currentUser', JSON.stringify(user));
           this.currentUserSubject.next(user);
+          
+          // ✅ UPDATE PROFILE IMAGE SERVICE ON REFRESH
+          if (user.profileImage) {
+            console.log('Refreshing profile image:', user.profileImage);
+            this.profileImageService.updateProfileImage(user.profileImage);
+          }
         }
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('Error refreshing user data', error);
         
-        // თუ 401 Unauthorized, token არასწორია ან ვადაგასულია
         if (error.status === 401) {
           console.log('Unauthorized - clearing auth data');
           this.clearAuthData();
@@ -138,6 +150,12 @@ export class AuthService {
             localStorage.setItem('token', response.token);
             localStorage.setItem('currentUser', JSON.stringify(response.user));
             this.currentUserSubject.next(response.user);
+            
+            // ✅ UPDATE PROFILE IMAGE SERVICE ON LOGIN
+            if (response.user.profileImage) {
+              console.log('Login: Setting profile image:', response.user.profileImage);
+              this.profileImageService.updateProfileImage(response.user.profileImage);
+            }
           }
         }),
         catchError((error: HttpErrorResponse) => {
@@ -153,8 +171,6 @@ export class AuthService {
 
   logout(): void {
     this.clearAuthData();
-    // Optional: გადამისამართება login page-ზე
-    // this.router.navigate(['/auth/login']);
   }
 
   getCurrentUser(): User | null {
@@ -190,9 +206,15 @@ export class AuthService {
     }).pipe(
       tap((response: any) => {
         if (response?.user && this.isBrowser()) {
-          console.log('Profile image updated:', response.user);
+          console.log('Profile image updated on server:', response.user);
           localStorage.setItem('currentUser', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
+          
+          // ✅ UPDATE PROFILE IMAGE SERVICE AFTER UPLOAD
+          if (response.user.profileImage) {
+            console.log('Upload success: Updating profile image service:', response.user.profileImage);
+            this.profileImageService.updateProfileImage(response.user.profileImage);
+          }
         }
       }),
       catchError((error: HttpErrorResponse) => {
@@ -207,7 +229,6 @@ export class AuthService {
     );
   }
 
-  // Additional utility method to manually validate current session
   validateSession(): Observable<boolean> {
     const token = this.getToken();
     
