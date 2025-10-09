@@ -5,7 +5,7 @@ import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { environment } from '../environment';
-import { ProfileImageService } from './profileImage.service'; // ✅ IMPORT
+import { ProfileImageService } from './profileImage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private profileImageService: ProfileImageService // ✅ INJECT
+    private profileImageService: ProfileImageService
   ) {
     this.loadUserFromStorage();
   }
@@ -62,7 +62,7 @@ export class AuthService {
         const user = JSON.parse(userJson);
         this.currentUserSubject.next(user);
         
-        // ✅ UPDATE PROFILE IMAGE SERVICE ON LOAD
+        // Update profile image service on load
         if (user && user.profileImage) {
           console.log('Loading profile image from storage:', user.profileImage);
           this.profileImageService.updateProfileImage(user.profileImage);
@@ -89,10 +89,12 @@ export class AuthService {
     if (this.isBrowser()) {
       localStorage.removeItem('currentUser');
       localStorage.removeItem('token');
+      localStorage.removeItem('userId'); // ✅ დამატებული
+      localStorage.removeItem('username'); // ✅ დამატებული
     }
     this.currentUserSubject.next(null);
     
-    // ✅ RESET PROFILE IMAGE TO DEFAULT
+    // Reset profile image to default
     this.profileImageService.updateProfileImage(
       'https://i.ibb.co/GvshXkLK/307ce493-b254-4b2d-8ba4-d12c080d6651.jpg'
     );
@@ -118,7 +120,15 @@ export class AuthService {
           localStorage.setItem('currentUser', JSON.stringify(user));
           this.currentUserSubject.next(user);
           
-          // ✅ UPDATE PROFILE IMAGE SERVICE ON REFRESH
+          // ✅ განახლდეს userId და username localStorage-ში
+          if (user._id || user.id) {
+            localStorage.setItem('userId', user._id || user.id);
+          }
+          if (user.name || user.username) {
+            localStorage.setItem('username', user.name || user.username);
+          }
+          
+          // Update profile image service on refresh
           if (user.profileImage) {
             console.log('Refreshing profile image:', user.profileImage);
             this.profileImageService.updateProfileImage(user.profileImage);
@@ -151,7 +161,15 @@ export class AuthService {
             localStorage.setItem('currentUser', JSON.stringify(response.user));
             this.currentUserSubject.next(response.user);
             
-            // ✅ UPDATE PROFILE IMAGE SERVICE ON LOGIN
+            // ✅ შეინახოს userId და username
+            if (response.user._id || response.user.id) {
+              localStorage.setItem('userId', response.user._id || response.user.id);
+            }
+            if (response.user.name || response.user.username) {
+              localStorage.setItem('username', response.user.name || response.user.username);
+            }
+            
+            // Update profile image service on login
             if (response.user.profileImage) {
               console.log('Login: Setting profile image:', response.user.profileImage);
               this.profileImageService.updateProfileImage(response.user.profileImage);
@@ -173,8 +191,79 @@ export class AuthService {
     this.clearAuthData();
   }
 
+  // ✅ განახლებული getCurrentUser მეთოდი - უფრო დეტალური
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
+  }
+
+  // ✅ ახალი მეთოდი - უფრო მარტივი ფორმატით message dialog-ისთვის
+  getCurrentUserSimple(): { id: string; name: string; avatar?: string } | null {
+    const user = this.currentUserSubject.value;
+    
+    if (!user) {
+      // Fallback - შევამოწმოთ localStorage
+      if (this.isBrowser()) {
+        const userId = localStorage.getItem('userId');
+        const username = localStorage.getItem('username');
+        
+        if (userId) {
+          return {
+            id: userId,
+            name: username || 'User'
+          };
+        }
+      }
+      return null;
+    }
+
+    return {
+      id: user._id || user.id || '',
+      name: user.name || user.username || 'User',
+      avatar: user.profileImage || undefined
+    };
+  }
+
+  // ✅ ახალი - userId-ის პირდაპირი მიღება
+  getUserId(): string | null {
+    const user = this.currentUserSubject.value;
+    
+    if (user) {
+      return user._id || user.id || null;
+    }
+    
+    // Fallback - localStorage-დან
+    if (this.isBrowser()) {
+      return localStorage.getItem('userId');
+    }
+    
+    return null;
+  }
+
+  // ✅ ახალი - username-ის პირდაპირი მიღება
+  getUsername(): string | null {
+    const user = this.currentUserSubject.value;
+    
+    if (user) {
+      return user.name || user.username || null;
+    }
+    
+    // Fallback - localStorage-დან
+    if (this.isBrowser()) {
+      return localStorage.getItem('username');
+    }
+    
+    return null;
+  }
+
+  // ✅ ახალი - user avatar-ის მიღება
+  getUserAvatar(): string | null {
+    const user = this.currentUserSubject.value;
+    
+    if (user && user.profileImage) {
+      return user.profileImage;
+    }
+    
+    return null;
   }
 
   getToken(): string | null {
@@ -185,6 +274,18 @@ export class AuthService {
   isLoggedIn(): boolean {
     const token = this.getToken();
     return token ? !this.isTokenExpired(token) : false;
+  }
+
+  // ✅ ახალი - user-ის როლის შემოწმება (თუ საჭიროა)
+  hasRole(role: string): boolean {
+    const user = this.currentUserSubject.value;
+    return user?.role === role || false;
+  }
+
+  // ✅ ახალი - შეამოწმოს არის თუ არა მოცემული პროდუქტი მომხმარებლის საკუთარი
+  isOwner(userId: string): boolean {
+    const currentUserId = this.getUserId();
+    return currentUserId === userId;
   }
 
   updateProfileImage(file: File): Observable<any> {
@@ -210,7 +311,7 @@ export class AuthService {
           localStorage.setItem('currentUser', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
           
-          // ✅ UPDATE PROFILE IMAGE SERVICE AFTER UPLOAD
+          // Update profile image service after upload
           if (response.user.profileImage) {
             console.log('Upload success: Updating profile image service:', response.user.profileImage);
             this.profileImageService.updateProfileImage(response.user.profileImage);
@@ -248,6 +349,68 @@ export class AuthService {
         return of(false);
       }),
       tap(() => of(!!this.getCurrentUser()))
+    );
+  }
+
+  // ✅ ახალი - password-ის შეცვლა
+  changePassword(oldPassword: string, newPassword: string): Observable<any> {
+    const token = this.getToken();
+    
+    if (!token || this.isTokenExpired(token)) {
+      this.clearAuthData();
+      return throwError(() => new Error('Authentication required'));
+    }
+
+    return this.http.put(`${this.apiUrl}/users/change-password`, 
+      { oldPassword, newPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    ).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.clearAuthData();
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  // ✅ ახალი - პროფილის განახლება
+  updateProfile(profileData: Partial<User>): Observable<any> {
+    const token = this.getToken();
+    
+    if (!token || this.isTokenExpired(token)) {
+      this.clearAuthData();
+      return throwError(() => new Error('Authentication required'));
+    }
+
+    return this.http.put(`${this.apiUrl}/users/profile`, profileData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    }).pipe(
+      tap((response: any) => {
+        if (response?.user && this.isBrowser()) {
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
+          this.currentUserSubject.next(response.user);
+          
+          // განახლდეს localStorage-ში username
+          if (response.user.name || response.user.username) {
+            localStorage.setItem('username', response.user.name || response.user.username);
+          }
+        }
+      }),
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          this.clearAuthData();
+        }
+        return throwError(() => error);
+      })
     );
   }
 }

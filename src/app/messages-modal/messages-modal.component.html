@@ -1,0 +1,157 @@
+<!-- src/app/components/messages-modal/messages-modal.component.html -->
+
+<div class="messages-modal">
+  <!-- Header -->
+  <div class="modal-header">
+    <h2>
+      <mat-icon>chat</mat-icon>
+      შეტყობინებები
+    </h2>
+    <button mat-icon-button (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="modal-content">
+    <!-- Left Sidebar - საუბრების სია -->
+    <div class="conversations-sidebar">
+      <div class="sidebar-header">
+        <h3>საუბრები</h3>
+        <span class="conversations-count">{{ conversations.length }}</span>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="isLoadingConversations" class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>იტვირთება...</p>
+      </div>
+
+      <!-- No conversations -->
+      <div *ngIf="!isLoadingConversations && conversations.length === 0" class="no-conversations">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <p>საუბრები არ არის</p>
+        <small>ახალი შეტყობინება გაგზავნეთ პროდუქტის გვერდიდან</small>
+      </div>
+
+      <!-- Conversations List -->
+      <div *ngIf="!isLoadingConversations && conversations.length > 0" class="conversations-list">
+        <div *ngFor="let conversation of conversations" 
+             class="conversation-item"
+             [class.active]="selectedConversation && (selectedConversation._id === conversation._id || selectedConversation.id === conversation.id)"
+             (click)="selectConversation(conversation)">
+          
+          <img [src]="conversation.otherUser.avatar || getDefaultAvatar()" 
+               alt="avatar" 
+               class="user-avatar"
+               (error)="onAvatarError($event)">
+          
+          <div class="conversation-info">
+            <div class="conversation-header">
+              <h4>{{ conversation.otherUser.name || 'უცნობი მომხმარებელი' }}</h4>
+              <span class="time">{{ getLastMessageTime(conversation) }}</span>
+            </div>
+            <div class="conversation-preview">
+              <p [class.unread]="(conversation.unreadCount || 0) > 0">
+                {{ getLastMessagePreview(conversation) }}
+              </p>
+              <span class="unread-badge" *ngIf="(conversation.unreadCount || 0) > 0">
+                {{ conversation.unreadCount }}
+              </span>
+            </div>
+          </div>
+
+          <button mat-icon-button 
+                  class="delete-conversation-btn"
+                  (click)="deleteConversation(conversation, $event)"
+                  matTooltip="საუბრის წაშლა">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - შეტყობინებები -->
+    <div class="messages-section">
+      <!-- No conversation selected -->
+      <div *ngIf="!selectedConversation" class="no-selection">
+        <mat-icon>forum</mat-icon>
+        <p>აირჩიეთ საუბარი შეტყობინებების სანახავად</p>
+      </div>
+
+      <!-- Selected Conversation -->
+      <div *ngIf="selectedConversation" class="conversation-view">
+        <!-- Conversation Header -->
+        <div class="conversation-header-bar">
+          <img [src]="selectedConversation.otherUser.avatar || getDefaultAvatar()" 
+               alt="avatar" 
+               class="user-avatar-small"
+               (error)="onAvatarError($event)">
+          <div class="user-details">
+            <h3>{{ selectedConversation.otherUser.name || 'უცნობი მომხმარებელი' }}</h3>
+            <p class="user-email">{{ selectedConversation.otherUser.email || '' }}</p>
+          </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-list-container" [class.loading]="isLoadingMessages">
+          <!-- Loading -->
+          <div *ngIf="isLoadingMessages" class="loading-messages">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>შეტყობინებები იტვირთება...</p>
+          </div>
+
+          <!-- No messages -->
+          <div *ngIf="!isLoadingMessages && messages.length === 0" class="no-messages">
+            <mat-icon>chat_bubble_outline</mat-icon>
+            <p>შეტყობინებები არ არის</p>
+            <small>გააგზავნეთ პირველი შეტყობინება</small>
+          </div>
+
+          <!-- Messages List -->
+          <div *ngIf="!isLoadingMessages && messages.length > 0" class="messages-list">
+            <div *ngFor="let message of messages" 
+                 class="message-wrapper"
+                 [class.own-message]="isOwnMessage(message)"
+                 [class.other-message]="!isOwnMessage(message)">
+              
+              <!-- ✅ Avatar for other user's messages -->
+              <img *ngIf="!isOwnMessage(message)"
+                   [src]="getMessageSenderAvatar(message)"
+                   alt="avatar"
+                   class="message-avatar"
+                   (error)="onAvatarError($event)">
+              
+              <div class="message-bubble">
+                <p class="message-content">{{ message.content }}</p>
+                <span class="message-time">{{ getMessageTime(message) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input-container">
+          <mat-form-field appearance="outline" class="message-input">
+            <textarea matInput
+                      [(ngModel)]="newMessage"
+                      (keypress)="onKeyPress($event)"
+                      placeholder="შეტყობინების დაწერა..."
+                      rows="2"
+                      [disabled]="isSending"></textarea>
+          </mat-form-field>
+          
+          <button mat-fab 
+                  color="primary"
+                  (click)="sendMessage()"
+                  [disabled]="!newMessage.trim() || isSending"
+                  class="send-button"
+                  matTooltip="გაგზავნა">
+            <mat-icon *ngIf="!isSending">send</mat-icon>
+            <mat-spinner *ngIf="isSending" diameter="24"></mat-spinner>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

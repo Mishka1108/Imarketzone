@@ -21,6 +21,9 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ProfileImageService } from '../services/profileImage.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MessageService } from '../services/message.service';
+import { MessagesModalComponent } from '../messages-modal/messages-modal.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,7 +39,12 @@ import { ProfileImageService } from '../services/profileImage.service';
     MatInputModule, 
     MatFormFieldModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+   MatFormFieldModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
+    MatDialogModule
+
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
@@ -47,6 +55,8 @@ export class DashboardComponent implements OnInit {
   @ViewChild('productInput1', { static: false }) productInput1Ref!: ElementRef<HTMLInputElement>;
   @ViewChild('productInput2', { static: false }) productInput2Ref!: ElementRef<HTMLInputElement>;
   @ViewChild('productInput3', { static: false }) productInput3Ref!: ElementRef<HTMLInputElement>;
+
+  unreadMessagesCount: number = 0;
 
   currentUser: User | null = null;
   productFormVisible: boolean = false;
@@ -105,46 +115,47 @@ export class DashboardComponent implements OnInit {
 
 
   constructor(
-    private authService: AuthService,
+       private authService: AuthService,
     private productService: ProductService,
     private imageCompressionService: ImageCompressionService,
     private router: Router,
     private snackBar: MatSnackBar,
     private ngZone: NgZone,
-    private profileImageService: ProfileImageService
+    private profileImageService: ProfileImageService,
+    private dialog: MatDialog,           // ⬅️ ახალი
+    private messageService: MessageService 
   ) {
     this.detectAndroidChrome();
   }
   
   ngOnInit(): void {
-    console.log('🚀 Dashboard ngOnInit started');
     
     // ✅ FIXED: Better user subscription handling
     this.authService.currentUser$.subscribe({
       next: (user) => {
-        console.log('👤 User data received:', user ? 'User logged in' : 'No user');
         this.currentUser = user;
         
         if (!this.currentUser) {
-          console.log('❌ No user found, redirecting to login');
           this.router.navigate(['/auth/login']);
           return;
         }
         
         // ✅ Load products when user is available
-        console.log('✅ User available, loading products...');
+      
         this.loadUserProducts();
+        this.loadUnreadMessagesCount();
       },
       error: (error) => {
         console.error('❌ Error in user subscription:', error);
         this.router.navigate(['/auth/login']);
       }
-    });
+    }
+    
+  );
 
     // ✅ Refresh user data on component init
     this.authService.refreshUserData().subscribe({
       next: (user) => {
-        console.log('🔄 User data refreshed successfully');
       },
       error: (error) => {
         console.error('❌ Failed to refresh user data:', error);
@@ -175,7 +186,7 @@ export class DashboardComponent implements OnInit {
   private detectAndroidChrome(): void {
     const userAgent = navigator.userAgent.toLowerCase();
     this.isAndroidChrome = userAgent.includes('android') && userAgent.includes('chrome');
-    console.log('🤖 Android Chrome detected:', this.isAndroidChrome);
+    
   }
   
   private _filterCategories(value: string): string[] {
@@ -194,19 +205,18 @@ export class DashboardComponent implements OnInit {
   
   // ✅ COMPLETELY FIXED: Product loading with better error handling
   loadUserProducts(): void {
-    console.log('📦 Starting to load user products...');
-    console.log('📊 Current products before loading:', this.userProducts.length);
+ 
     
     this.isLoadingProducts = true;
     
     this.productService.getUserProducts()
       .pipe(
-        tap(response => console.log('🔍 Raw API response:', response)),
+      
         timeout(20000), // 20 second timeout
         retry({count: 3, delay: 1000}), // Retry 3 times with 1 second delay
         finalize(() => {
           this.isLoadingProducts = false;
-          console.log('🏁 Product loading process finished');
+    
         }),
         catchError((error) => {
           console.error('❌ Error loading products:', error);
@@ -233,7 +243,7 @@ export class DashboardComponent implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          console.log('📨 Processing API response:', response);
+    
           
           try {
             // ✅ IMPROVED: Handle different response formats
@@ -241,18 +251,18 @@ export class DashboardComponent implements OnInit {
             
             if (response && Array.isArray(response.products)) {
               products = response.products;
-              console.log('📋 Response format: { products: [...] }');
+              
             } else if (response && Array.isArray(response.data)) {
               products = response.data;
-              console.log('📋 Response format: { data: [...] }');
+             
             } else if (Array.isArray(response)) {
               products = response;
-              console.log('📋 Response format: [...]');
+            
             } else if (response && response.result && Array.isArray(response.result)) {
               products = response.result;
-              console.log('📋 Response format: { result: [...] }');
+     
             } else {
-              console.warn('⚠️ Unexpected response format:', response);
+             
               products = [];
             }
             
@@ -263,17 +273,14 @@ export class DashboardComponent implements OnInit {
                 (product._id || product.id) && 
                 product.title
               );
-              console.log(`✅ Successfully loaded ${this.userProducts.length} valid products`);
-              console.log('📦 Product titles:', this.userProducts.map(p => p.title));
-              console.log('📦 Product IDs:', this.userProducts.map(p => p._id || p.id));
+            
             } else {
               console.warn('⚠️ Products is not an array:', products);
               this.userProducts = [];
             }
             
             // ✅ Log final state
-            console.log(`🎯 Final product count: ${this.userProducts.length}`);
-            console.log('🎯 Final products:', this.userProducts);
+          
             
             // ✅ AUTO-CLOSE FORM if limit reached
             if (this.userProducts.length >= this.MAX_PRODUCTS_ALLOWED && this.productFormVisible) {
@@ -283,11 +290,7 @@ export class DashboardComponent implements OnInit {
             }
             
             // ✅ Show success message if products loaded
-            if (this.userProducts.length > 0) {
-              console.log('✅ Products displayed successfully');
-            } else {
-              console.log('ℹ️ No products found for this user');
-            }
+           
             
           } catch (processingError) {
             console.error('❌ Error processing response:', processingError);
@@ -304,8 +307,7 @@ export class DashboardComponent implements OnInit {
 
   // ✅ ENHANCED: Toggle product form with strict limit check
   toggleProductForm(): void {
-    console.log('🔄 Toggle form clicked. Current products:', this.userProducts.length, 'Limit:', this.MAX_PRODUCTS_ALLOWED);
-    
+   
     // ✅ PREVENT opening form if limit reached
     if (!this.productFormVisible && this.userProducts.length >= this.MAX_PRODUCTS_ALLOWED) {
       this.showSnackBar(`❌ მიღწეულია პროდუქტების მაქსიმალური რაოდენობა (${this.MAX_PRODUCTS_ALLOWED}). ვერ დაამატებთ ახალ პროდუქტს!`);
@@ -325,15 +327,12 @@ export class DashboardComponent implements OnInit {
       }
     }
     
-    console.log('📱 Form visibility:', this.productFormVisible);
+
   }
 
   // ✅ COMPLETELY REFACTORED: Add product method
   addProduct(): void {
-    console.log('🚀 Starting add product process...');
-    console.log('📊 Current products count:', this.userProducts.length);
-    console.log('📊 Max allowed:', this.MAX_PRODUCTS_ALLOWED);
-    
+
     // ✅ FIRST CHECK: Product limit before validation
     if (this.userProducts.length >= this.MAX_PRODUCTS_ALLOWED) {
       this.showSnackBar(`❌ მიღწეულია პროდუქტების მაქსიმალური რაოდენობა (${this.MAX_PRODUCTS_ALLOWED})!`);
@@ -344,8 +343,7 @@ export class DashboardComponent implements OnInit {
     
     // ✅ Form validation
     if (this.productForm.invalid) {
-      console.log('❌ Form validation failed');
-      console.log('❌ Form errors:', this.getFormErrors());
+   
       this.showSnackBar('❌ გთხოვთ შეავსოთ ყველა საჭირო ველი სწორად');
       this.markFormGroupTouched(this.productForm);
       return;
@@ -356,8 +354,7 @@ export class DashboardComponent implements OnInit {
       this.showSnackBar('❌ გთხოვთ აირჩიოთ მინიმუმ ერთი პროდუქტის სურათი');
       return;
     }
-    
-    console.log('✅ All validations passed, proceeding with product addition');
+
     
     // ✅ Proceed with adding product
     this.performAddProduct();
@@ -377,7 +374,7 @@ export class DashboardComponent implements OnInit {
 
   // ✅ IMPROVED: Separated method for actual product addition
   private performAddProduct(): void {
-    console.log('🔧 Performing product addition...');
+   
     
     // ✅ FINAL SAFETY CHECK
     if (this.userProducts.length >= this.MAX_PRODUCTS_ALLOWED) {
@@ -392,8 +389,7 @@ export class DashboardComponent implements OnInit {
     // ✅ Add form fields with better validation
     const formValues = this.productForm.value;
     
-    console.log('📋 Form values:', formValues);
-    
+
     // ✅ FIXED: Better field handling
     if (formValues.title) formData.append('title', formValues.title.trim());
     if (formValues.category) formData.append('category', formValues.category.trim());
@@ -410,11 +406,10 @@ export class DashboardComponent implements OnInit {
       if (image) {
         formData.append('images', image, `product_${Date.now()}_${index}.jpg`);
         imageCount++;
-        console.log(`📷 Added image ${index + 1}: ${image.name} (${(image.size / 1024).toFixed(2)} KB)`);
+      
       }
     });
 
-    console.log(`📊 Total ${imageCount} images added to FormData`);
     
     // ✅ Final validation check
     if (imageCount === 0) {
@@ -424,27 +419,22 @@ export class DashboardComponent implements OnInit {
     }
 
     // ✅ Debug: Log all FormData entries
-    console.log('📤 FormData contents:');
+ 
     for (const [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`${key}: File(${value.name}, ${value.size} bytes)`);
-      } else {
-        console.log(`${key}: ${value}`);
-      }
+    
     }
 
     // ✅ Start upload process
     this.isUploading = true;
     this.showSnackBar('⏳ პროდუქტი იტვირთება...');
 
-    console.log('📤 Starting product upload...');
 
     this.productService.addProduct(formData)
       .pipe(
         timeout(120000), // Increased timeout for image uploads (2 minutes)
         finalize(() => {
           this.isUploading = false;
-          console.log('🏁 Upload process finished');
+         
         }),
         catchError((error) => {
           console.error('❌ Product addition error:', error);
@@ -478,10 +468,8 @@ export class DashboardComponent implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          console.log('📨 Server response:', response);
           
           if (response) {
-            console.log('✅ Product added successfully');
             this.showSnackBar('🎉 პროდუქტი წარმატებით დაემატა!');
             
             // ✅ IMPORTANT: Reset form and close it FIRST
@@ -489,20 +477,17 @@ export class DashboardComponent implements OnInit {
             this.productFormVisible = false;
             
             // ✅ CRITICAL: Multiple reload strategies
-            console.log('🔄 Reloading products after successful addition...');
             
             // Strategy 1: Immediate reload
             this.loadUserProducts();
             
             // Strategy 2: Delayed reload as backup
             timer(1000).subscribe(() => {
-              console.log('🔄 Backup product reload...');
               this.loadUserProducts();
             });
             
             // Strategy 3: Second delayed reload
             timer(3000).subscribe(() => {
-              console.log('🔄 Final product reload...');
               this.loadUserProducts();
             });
             
@@ -528,8 +513,6 @@ export class DashboardComponent implements OnInit {
 
   // ✅ IMPROVED: Delete product with immediate UI update
   deleteProduct(productId: string): void {
-    console.log('🗑️ Attempting to delete product:', productId);
-    
     if (!productId) {
       console.error('❌ No product ID provided');
       this.showSnackBar('❌ პროდუქტის ID არ არის მითითებული');
@@ -544,11 +527,8 @@ export class DashboardComponent implements OnInit {
     const originalProducts = [...this.userProducts];
     const productToDelete = this.userProducts.find(p => p._id === productId || p.id === productId);
     this.userProducts = this.userProducts.filter(p => p._id !== productId && p.id !== productId);
-    console.log(`🔄 Optimistically removed product. New count: ${this.userProducts.length}`);
-
     this.productService.deleteProduct(productId).subscribe({
       next: (response) => {
-        console.log('✅ Product successfully deleted from server:', response);
         this.showSnackBar('✅ პროდუქტი წარმატებით წაიშალა');
         
         // ✅ Force reload to ensure consistency
@@ -560,9 +540,7 @@ export class DashboardComponent implements OnInit {
         console.error('❌ Product deletion error:', error);
         
         // ✅ Revert optimistic update on error
-        this.userProducts = originalProducts;
-        console.log('🔄 Reverted optimistic update due to error');
-        
+        this.userProducts = originalProducts; 
         let errorMessage = 'პროდუქტის წაშლა ვერ მოხერხდა';
         if (error.status === 401) {
           errorMessage = 'ავტორიზაციის შეცდომა';
@@ -581,7 +559,6 @@ export class DashboardComponent implements OnInit {
   
   // ✅ ENHANCED: Better form reset
   resetProductForm(): void {
-    console.log('🧹 Resetting product form...');
     
     this.productForm.reset();
     this.productForm.markAsUntouched();
@@ -599,15 +576,12 @@ export class DashboardComponent implements OnInit {
         input.value = '';
       }
     });
-    
-    console.log('✅ Product form reset complete');
   }
   
   // ✅ ENHANCED: Strict product limit check with logging
   canAddMoreProducts(): boolean {
     const currentCount = this.userProducts?.length || 0;
     const canAdd = currentCount < this.MAX_PRODUCTS_ALLOWED;
-    console.log(`🔢 canAddMoreProducts: ${canAdd} (current: ${currentCount}, max: ${this.MAX_PRODUCTS_ALLOWED})`);
     return canAdd;
   }
   
@@ -629,7 +603,6 @@ export class DashboardComponent implements OnInit {
   
   // ✅ IMPROVED: Better snackbar with more details
   showSnackBar(message: string, duration: number = 5000): void {
-    console.log('📢 Showing snackbar:', message);
     this.snackBar.open(message, 'დახურვა', {
       duration: duration,
       horizontalPosition: 'center',
@@ -640,17 +613,14 @@ export class DashboardComponent implements OnInit {
 
   // ✅ NEW: Force reload products (for debugging)
   forceReloadProducts(): void {
-    console.log('🔄 Force reloading products...');
     this.userProducts = []; // Clear current products
     this.loadUserProducts();
   }
 
   // ✅ NEW: Check server connection
   checkServerConnection(): void {
-    console.log('🌐 Checking server connection...');
     this.productService.checkConnection().subscribe({
       next: (response) => {
-        console.log('✅ Server connection OK:', response);
         this.showSnackBar('✅ სერვერთან კავშირი წარმატებულია');
       },
       error: (error) => {
@@ -682,7 +652,6 @@ export class DashboardComponent implements OnInit {
           return;
         }
 
-        console.log('Triggering profile file input, Android Chrome:', this.isAndroidChrome);
 
         if (this.isAndroidChrome) {
           this.handleAndroidChromeFileInput(fileInput, 'profile');
@@ -708,8 +677,6 @@ export class DashboardComponent implements OnInit {
           return;
         }
 
-        console.log(`Triggering product file input ${imageIndex + 1}, Android Chrome:`, this.isAndroidChrome);
-
         if (this.isAndroidChrome) {
           this.handleAndroidChromeFileInput(fileInput, 'product', imageIndex);
         } else {
@@ -724,8 +691,6 @@ export class DashboardComponent implements OnInit {
   }
 
   private handleAndroidChromeFileInput(fileInput: HTMLInputElement, type: 'profile' | 'product', imageIndex?: number): void {
-    console.log('Handling Android Chrome file input for:', type, imageIndex !== undefined ? `index: ${imageIndex}` : '');
-    
     fileInput.value = '';
     fileInput.removeAttribute('value');
     
@@ -736,7 +701,6 @@ export class DashboardComponent implements OnInit {
     
     const attemptClick = () => {
       attemptCount++;
-      console.log(`Attempt ${attemptCount} to trigger file input`);
       
       try {
         touchEvents.forEach(eventType => {
@@ -788,18 +752,12 @@ export class DashboardComponent implements OnInit {
       try {
         const input = event.target as HTMLInputElement;
         
-        console.log('File selection event triggered for:', type, imageIndex !== undefined ? `index: ${imageIndex}` : '');
-        console.log('Input element:', input);
-        console.log('Files found:', input?.files?.length || 0);
-        
         if (!input || !input.files || input.files.length === 0) {
           console.warn('No file selected immediately, checking for delayed selection...');
           
           const checkDelayedSelection = (attempt: number = 1) => {
             setTimeout(() => {
-              console.log(`Delayed check attempt ${attempt}`);
               if (input?.files && input.files.length > 0) {
-                console.log('Delayed file detection successful:', input.files[0].name);
                 this.processSelectedFile(input.files[0], type, imageIndex);
               } else if (attempt < 5) {
                 checkDelayedSelection(attempt + 1);
@@ -814,7 +772,7 @@ export class DashboardComponent implements OnInit {
         }
         
         const file = input.files[0];
-        console.log('File selected immediately:', file.name);
+ 
         this.processSelectedFile(file, type, imageIndex);
         
       } catch (error) {
@@ -825,18 +783,11 @@ export class DashboardComponent implements OnInit {
   }
 
   onAlternativeFileSelected(event: Event, type: 'profile' | 'product', imageIndex?: number): void {
-    console.log('Alternative file selection triggered for:', type, imageIndex !== undefined ? `index: ${imageIndex}` : '');
     this.onFileSelected(event, type, imageIndex);
   }
 
   private async processSelectedFile(file: File, type: 'profile' | 'product', imageIndex?: number): Promise<void> {
-    console.log('Processing selected file:', {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      lastModified: file.lastModified,
-      imageIndex: imageIndex
-    });
+  
     
     if (!file.type.startsWith('image/')) {
       this.showSnackBar('გთხოვთ აირჩიოთ მხოლოდ სურათი');
@@ -866,14 +817,10 @@ export class DashboardComponent implements OnInit {
         format: 'jpeg' as const
       };
 
-      console.log(`Starting compression for ${type} image...`);
-      console.log(`Original size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
 
       const compressedFile = await this.imageCompressionService.compressImage(file, compressionOptions);
       
-      console.log(`Compressed size: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
-      console.log(`Compression ratio: ${((1 - compressedFile.size / file.size) * 100).toFixed(1)}%`);
-      
+    
       if (type === 'profile') {
         await this.handleProfileImageSelection(compressedFile);
       } else if (type === 'product' && imageIndex !== undefined) {
@@ -889,7 +836,6 @@ export class DashboardComponent implements OnInit {
   }
   
 private async handleProfileImageSelection(file: File): Promise<void> {
-  console.log('Processing profile image:', file.name);
   this.isUploading = true;
   
   try {
@@ -900,12 +846,11 @@ private async handleProfileImageSelection(file: File): Promise<void> {
     const previewElement = document.getElementById('profileImagePreview') as HTMLImageElement;
     if (previewElement) {
       previewElement.src = previewUrl;
-      console.log('Dashboard preview updated');
     }
     
     // ✅ ᲛᲗᲐᲕᲐᲠᲘ - Service-ში განახლება (navbar-შიც გამოჩნდება!)
     this.profileImageService.updateProfileImage(previewUrl);
-    console.log('✅ ProfileImageService.updateProfileImage() called with new image');
+
     
   } catch (error) {
     console.error('Error creating profile image preview:', error);
@@ -917,7 +862,6 @@ private async handleProfileImageSelection(file: File): Promise<void> {
     .pipe(finalize(() => this.isUploading = false))
     .subscribe({
       next: (response) => {
-        console.log('Profile image updated on server:', response);
         
         // თუ სერვერიდან URL მოდის, განაახლე Service-შიც
         if (response && response.profileImage) {
@@ -943,7 +887,6 @@ private async handleProfileImageSelection(file: File): Promise<void> {
 }
   
   private async handleProductImageSelection(file: File, imageIndex: number): Promise<void> {
-    console.log(`Processing product image ${imageIndex + 1}:`, file.name);
     
     if (imageIndex < 0 || imageIndex >= this.MAX_PRODUCT_IMAGES) {
       console.error('Invalid image index:', imageIndex);
@@ -954,7 +897,6 @@ private async handleProfileImageSelection(file: File): Promise<void> {
     
     try {
       this.productImagePreviews[imageIndex] = await this.createImagePreview(file);
-      console.log(`Product image ${imageIndex + 1} preview updated successfully`);
     } catch (error) {
       console.error(`Error creating product image ${imageIndex + 1} preview:`, error);
       this.showSnackBar(`პროდუქტის სურათის ${imageIndex + 1} პრევიუს შექმნისას დაფიქსირდა შეცდომა`);
@@ -967,7 +909,6 @@ private async handleProfileImageSelection(file: File): Promise<void> {
     if (imageIndex >= 0 && imageIndex < this.MAX_PRODUCT_IMAGES) {
       this.productImages[imageIndex] = null;
       this.productImagePreviews[imageIndex] = null;
-      console.log(`Product image ${imageIndex + 1} removed`);
     }
   }
 
@@ -1048,7 +989,7 @@ private async handleProfileImageSelection(file: File): Promise<void> {
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     if (img) {
-      console.log('Image load error:', img.src);
+
       img.src = '/assets/default-product.jpg';
       img.alt = 'სურათი ვერ ჩაიტვირთა';
     }
@@ -1092,7 +1033,6 @@ openProductDetails(product: any): void {
     console.warn('პროდუქტის title ვერ მოიძებნა, დეფოლტი slug-ის გამოყენება');
   }
 
-  console.log('🔗 Navigating to product details:', { productId, slug, title: product?.title });
   this.router.navigate(['/product-details', productId, slug]);
 }
 
@@ -1125,5 +1065,41 @@ generateSlug(title: any): string {
 
   trackByImageUrl(index: number, imageUrl: string): any {
     return imageUrl || index;
+  }
+
+    loadUnreadMessagesCount(): void {
+    
+    this.messageService.unreadCount$.subscribe({
+      next: (count) => {
+        this.unreadMessagesCount = count;
+      },
+      error: (error) => {
+        console.error('❌ Failed to load unread count:', error);
+        this.unreadMessagesCount = 0;
+      }
+    });
+  }
+
+ openMessages(): void {
+ 
+    
+    const userId = localStorage.getItem('userId');
+    
+    if (!userId) {
+      console.error('❌ User not logged in');
+      // შეგიძლიათ აჩვენოთ შეტყობინება ან გადაიყვანოთ login-ზე
+      return;
+    }
+
+    this.dialog.open(MessagesModalComponent, {
+      width: '90vw',
+      maxWidth: '1200px',
+      height: '80vh',
+      panelClass: 'messages-modal-dialog',
+      data: {
+        userId: userId,
+        userName: localStorage.getItem('userName') // optional
+      }
+    });
   }
 }

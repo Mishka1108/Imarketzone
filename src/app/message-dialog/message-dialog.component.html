@@ -1,0 +1,69 @@
+<div class="message-dialog">
+  <!-- Header -->
+  <div class="dialog-header">
+    <div class="user-info">
+    <img [src]="getReceiverAvatar()" 
+           alt="avatar" 
+           class="avatar"
+           (error)="onAvatarError($event)">
+           
+      <div class="user-details">
+        <h2>{{ data.receiverName }}</h2>
+        <p *ngIf="data.productTitle" class="product-title">
+          <mat-icon>inventory_2</mat-icon>
+          {{ data.productTitle }}
+        </p>
+      </div>
+    </div>
+    <button mat-icon-button (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Messages Container -->
+  <div class="messages-container" [class.loading]="isLoading">
+    <div *ngIf="isLoading" class="loading-spinner">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>იტვირთება...</p>
+    </div>
+
+    <div *ngIf="!isLoading && messages.length === 0" class="no-messages">
+      <mat-icon>chat_bubble_outline</mat-icon>
+      <p>ჯერ არ გაქვთ შეტყობინებები</p>
+      <small>დაწერეთ პირველი შეტყობინება</small>
+    </div>
+
+    <div *ngIf="!isLoading && messages.length > 0" class="messages-list">
+      <div *ngFor="let message of messages" 
+           class="message-item"
+           [class.own-message]="isOwnMessage(message)"
+           [class.other-message]="!isOwnMessage(message)">
+        <div class="message-bubble">
+          <p class="message-content">{{ message.content }}</p>
+          <span class="message-time">{{ getMessageTime(message) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Message Input -->
+  <div class="message-input-container">
+    <mat-form-field appearance="outline" class="message-input">
+      <textarea matInput
+                [(ngModel)]="newMessage"
+                (keypress)="onKeyPress($event)"
+                placeholder="შეტყობინების დაწერა..."
+                rows="1"
+                [disabled]="isSending"></textarea>
+    </mat-form-field>
+    
+    <button mat-fab 
+            color="primary"
+            (click)="sendMessage()"
+            [disabled]="!newMessage.trim() || isSending"
+            class="send-button">
+      <mat-icon *ngIf="!isSending">send</mat-icon>
+      <mat-spinner *ngIf="isSending" diameter="24"></mat-spinner>
+    </button>
+  </div>
+</div>

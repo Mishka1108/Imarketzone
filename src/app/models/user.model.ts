@@ -1,6 +1,7 @@
 // src/app/models/user.model.ts
 
 export interface User {
+  username: string;
   id?: string;
   _id?: string;  // MongoDB-ს ID ველი
   name: string;

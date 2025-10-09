@@ -12,6 +12,9 @@ import { Location } from '@angular/common';
 import { ProductService } from '../services/product.service';
 import { Product } from '../models/product';
 import { Subject, takeUntil } from 'rxjs';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-product-details',
@@ -23,7 +26,8 @@ import { Subject, takeUntil } from 'rxjs';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatIconModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDialogModule
   ],
   templateUrl: './product-details.component.html',
   styleUrls: ['./product-details.component.scss'],
@@ -36,20 +40,16 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   currentImageIndex = 0;
   productImages: string[] = [];
   
-  // ✅ ნახვების სტატისტიკა - განახლებული
   productViews: number = 0;
   todayViews: number = 0;
   weekViews: number = 0;
   monthViews: number = 0;
   isLoadingViews: boolean = false;
-  viewsData: any = null; // მთელი ობიექტის შესანახად
+  viewsData: any = null;
   
-  // Image modal properties
   showImageModal = false;
   currentModalIndex = 0;
   private touchStartX: number | null = null;
-
-  // Subscription management
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -59,7 +59,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     private location: Location,
     private snackBar: MatSnackBar,
     private titleService: Title,
-    private metaService: Meta
+    private metaService: Meta,
+    private dialog: MatDialog,
+    private authService: AuthService
   ) {}
 
   private setSEOData(product: Product): void {
@@ -69,7 +71,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     const url = window.location.href;
 
     this.titleService.setTitle(title);
-
     this.metaService.updateTag({ name: 'description', content: description });
     this.metaService.updateTag({ property: 'og:title', content: title });
     this.metaService.updateTag({ property: 'og:description', content: description });
@@ -79,9 +80,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('=== PRODUCT DETAILS DEBUG START ===');
-    console.log('Current URL:', window.location.href);
-    console.log('Route snapshot params:', this.route.snapshot.params);
-    
     const rawSlug = this.route.snapshot.paramMap.get('slug');
     console.log('Raw Product Slug from route:', rawSlug);
     
@@ -92,34 +90,20 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // ✅ რამდენიმე მცდელობა სხვადასხვა მეთოდით
     this.tryLoadProduct(rawSlug);
   }
 
-  // ✅ ახალი მეთოდი - რამდენიმე სტრატეგია
   private tryLoadProduct(rawSlug: string): void {
     console.log('🔄 პირველი მცდელობა - URL decode-ით');
-    
-    // Strategy 1: URL decode
     const decodedSlug = decodeURIComponent(rawSlug);
-    console.log('Decoded slug:', decodedSlug);
     
     this.loadProductBySlug(decodedSlug).then(success => {
       if (!success) {
-        console.log('🔄 მეორე მცდელობა - raw slug-ით');
-        
-        // Strategy 2: Raw slug
         this.loadProductBySlug(rawSlug).then(success => {
           if (!success) {
-            console.log('🔄 მესამე მცდელობა - normalized slug-ით');
-            
-            // Strategy 3: Normalized slug
             const normalizedSlug = this.normalizeSlug(decodedSlug);
-            console.log('Normalized slug:', normalizedSlug);
-            
             this.loadProductBySlug(normalizedSlug).then(success => {
               if (!success) {
-                console.log('🔄 მეოთხე მცდელობა - search-ით');
                 this.trySearchProduct(decodedSlug);
               }
             });
@@ -129,7 +113,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ✅ Promise-based slug loading
   private async loadProductBySlug(slug: string): Promise<boolean> {
     console.log('ვცდილობთ პროდუქტის ჩატვირთვას Slug-ით:', slug);
     
@@ -139,21 +122,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             console.log('✅ პროდუქტი მოიძებნა:', response);
-            
             this.product = response.product || response;
             
             if (this.product) {
               this.productImages = this.getAllProductImages(this.product);
               this.setSEOData(this.product);
-              
-              // ✅ ნახვების სტატისტიკის ჩატვირთვა
               this.loadProductViews();
-              
-              console.log('კონტაქტის ინფორმაცია კომპონენტში:', {
-                email: this.product.email,
-                phone: this.product.phone,
-                userName: this.product.userName
-              });
             }
             
             this.isLoading = false;
@@ -167,76 +141,54 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ✅ განახლებული ნახვების სტატისტიკის ჩატვირთვა
   private loadProductViews(): void {
     if (!this.product || !this.product._id) {
       console.warn('⚠️ Product ID not available for view loading');
       return;
     }
 
-    console.log('📊 Loading view statistics for product:', this.product._id);
     this.isLoadingViews = true;
 
-    // ✅ Option 1: Combined method (რეკომენდებული)
     this.productService.recordViewAndGetStats(this.product._id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (stats) => {
-          console.log('📊 Raw view stats received:', stats);
           this.processViewStats(stats);
           this.isLoadingViews = false;
         },
         error: (error) => {
-          console.error('❌ Combined view operation failed:', error);
+          console.error('❌ View stats error:', error);
           this.isLoadingViews = false;
-          // Fallback - მაინც ვცადოთ stats-ის მიღება
           this.getViewStatsOnly();
         }
       });
   }
 
-  // ✅ ნახვების მონაცემების დამუშავება
   private processViewStats(stats: any): void {
-    console.log('🔍 Processing view stats:', stats);
-    
-    // სხვადასხვა ველებიდან ნახვების ამოღება
     const possibleViewFields = [
       stats.totalViews,
       stats.views,
       stats.viewCount,
       stats.data?.views,
       stats.data?.totalViews,
-      stats.data?.viewCount,
-      stats.monthViews, // დავამატოთ monthViews როგორც ალტერნატივა
-      stats.weekViews   // დავამატოთ weekViews როგორც ალტერნატივა
+      stats.monthViews,
+      stats.weekViews
     ];
 
-    // პირველი ვალიდური მნიშვნელობის მიღება (> 0)
     this.productViews = possibleViewFields.find(val => 
       typeof val === 'number' && val > 0
     ) || 0;
 
-    // თუ მაინც 0-ია, ვცადოთ ნებისმიერი ვალიდური რიცხვი >= 0
     if (this.productViews === 0) {
       this.productViews = possibleViewFields.find(val => 
         typeof val === 'number' && val >= 0
       ) || 0;
     }
 
-    // დამატებითი სტატისტიკა
     this.todayViews = stats.todayViews || 0;
     this.weekViews = stats.weekViews || 0;
     this.monthViews = stats.monthViews || 0;
-    
-    // მთელი ობიექტის შენახვა debugging-ისთვის
     this.viewsData = stats;
-
-    console.log('✅ Processed view stats:', {
-      totalViews: this.productViews,
-      todayViews: this.todayViews,
-      weekViews: this.weekViews,
-      monthViews: this.monthViews
-    });
   }
 
   private getViewStatsOnly(): void {
@@ -246,19 +198,16 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (stats) => {
-          console.log('📊 Stats only received:', stats);
           this.processViewStats(stats);
         },
         error: (error) => {
-          console.warn('⚠️ Even stats loading failed:', error);
+          console.warn('⚠️ Stats loading failed:', error);
           this.productViews = 0;
         }
       });
   }
 
-  // ✅ განახლებული ნახვების ფორმატირება
   formatViews(views: number | undefined | null): string {
-    // ✅ უფრო მკაცრი შემოწმება
     const numViews = Number(views);
     
     if (isNaN(numViews) || numViews < 0) {
@@ -274,7 +223,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ დამატებითი helper მეთოდები ნახვების ფორმატირებისთვის
   getTotalViews(): number {
     return this.productViews || 0;
   }
@@ -291,7 +239,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     return this.monthViews || 0;
   }
 
-  // ✅ დეტალური ნახვების ფორმატირება (template-ისთვის)
   getFormattedViewsWithDetails(): string {
     const total = this.getTotalViews();
     const today = this.getTodayViews();
@@ -309,21 +256,17 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     return result;
   }
 
-  // Slug normalization
   private normalizeSlug(title: string): string {
     return title
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s\-ა-ჰ]/g, '') // სპეციალური სიმბოლოების წაშლა
-      .replace(/\s+/g, '-')         // სივრცეების ჩანაცვლება ტირეებით
-      .replace(/\-+/g, '-')        // მრავალი ტირის ერთით ჩანაცვლება
-      .replace(/^-+|-+$/g, '');    // პირველი და ბოლო ტირეების წაშლა
+      .replace(/[^\w\s\-ა-ჰ]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/\-+/g, '-')
+      .replace(/^-+|-+$/g, '');
   }
 
-  // ✅ Fallback - search ყველა პროდუქტში
   private trySearchProduct(searchTerm: string): void {
-    console.log('🔍 ვცდილობთ პროდუქტის მოძიებას search-ით:', searchTerm);
-    
     this.productService.getAllProducts({ search: searchTerm })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -331,7 +274,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
           const products = response.products || response;
           
           if (products && products.length > 0) {
-            // პირველი რელევანტური პროდუქტის არჩევა
             const matchedProduct = products.find((p: any) => 
               p.title && (
                 p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -339,14 +281,10 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
               )
             ) || products[0];
             
-            console.log('✅ მოიძებნა პროდუქტი search-ით:', matchedProduct);
-            
             this.product = matchedProduct;
             if (this.product) {
               this.productImages = this.getAllProductImages(this.product);
               this.setSEOData(this.product);
-              
-              // ✅ ნახვების სტატისტიკის ჩატვირთვა
               this.loadProductViews();
             }
             this.isLoading = false;
@@ -361,9 +299,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ✅ პროდუქტის არ მოძიებნის შემთხვევის მუშაობა
   private handleNoProductFound(): void {
-    console.error('❌ პროდუქტი ვერ მოიძებნა არცერთი მეთოდით');
     this.error = 'პროდუქტი ვერ მოიძებნა. შესაძლოა წაშლილი იყოს ან URL არასწორია.';
     this.isLoading = false;
   }
@@ -374,7 +310,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     this.closeImageModal();
   }
 
-  // Keyboard event listener for modal navigation
   @HostListener('document:keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent): void {
     if (this.showImageModal) {
@@ -392,7 +327,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Touch event handling for mobile swipe
   @HostListener('document:touchstart', ['$event'])
   onTouchStart(event: TouchEvent): void {
     if (this.showImageModal) {
@@ -406,7 +340,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       const touchEndX = event.changedTouches[0].clientX;
       const diff = this.touchStartX - touchEndX;
       
-      if (Math.abs(diff) > 50) { // Minimum swipe distance
+      if (Math.abs(diff) > 50) {
         if (diff > 0) {
           this.nextModalImage();
         } else {
@@ -418,59 +352,40 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ განახლებული URL generator - უკეთესი ქართული slug-ებისთვის
   static generateProductUrl(title: string): string {
     const slug = title
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s\-ა-ჰ]/g, '') // სპეციალური სიმბოლოების წაშლა
-      .replace(/\s+/g, '-')         // სივრცეების ჩანაცვლება ტირეებით
-      .replace(/\-+/g, '-')        // მრავალი ტირის ერთით ჩანაცვლება
-      .replace(/^-+|-+$/g, '');    // პირველი და ბოლო ტირეების წაშლა
+      .replace(/[^\w\s\-ა-ჰ]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/\-+/g, '-')
+      .replace(/^-+|-+$/g, '');
     
-    // ✅ slug-ის URL encoding
     const encodedSlug = encodeURIComponent(slug);
-    
     return `/product-details/${encodedSlug}`;
   }
 
-  // ✅ შეუცვლელი loadProduct მეთოდი ID-ისთვის (უკუთავსებადობისთვის)
   loadProduct(productId: string): void {
-    console.log('ვიწყებთ პროდუქტის ჩატვირთვას ID-ით:', productId);
-    
     this.productService.getProductById(productId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('მივიღეთ პასუხი ProductDetailsComponent-ში:', response);
-          
           this.product = response.product || response.data?.[0] || null;
-
           if (this.product) {
             this.productImages = this.getAllProductImages(this.product);
             this.setSEOData(this.product);
-            
-            // ✅ ნახვების სტატისტიკის ჩატვირთვა
             this.loadProductViews();
-            
-            console.log('კონტაქტის ინფორმაცია კომპონენტში:', {
-              email: this.product.email,
-              phone: this.product.phone,
-              userName: this.product.userName
-            });
           }
-          
           this.isLoading = false;
         },
         error: (err) => {
           console.error('პროდუქტის ჩატვირთვის შეცდომა:', err);
-          this.error = 'პროდუქტის ჩატვირთვა ვერ მოხერხდა. გთხოვთ, სცადოთ ხელახლა.';
+          this.error = 'პროდუქტის ჩატვირთვა ვერ მოხერხდა.';
           this.isLoading = false;
         }
       });
   }
 
-  // პროდუქტის ყველა სურათის მიღება
   getAllProductImages(product: Product | null): string[] {
     if (!product) {
       return ['assets/images/placeholder.jpg'];
@@ -478,12 +393,10 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     
     const images: string[] = [];
     
-    // პირველ რიგში ვამატებთ ძირითად სურათს
     if (product.image) {
       images.push(product.image);
     }
     
-    // შემდეგ ვამატებთ სურათების მასივიდან, მხოლოდ იმ სურათებს რომლებიც არ მეორდება
     if (product.images && Array.isArray(product.images)) {
       product.images.forEach(image => {
         if (image && !images.includes(image)) {
@@ -492,16 +405,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       });
     }
     
-    // ძველი ველების მხარდაჭერა (უკანასკნელი თავსებადობისთვის)
     [product.productImage1, product.productImage2, product.productImage3].forEach(image => {
       if (image && !images.includes(image)) {
         images.push(image);
       }
     });
     
-    console.log(`პროდუქტის ${product.title} სურათები:`, images);
-    
-    // თუ არ არის სურათები, placeholder დავაბრუნოთ
     if (images.length === 0) {
       images.push('assets/images/placeholder.jpg');
     }
@@ -509,13 +418,11 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     return images;
   }
 
-  // სურათის ინდექსის შეცვლა
   changeImage(index: number): void {
     this.currentImageIndex = index;
     this.updateSwiperSlide(index);
   }
 
-  // Update swiper to specific slide
   private updateSwiperSlide(index: number): void {
     try {
       const swiperElement = document.querySelector('.main-swiper') as any;
@@ -527,7 +434,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // შემდეგი სურათი
   nextImage(): void {
     if (this.currentImageIndex < this.productImages.length - 1) {
       this.currentImageIndex++;
@@ -537,7 +443,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     this.updateSwiperSlide(this.currentImageIndex);
   }
 
-  // წინა სურათი
   prevImage(): void {
     if (this.currentImageIndex > 0) {
       this.currentImageIndex--;
@@ -547,7 +452,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     this.updateSwiperSlide(this.currentImageIndex);
   }
 
-  // Image Modal Functions
   openImageModal(imageUrl: string, index: number): void {
     this.currentModalIndex = index;
     this.showImageModal = true;
@@ -571,7 +475,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // იმეილის გაგზავნა
   sendEmail(): void {
     if (!this.product?.email || this.product.email === 'არ არის მითითებული') {
       this.showSnackBar('იმეილის მისამართი არ არის ხელმისაწვდომი');
@@ -580,14 +483,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
     try {
       const subject = encodeURIComponent(`${this.product.title} - პროდუქტთან დაკავშირებით`);
-      const body = encodeURIComponent(`გამარჯობა,
-
-მაინტერესებს თქვენი პროდუქტი: ${this.product.title}
-ფასი: ${this.formatPrice(this.product.price)}
-
-გთხოვთ, დამიკავშირდით დეტალური ინფორმაციისთვის.
-
-მადლობა!`);
+      const body = encodeURIComponent(`გამარჯობა,\n\nმაინტერესებს თქვენი პროდუქტი: ${this.product.title}\nფასი: ${this.formatPrice(this.product.price)}\n\nგთხოვთ, დამიკავშირდით დეტალური ინფორმაციისთვის.\n\nმადლობა!`);
       const mailtoLink = `mailto:${this.product.email}?subject=${subject}&body=${body}`;
       
       window.open(mailtoLink, '_blank');
@@ -598,7 +494,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ტელეფონზე დარეკვა
   callPhone(): void {
     if (!this.product?.phone || this.product.phone === 'არ არის მითითებული') {
       this.showSnackBar('ტელეფონის ნომერი არ არის ხელმისაწვდომი');
@@ -616,7 +511,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ განახლებული shareProduct რეალური ნახვების რიცხვით
   shareProduct(): void {
     if (!this.product) return;
     
@@ -637,7 +531,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       }).then(() => {
         this.showSnackBar('პროდუქტი გაზიარდა');
       }).catch((error) => {
-        console.log('Web Share API error:', error);
         this.fallbackShare(productUrl);
       });
     } else {
@@ -677,29 +570,23 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // დამხმარე მეთოდები Template-ისთვის
   getSellerName(): string {
-    if (!this.product) return 'არ არის მითითებული';
-    return this.product.userName || 'არ არის მითითებული';
+    return this.product?.userName || 'არ არის მითითებული';
   }
 
   getSellerEmail(): string {
-    if (!this.product) return 'არ არის მითითებული';
-    return this.product.email || 'არ არის მითითებული';
+    return this.product?.email || 'არ არის მითითებული';
   }
 
   getSellerPhone(): string {
-    if (!this.product) return 'არ არის მითითებული';
-    return this.product.phone || 'არ არის მითითებული';
+    return this.product?.phone || 'არ არის მითითებული';
   }
 
-  // ფასის ფორმატირება
   formatPrice(price: number): string {
     if (!price) return '0₾';
     return price.toLocaleString('ka-GE') + '₾';
   }
 
-  // თარიღის ფორმატირება
   formatDate(date: string): string {
     if (!date) return 'არ არის მითითებული';
     try {
@@ -709,13 +596,11 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Error handling for images
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement;
     if (target && !target.dataset['errorHandled']) {
       target.src = 'assets/images/placeholder.jpg';
       target.dataset['errorHandled'] = 'true';
-      console.error('სურათის ჩატვირთვის შეცდომა:', event);
     }
   }
 
@@ -724,11 +609,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     if (img && !img.dataset['errorHandled']) {
       img.src = 'assets/images/placeholder.jpg';
       img.dataset['errorHandled'] = 'true';
-      console.error('თამბნილის სურათის შეცდომა:', event);
     }
   }
 
-  // Check if image is valid URL
   isValidImageUrl(url: string): boolean {
     if (!url) return false;
     try {
@@ -739,11 +622,96 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Lazy loading optimization
   onImageLoad(event: Event): void {
     const img = event.target as HTMLImageElement;
     if (img) {
       img.classList.add('loaded');
     }
   }
+
+  // ✅ მხოლოდ ერთი openMessageDialog() ფუნქცია
+ // ✅ ახალი (სწორი):
+openMessageDialog(): void {
+  const currentUser = this.authService.getCurrentUser();
+  const userId = localStorage.getItem('userId');
+  
+  if (!currentUser && !userId) {
+    this.snackBar.open('გთხოვთ გაიაროთ ავტორიზაცია', 'დახურვა', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom'
+    });
+    this.router.navigate(['/login']);
+    return;
+  }
+
+  // ✅ Extract seller ID correctly with type casting
+  const sellerData = this.product?.userId || this.product?.sellerId;
+  const sellerId = typeof sellerData === 'object' 
+    ? ((sellerData as any)?._id || (sellerData as any)?.id)
+    : sellerData;
+  
+  // ✅ Extract seller name correctly
+  const sellerName = typeof sellerData === 'object'
+    ? (sellerData as any)?.name
+    : (this.product?.userName || this.product?.sellerName || 'გამყიდველი');
+  
+  // ✅ Extract seller avatar correctly
+  const sellerAvatar = typeof sellerData === 'object'
+    ? (sellerData as any)?.avatar
+    : this.product?.userAvatar;
+
+  // ✅ Extract product ID correctly
+  const productData = this.product?._id || this.product?.id;
+  const productId = typeof productData === 'object'
+    ? ((productData as any)?._id || (productData as any)?.id)
+    : productData;
+
+  // ✅ Check if trying to message yourself
+  if (userId === sellerId) {
+    this.snackBar.open('ეს თქვენი პროდუქტია', 'დახურვა', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom'
+    });
+    return;
+  }
+
+  // ✅ Validate required fields
+  if (!sellerId) {
+    this.snackBar.open('გამყიდველის ინფორმაცია არ არის ხელმისაწვდომი', 'დახურვა', {
+      duration: 3000
+    });
+    return;
+  }
+
+  // ✅ All IDs are now strings
+  const dialogData = {
+    senderId: userId!,
+    receiverId: sellerId as string,
+    receiverName: sellerName || 'გამყიდველი',
+    receiverAvatar: sellerAvatar,
+    productId: productId as string,
+    productTitle: this.product?.title
+  };
+
+  console.log('💬 Opening message dialog with data:', dialogData);
+
+  const dialogRef = this.dialog.open(MessageDialogComponent, {
+    width: '600px',
+    maxWidth: '95vw',
+    height: '700px',
+    maxHeight: '90vh',
+    data: dialogData,
+    panelClass: 'message-dialog-container',
+    disableClose: false,
+    autoFocus: true
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    console.log('Dialog closed:', result);
+  });
+}
+
+
 }
