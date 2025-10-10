@@ -48,7 +48,7 @@ export class MessagesModalComponent implements OnInit, OnDestroy {
   selectedConversation: Conversation | null = null;
   messages: Message[] = [];
   newMessage: string = '';
-  
+  isMobile: boolean = false;
   isLoadingConversations: boolean = false;
   isLoadingMessages: boolean = false;
   isSending: boolean = false;
@@ -86,6 +86,18 @@ export class MessagesModalComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
+  checkIfMobile() {
+  this.isMobile = window.innerWidth <= 768;
+}
+
+backToConversations() {
+  this.selectedConversation = null;
+}
+
+
+
+
+
 
   // ✅ ავატარის მიღება (otherUser-ის ან sender-ის)
   getMessageSenderAvatar(message: Message): string {
@@ -145,6 +157,7 @@ export class MessagesModalComponent implements OnInit, OnDestroy {
     console.log('🔍 Selected conversation:', conversation);
     this.selectedConversation = conversation;
     this.loadMessages(conversation);
+    this.selectedConversation = conversation;
   }
 
   loadMessages(conversation: Conversation): void {

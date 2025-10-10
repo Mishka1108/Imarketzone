@@ -15,7 +15,7 @@
   <!-- Main Content -->
   <div class="modal-content">
     <!-- Left Sidebar - საუბრების სია -->
-    <div class="conversations-sidebar">
+    <div class="conversations-sidebar" [class.hidden]="selectedConversation && isMobile">
       <div class="sidebar-header">
         <h3>საუბრები</h3>
         <span class="conversations-count">{{ conversations.length }}</span>
@@ -83,6 +83,14 @@
       <div *ngIf="selectedConversation" class="conversation-view">
         <!-- Conversation Header -->
         <div class="conversation-header-bar">
+          <!-- Back Button - მობილურისთვის -->
+          <button *ngIf="isMobile" 
+                  mat-icon-button 
+                  class="back-button" 
+                  (click)="backToConversations()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+
           <img [src]="selectedConversation.otherUser.avatar || getDefaultAvatar()" 
                alt="avatar" 
                class="user-avatar-small"
