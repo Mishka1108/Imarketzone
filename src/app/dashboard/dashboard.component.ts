@@ -25,6 +25,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MessageService } from '../services/message.service';
 import { MessagesModalComponent } from '../messages-modal/messages-modal.component';
 
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -1081,25 +1082,25 @@ generateSlug(title: any): string {
   }
 
  openMessages(): void {
- 
-    
     const userId = localStorage.getItem('userId');
     
     if (!userId) {
       console.error('❌ User not logged in');
-      // შეგიძლიათ აჩვენოთ შეტყობინება ან გადაიყვანოთ login-ზე
       return;
     }
 
-    this.dialog.open(MessagesModalComponent, {
+    const dialogRef = this.dialog.open(MessagesModalComponent, {
       width: '90vw',
       maxWidth: '1200px',
       height: '80vh',
       panelClass: 'messages-modal-dialog',
       data: {
         userId: userId,
-        userName: localStorage.getItem('userName') // optional
+        userName: localStorage.getItem('userName')
       }
     });
-  }
+}
+
+
+
 }

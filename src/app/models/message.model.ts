@@ -1,6 +1,9 @@
+// src/app/models/message.model.ts - CORRECTED
+
 export interface Message {
-  _id: string;
-  senderId: string | any; // Can be string or populated User object
+  _id?: string;              // ✅ Optional MongoDB ID
+  id?: string;               // ✅ Optional alternative ID  
+  senderId: string | any;    // Can be string or populated User object
   receiverId: string | any;
   content: string;
   read: boolean;
@@ -11,26 +14,28 @@ export interface Message {
 }
 
 export interface Conversation {
-  _id: string;
-  id: string;
+  _id?: string;              // ✅ Optional
+  id?: string;               // ✅ Optional
   participants: string[];
   otherUser: {
-    id: string;
+    _id?: string;            // ✅ Optional
+    id?: string;             // ✅ Optional
     name: string;
-    email: string;
+    email?: string;          // ✅ Optional
     avatar?: string;
   };
-  lastMessage: {
-    _id: string;
+  lastMessage?: {            // ✅ Optional - თუ ახალი conversation არის
+    _id?: string;
+    id?: string;
     senderId: string;
     receiverId: string;
     content: string;
     read: boolean;
     createdAt: Date | string;
   };
-  unreadCount: number;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  unreadCount?: number;      // ✅ Optional
+  createdAt?: Date | string; // ✅ Optional
+  updatedAt?: Date | string; // ✅ Optional
 }
 
 export interface SendMessageRequest {
@@ -44,4 +49,16 @@ export interface MessageResponse {
   data?: Message;
   message?: string;
   error?: string;
+}
+
+export interface ConversationsResponse {
+  success: boolean;
+  data?: Conversation[];
+  conversations?: Conversation[];
+}
+
+export interface UnreadCountResponse {
+  success: boolean;
+  unreadCount?: number;
+  count?: number;
 }

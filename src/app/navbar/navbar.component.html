@@ -1,6 +1,10 @@
+<!-- navbar.component.html - BEAUTIFUL CIRCULAR PROFILE WITH BADGE -->
+
 <div class="nav">
   <div class="navmenu">
-    <mat-icon (click)="toggleMenu()" class="navIcon">{{ isShow ? 'close' : 'menu' }}</mat-icon>
+    <mat-icon (click)="toggleMenu()" class="navIcon">
+      {{ isShow ? 'close' : 'menu' }}
+    </mat-icon>
     <a routerLink="/home">
       <img 
         src="https://i.ibb.co/bjXGQNZL/favicon-100x100.png" 
@@ -10,19 +14,90 @@
     </a>
   </div>
   
-  <div class="components" [ngClass]="{'show-menu':isShow}"> 
-    <button mat-raised-button class="btn" routerLinkActive="active" (click)="closeMenu()" routerLink="home">Home</button>
-    <button mat-raised-button class="btn" routerLinkActive="active" (click)="closeMenu()" routerLink="public-products">Product</button>
-    <button mat-raised-button class="btn" routerLinkActive="active" (click)="closeMenu()" routerLink="contact">Contact</button>
+  <div class="components" [ngClass]="{'show-menu': isShow}"> 
+    <button mat-raised-button 
+            class="btn" 
+            routerLinkActive="active" 
+            (click)="closeMenu()" 
+            routerLink="home">
+      Home
+    </button>
+    <button mat-raised-button 
+            class="btn" 
+            routerLinkActive="active" 
+            (click)="closeMenu()" 
+            routerLink="public-products">
+      Product
+    </button>
+    <button mat-raised-button 
+            class="btn" 
+            routerLinkActive="active" 
+            (click)="closeMenu()" 
+            routerLink="contact">
+      Contact
+    </button>
   </div>
 
-  <!-- დაამატე debugging ტექსტი სურათის ქვემოთ -->
-  <div style="position: relative;">
-    <img 
-      [src]="profileImageUrl" 
-      class="profileimg" 
-      (click)="closeMenu(); onProfileImageClick()" 
-      alt="Profile"
-      style="cursor: pointer;">
+  <!-- ✨ PERFECT CIRCULAR PROFILE IMAGE WITH BEAUTIFUL BADGE -->
+  <div class="profile-container">
+    <div class="profile-wrapper">
+      <img 
+        [src]="profileImageUrl" 
+        class="profileimg" 
+        (click)="closeMenu(); onProfileImageClick()" 
+        alt="Profile"
+        [title]="unreadMessagesCount > 0 ? unreadMessagesCount + ' წაუკითხავი შეტყობინება' : 'პროფილი'">
+      
+      <!-- Custom Beautiful Badge -->
+      <div class="custom-badge" *ngIf="unreadMessagesCount > 0">
+        {{ unreadMessagesCount > 99 ? '99+' : unreadMessagesCount }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔔 BEAUTIFUL MESSAGE NOTIFICATION POPUP -->
+<div 
+  *ngIf="showNotification && notificationData" 
+  class="message-notification"
+  [@notificationAnimation]
+  (click)="onNotificationClick()">
+  
+  <div class="notification-content">
+    <!-- Close Button -->
+    <button 
+      class="close-btn" 
+      (click)="hideNotification(); $event.stopPropagation()" 
+      aria-label="შეტყობინების დახურვა"
+      title="დახურვა">
+      <mat-icon>close</mat-icon>
+    </button>
+    
+    <!-- Notification Header -->
+    <div class="notification-header">
+      <img 
+        [src]="notificationData.avatar" 
+        alt="მომხმარებლის ავატარი" 
+        class="notification-avatar"
+        (error)="onImageError($event)">
+      
+      <div class="notification-info">
+        <div class="notification-title">
+          <mat-icon class="message-icon">mail</mat-icon>
+          <span>ახალი შეტყობინება</span>
+        </div>
+        <div class="sender-name">{{ notificationData.senderName }}</div>
+      </div>
+    </div>
+    
+    <!-- Message Content -->
+    <div class="notification-message">
+      {{ notificationData.message }}
+    </div>
+    
+    <!-- Action Hint -->
+    <div class="notification-action">
+      <small>დააჭირეთ პასუხის გასაცემად</small>
+    </div>
   </div>
 </div>

@@ -2,16 +2,24 @@
   <!-- Header -->
   <div class="dialog-header">
     <div class="user-info">
-    <img [src]="getReceiverAvatar()" 
+      <img [src]="getReceiverAvatar()" 
            alt="avatar" 
            class="avatar"
            (error)="onAvatarError($event)">
            
       <div class="user-details">
         <h2>{{ data.receiverName }}</h2>
-        <p *ngIf="data.productTitle" class="product-title">
+        <p *ngIf="data.productTitle && !isTyping" class="product-title">
           <mat-icon>inventory_2</mat-icon>
           {{ data.productTitle }}
+        </p>
+        <p class="typing-indicator" *ngIf="isTyping">
+          <span class="typing-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          იწერს...
         </p>
       </div>
     </div>
@@ -40,7 +48,11 @@
            [class.other-message]="!isOwnMessage(message)">
         <div class="message-bubble">
           <p class="message-content">{{ message.content }}</p>
-          <span class="message-time">{{ getMessageTime(message) }}</span>
+          <span class="message-time">
+            {{ getMessageTime(message) }}
+            <mat-icon *ngIf="isOwnMessage(message) && message.read" class="read-icon">done_all</mat-icon>
+            <mat-icon *ngIf="isOwnMessage(message) && !message.read" class="sent-icon">done</mat-icon>
+          </span>
         </div>
       </div>
     </div>
@@ -51,6 +63,7 @@
     <mat-form-field appearance="outline" class="message-input">
       <textarea matInput
                 [(ngModel)]="newMessage"
+                (ngModelChange)="onMessageInput()"
                 (keypress)="onKeyPress($event)"
                 placeholder="შეტყობინების დაწერა..."
                 rows="1"

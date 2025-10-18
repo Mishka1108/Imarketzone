@@ -5,3 +5,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body {
+  padding-top: 90px !important;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-top: 75px !important;
+  }
+}

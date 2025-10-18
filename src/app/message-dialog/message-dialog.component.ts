@@ -1,5 +1,4 @@
-// src/app/components/message-dialog/message-dialog.component.ts
-
+// src/app/components/message-dialog/message-dialog.component.ts - WITH REAL-TIME
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MessageService } from '../services/message.service';
+import { SocketService } from '../services/socket.service';
 import { Message, SendMessageRequest } from '../models/message.model';
 import { Subject, takeUntil } from 'rxjs';
 import { ProfileImageService } from '../services/profileImage.service';
@@ -46,20 +46,22 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
   newMessage: string = '';
   isLoading: boolean = false;
   isSending: boolean = false;
+  isTyping: boolean = false;
   private destroy$ = new Subject<void>();
+  private typingTimeout: any;
 
   constructor(
     public dialogRef: MatDialogRef<MessageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MessageDialogData,
     private messageService: MessageService,
+    private socketService: SocketService,
     private snackBar: MatSnackBar,
-      private profileImageService: ProfileImageService
+    private profileImageService: ProfileImageService
   ) {
     console.log('💬 Message Dialog Data:', this.data);
   }
 
   ngOnInit(): void {
-    // ✅ დარწმუნდი რომ senderId არის
     if (!this.data.senderId) {
       const userId = localStorage.getItem('userId');
       if (userId) {
@@ -73,33 +75,100 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
       }
     }
 
+    this.setupSocketConnection();
+    this.listenToSocketEvents();
     this.loadMessages();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.stopTyping();
   }
 
+  private setupSocketConnection(): void {
+    if (!this.socketService.isConnected()) {
+      console.log('🔌 Connecting to Socket.IO...');
+      this.socketService.connect(this.data.senderId);
+    } else {
+      console.log('✅ Already connected to Socket.IO');
+    }
+  }
 
-    getReceiverAvatar(): string {
-    // თუ არის data.receiverAvatar და არ არის ცარიელი
+  private listenToSocketEvents(): void {
+    // ✅ Listen for new incoming messages
+    this.socketService.onNewMessage()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data && data.message && data.message.senderId === this.data.receiverId) {
+          console.log('📩 Real-time message received:', data);
+          this.messages.push(data.message);
+          setTimeout(() => this.scrollToBottom(), 100);
+          
+          // Mark as read automatically
+          this.markMessagesAsRead();
+        }
+      });
+
+    // ✅ Listen for sent message confirmation
+    this.socketService.onMessageSent()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data && data.message) {
+          console.log('✅ Message sent confirmation:', data);
+        }
+      });
+
+    // ✅ Listen for messages read notifications
+    this.socketService.onMessagesRead()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data && data.userId === this.data.receiverId) {
+          console.log('📖 Receiver read the messages');
+          // Update read status
+          this.messages.forEach(msg => {
+            if (msg.senderId === this.data.senderId) {
+              msg.read = true;
+            }
+          });
+        }
+      });
+
+    // ✅ Listen for typing indicators
+    this.socketService.onTypingStart()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data && data.userId === this.data.receiverId) {
+          console.log('✍️ Receiver is typing');
+          this.isTyping = true;
+        }
+      });
+
+    this.socketService.onTypingStop()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data && data.userId === this.data.receiverId) {
+          console.log('✋ Receiver stopped typing');
+          this.isTyping = false;
+        }
+      });
+  }
+
+  getReceiverAvatar(): string {
     if (this.data.receiverAvatar && this.data.receiverAvatar.trim() !== '') {
       return this.data.receiverAvatar;
     }
-    
-    // Default avatar-ზე დაბრუნება
     return this.profileImageService.getDefaultAvatar();
   }
 
-    onAvatarError(event: Event): void {
+  onAvatarError(event: Event): void {
     const img = event.target as HTMLImageElement;
     if (img && !img.dataset['errorHandled']) {
       img.src = this.profileImageService.getDefaultAvatar();
       img.dataset['errorHandled'] = 'true';
     }
   }
-  // შეტყობინებების ჩატვირთვა
+
   loadMessages(): void {
     if (!this.data.senderId || !this.data.receiverId) {
       console.error('❌ Missing sender or receiver ID');
@@ -118,7 +187,6 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           setTimeout(() => this.scrollToBottom(), 100);
           
-          // ✅ მონიშნე როგორც წაკითხული
           this.markMessagesAsRead();
         },
         error: (error: any) => {
@@ -129,7 +197,6 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
       });
   }
 
-  // შეტყობინებების წაკითხულად მონიშვნა
   private markMessagesAsRead(): void {
     if (!this.data.senderId || !this.data.receiverId) return;
 
@@ -142,7 +209,6 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
       });
   }
 
-  // შეტყობინების გაგზავნა
   sendMessage(): void {
     const messageContent = this.newMessage.trim();
     
@@ -157,6 +223,7 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
     }
 
     this.isSending = true;
+    this.stopTyping();
     
     const messageData: SendMessageRequest = {
       receiverId: this.data.receiverId,
@@ -177,7 +244,6 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
             this.messages.push(response.data);
             this.newMessage = '';
             setTimeout(() => this.scrollToBottom(), 100);
-            this.showSnackBar('შეტყობინება გაიგზავნა', 'success');
           }
           
           this.isSending = false;
@@ -198,7 +264,6 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Enter ღილაკით გაგზავნა
   onKeyPress(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -206,7 +271,34 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Scroll to bottom
+  onMessageInput(): void {
+    if (!this.data.receiverId) return;
+    
+    // Emit typing start
+    this.socketService.emitTypingStart(this.data.senderId, this.data.receiverId);
+    
+    // Clear previous timeout
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
+    
+    // Set new timeout to stop typing after 2 seconds
+    this.typingTimeout = setTimeout(() => {
+      this.stopTyping();
+    }, 2000);
+  }
+
+  private stopTyping(): void {
+    if (!this.data.receiverId) return;
+    
+    this.socketService.emitTypingStop(this.data.senderId, this.data.receiverId);
+    
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+      this.typingTimeout = null;
+    }
+  }
+
   scrollToBottom(): void {
     try {
       const container = document.querySelector('.messages-container');
@@ -218,7 +310,6 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  // შეტყობინების დრო
   getMessageTime(message: Message): string {
     const date = new Date(message.createdAt);
     const now = new Date();
@@ -240,17 +331,14 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-  // მესიჯის ავტორის შემოწმება
   isOwnMessage(message: Message): boolean {
     return message.senderId === this.data.senderId;
   }
 
-  // დახურვა
   close(): void {
     this.dialogRef.close();
   }
 
-  // Snackbar
   showSnackBar(message: string, type: 'success' | 'error' = 'error'): void {
     this.snackBar.open(message, 'დახურვა', {
       duration: 3000,

@@ -1,5 +1,3 @@
-<!-- src/app/components/messages-modal/messages-modal.component.html -->
-
 <div class="messages-modal">
   <!-- Header -->
   <div class="modal-header">
@@ -41,18 +39,23 @@
              [class.active]="selectedConversation && (selectedConversation._id === conversation._id || selectedConversation.id === conversation.id)"
              (click)="selectConversation(conversation)">
           
+          <!-- Avatar -->
           <img [src]="conversation.otherUser.avatar || getDefaultAvatar()" 
                alt="avatar" 
                class="user-avatar"
                (error)="onAvatarError($event)">
           
+          <!-- Conversation Info -->
           <div class="conversation-info">
+            <!-- Header: Name + Time -->
             <div class="conversation-header">
               <h4>{{ conversation.otherUser.name || 'უცნობი მომხმარებელი' }}</h4>
               <span class="time">{{ getLastMessageTime(conversation) }}</span>
             </div>
+            
+            <!-- Preview: Message + Unread Badge -->
             <div class="conversation-preview">
-              <p [class.unread]="(conversation.unreadCount || 0) > 0">
+              <p class="message-preview" [class.unread]="(conversation.unreadCount || 0) > 0">
                 {{ getLastMessagePreview(conversation) }}
               </p>
               <span class="unread-badge" *ngIf="(conversation.unreadCount || 0) > 0">
@@ -61,6 +64,7 @@
             </div>
           </div>
 
+          <!-- Delete Button -->
           <button mat-icon-button 
                   class="delete-conversation-btn"
                   (click)="deleteConversation(conversation, $event)"
@@ -97,7 +101,15 @@
                (error)="onAvatarError($event)">
           <div class="user-details">
             <h3>{{ selectedConversation.otherUser.name || 'უცნობი მომხმარებელი' }}</h3>
-            <p class="user-email">{{ selectedConversation.otherUser.email || '' }}</p>
+            <p class="user-email" *ngIf="!isTyping">{{ selectedConversation.otherUser.email || '' }}</p>
+            <p class="typing-indicator" *ngIf="isTyping">
+              <span class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </span>
+              იწერს...
+            </p>
           </div>
         </div>
 
@@ -132,7 +144,11 @@
               
               <div class="message-bubble">
                 <p class="message-content">{{ message.content }}</p>
-                <span class="message-time">{{ getMessageTime(message) }}</span>
+                <span class="message-time">
+                  {{ getMessageTime(message) }}
+                  <mat-icon *ngIf="isOwnMessage(message) && message.read" class="read-icon">done_all</mat-icon>
+                  <mat-icon *ngIf="isOwnMessage(message) && !message.read" class="sent-icon">done</mat-icon>
+                </span>
               </div>
             </div>
           </div>
@@ -143,6 +159,7 @@
           <mat-form-field appearance="outline" class="message-input">
             <textarea matInput
                       [(ngModel)]="newMessage"
+                      (ngModelChange)="onMessageInput()"
                       (keypress)="onKeyPress($event)"
                       placeholder="შეტყობინების დაწერა..."
                       rows="2"
