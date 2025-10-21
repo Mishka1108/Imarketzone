@@ -52,6 +52,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
   
   ngOnInit() {
+    this.loadProductsWithRealViews();
     console.log('🏠 HomeComponent ngOnInit started');
     this.setupComprehensiveSEO();
     this.loadAllProducts();
@@ -64,7 +65,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     
     setTimeout(() => {
       console.log('⏰ Starting loadProductsWithRealViews after 100ms delay');
-      this.loadProductsWithRealViews();
+      
     }, 100);
     
     this.responsiveOptions = [
