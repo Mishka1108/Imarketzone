@@ -1,4 +1,4 @@
-// home.component.ts - ნახვების რეალური API ინტეგრაცია
+// home.component.ts - SEO-ოპტიმიზებული ვერსია
 
 import { Component, OnInit, HostListener, OnDestroy, Inject, PLATFORM_ID, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { MatButton } from '@angular/material/button';
@@ -10,11 +10,12 @@ import { ProductService } from '../services/product.service';
 import { Meta, Title } from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { forkJoin, of, Observable } from 'rxjs';
-import { map, catchError  } from 'rxjs/operators';
+import { map, catchError, tap, delay } from 'rxjs/operators';
 import { CarouselModule } from 'primeng/carousel';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { MatButtonModule } from '@angular/material/button';
+
 @Component({
   selector: 'app-home',
   imports: [MatButtonModule, RouterLink, FormsModule, CommonModule, CarouselModule, ButtonModule, TagModule],
@@ -30,7 +31,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   allProducts: any[] = []; 
   isLoadingProducts: boolean = false;
   isLoadingViews: boolean = false;
-    responsiveOptions: any[] | undefined;
+  responsiveOptions: any[] | undefined;
   products: any[] = [];
   loading = true;
   error: string | null = null;
@@ -50,124 +51,123 @@ export class HomeComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
   
-
-  
   ngOnInit() {
-    this.setupSEO();
+    console.log('🏠 HomeComponent ngOnInit started');
+    this.setupComprehensiveSEO();
     this.loadAllProducts();
+    
     if (isPlatformBrowser(this.platformId)) {
-      this.addStructuredData();
+      this.addEnhancedStructuredData();
+      this.addBreadcrumbSchema();
+      this.addOrganizationSchema();
     }
-    this.loadProductsWithRealViews();
-     this.responsiveOptions = [
-    {
-        breakpoint: '1920px',
-        numVisible: 4,
-        numScroll: 1
-    },
-    {
-        breakpoint: '1400px',
-        numVisible: 3,
-        numScroll: 1
-    },
-    {
-        breakpoint: '1024px',
-        numVisible: 3,
-        numScroll: 1
-    },
-     {
-        breakpoint: '962px',
-        numVisible: 2,
-        numScroll: 1
-    },
-    {
-        breakpoint: '768px',
-        numVisible: 2,
-        numScroll: 1
-    },
-    {
-        breakpoint: '480px',
-        numVisible: 1,
-        numScroll: 1
-    }
-]
+    
+    setTimeout(() => {
+      console.log('⏰ Starting loadProductsWithRealViews after 100ms delay');
+      this.loadProductsWithRealViews();
+    }, 100);
+    
+    this.responsiveOptions = [
+      { breakpoint: '1920px', numVisible: 4, numScroll: 1 },
+      { breakpoint: '1400px', numVisible: 3, numScroll: 1 },
+      { breakpoint: '1024px', numVisible: 3, numScroll: 1 },
+      { breakpoint: '962px', numVisible: 2, numScroll: 1 },
+      { breakpoint: '768px', numVisible: 2, numScroll: 1 },
+      { breakpoint: '480px', numVisible: 1, numScroll: 1 }
+    ];
   }
-
-  
 
   ngOnDestroy() {
     // cleanup if needed
   }
 
-
-
   getProductsWithHighViews(): any[] {
-  if (!this.products || this.products.length === 0) {
-    console.log('🔍 არ არის პროდუქტები ჩასატვირთად');
-    return [];
+    if (!this.products || this.products.length === 0) {
+      console.log('⚠️ this.products is empty or null');
+      return [];
+    }
+
+    console.log(`🔍 Checking ${this.products.length} products for high views...`);
+
+    const highViewProducts = this.products.filter(product => {
+      const viewCount = product.viewCount || product.views || product.totalViews || 0;
+      console.log(`  - ${product.title}: ${viewCount} views`);
+      return viewCount >= 100;
+    });
+
+    if (highViewProducts.length === 0) {
+      console.log('⚠️ არცერთ პროდუქტს არ აქვს 100+ ნახვა');
+      return [];
+    }
+
+    console.log(`✅ პოპულარული პროდუქტები (100+ ნახვა): ${highViewProducts.length}/${this.products.length}`);
+
+    const sortedProducts = highViewProducts.sort((a, b) => {
+      const viewsA = a.viewCount || a.views || a.totalViews || 0;
+      const viewsB = b.viewCount || b.views || b.totalViews || 0;
+      return viewsB - viewsA;
+    });
+
+    return sortedProducts.slice(0, 12);
   }
 
-  // ვფილტრავთ მხოლოდ 100+ ნახვის მქონე პროდუქტებს
-  const highViewProducts = this.products.filter(product => {
-    const viewCount = product.viewCount || product.views || product.totalViews || 0;
-    const hasHighViews = viewCount > 100;
-    
-    console.log(`📊 პროდუქტი: ${product.title} - ნახვები: ${viewCount} - მაღალი: ${hasHighViews}`);
-    
-    return hasHighViews;
-  });
+  hasPopularProducts(): boolean {
+    const hasProducts = this.getProductsWithHighViews().length > 0;
+    console.log(`🔍 hasPopularProducts: ${hasProducts}`);
+    return hasProducts;
+  }
 
-
-
-
-  console.log(`✅ მაღალი ნახვების მქონე პროდუქტები: ${highViewProducts.length}/${this.products.length}`);
-
-  // დავალაგოთ ნახვების მიხედვით (ყველაზე მეტიდან ნაკლებისკენ)
-  const sortedProducts = highViewProducts.sort((a, b) => {
-    const viewsA = a.viewCount || a.views || a.totalViews || 0;
-    const viewsB = b.viewCount || b.views || b.totalViews || 0;
-    return viewsB - viewsA;
-  });
-
-  // ვაბრუნებთ მაქსიმუმ 12 პროდუქტს
-  return sortedProducts.slice(0, 12);
-}
-
-// დამატებითი მეთოდი - შეამოწმოს არის თუ არა პოპულარული პროდუქტები
-hasPopularProducts(): boolean {
-  return this.getProductsWithHighViews().length > 0;
-}
-
-// დამატებითი მეთოდი - პოპულარული პროდუქტების რაოდენობა
-getPopularProductsCount(): number {
-  return this.getProductsWithHighViews().length;
-}
+  getPopularProductsCount(): number {
+    return this.getProductsWithHighViews().length;
+  }
      
-  // მთავარი მეთოდი - პროდუქტების ჩატვირთვა რეალური ნახვებით
   loadProductsWithRealViews() {
-    
+    console.log('➡️ იწყება პროდუქტების ჩატვირთვა რეალური ნახვებით...');
     this.loading = true;
     this.isLoadingViews = true;
     this.error = null;
     
     this.productService.getAllProducts().subscribe({
       next: (response) => {
+        console.log('✅ loadProductsWithRealViews - Subscribe triggered!');
+        console.log('🎯 RAW response received:', response);
         
-        const allProducts = response.products || response.data || response || [];
-
+        let allProducts: any[] = [];
         
-        if (allProducts.length === 0) {
+        if (!response) {
+          console.error('❌ Response is null or undefined!');
           this.products = [];
           this.loading = false;
           this.isLoadingViews = false;
           return;
         }
+        
+        if (Array.isArray(response)) {
+          allProducts = response;
+        } else if (response.products && Array.isArray(response.products)) {
+          allProducts = response.products;
+        } else if (response.data && Array.isArray(response.data)) {
+          allProducts = response.data;
+        } else if (typeof response === 'object' && response !== null) {
+          if (response._id || response.id || response.title) {
+            allProducts = [response];
+          }
+        }
 
-        // ვფილტრავთ პროდუქტებს, რომლებსაც აქვთ ნახვების ინფორმაცია
-        this.processProductsWithRealViews(allProducts);
+        console.log('📦 სულ დამუშავებული პროდუქტები:', allProducts.length);
+        
+        if (allProducts.length > 0) {
+          this.processProductsWithRealViews(allProducts);
+          // SEO-სთვის დინამიური structured data
+          this.addProductListSchema(allProducts.slice(0, 12));
+        } else {
+          this.products = [];
+          this.loading = false;
+          this.isLoadingViews = false;
+        }
       },
       error: (error) => {
-        console.error('❌ პროდუქტების ჩატვირთვის შეცდომა:', error);
+        console.error('❌ loadProductsWithRealViews ERROR:', error);
         this.error = 'პროდუქტების ჩატვირთვა ვერ მოხერხდა';
         this.loading = false;
         this.isLoadingViews = false;
@@ -175,10 +175,9 @@ getPopularProductsCount(): number {
     });
   }
 
-  // პროდუქტების დამუშავება რეალური ნახვების მონაცემებთან ერთად
   private processProductsWithRealViews(allProducts: any[]) {
+    console.log('🔄 იწყება პროდუქტების დამუშავება...', allProducts.length);
     
-    // ვალაგებთ პროდუქტებს ნახვების მიხედვით (თუ ნახვების ინფორმაცია უკვე არის API response-ში)
     const productsWithViewData = allProducts.map(product => {
       const viewCount = product.viewCount || product.views || product.totalViews || 0;
       return {
@@ -188,168 +187,67 @@ getPopularProductsCount(): number {
       };
     });
 
-  
-
-    // ვფილტრავთ და ვალაგებთ ნახვების მიხედვით
     const sortedProducts = productsWithViewData
-      .filter(product => product.viewCount > 0) // მხოლოდ ნახვების მქონე პროდუქტები
-      .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0)); // ნახვების მიხედვით დალაგება
-
- 
+      .filter(product => product.viewCount > 0)
+      .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
 
     if (sortedProducts.length === 0) {
-     
-      // თუ არც ერთ პროდუქტს არ აქვს ნახვები, ვიღებთ ყველაზე ახალს
       this.products = productsWithViewData.slice(0, 12);
     } else {
-      // ვიღებთ მაქსიმუმ 12 პროდუქტს
       this.products = sortedProducts.slice(0, 12);
     }
 
-  
+    const highViewCount = this.products.filter(p => (p.viewCount || 0) >= 100).length;
+    console.log(`🔥 პროდუქტები 100+ ნახვით: ${highViewCount}/${this.products.length}`);
     
     this.loading = false;
     this.isLoadingViews = false;
   }
 
-  // ალტერნატიული მეთოდი - თუ API response-ში ნახვების ინფორმაცია არ არის
-  private loadProductsWithAsyncViews(allProducts: any[]) {
-    console.log('🔄 ალტერნატიული მეთოდი: async ნახვების ჩატვირთვა...');
-    
-    const productsToCheck = allProducts.slice(0, 20); // პირველი 20 პროდუქტი
-    const viewRequests: Observable<any>[] = [];
-
-    productsToCheck.forEach(product => {
-      const productId = product._id || product.id;
-      if (productId) {
-        const viewRequest = this.productService.getProductViewStats(productId).pipe(
-          map(stats => ({
-            productId,
-            product,
-            viewCount: stats.views || stats.viewCount || 0
-          })),
-          catchError(() => of({
-            productId,
-            product,
-            viewCount: 0
-          }))
-        );
-        viewRequests.push(viewRequest);
-      }
-    });
-
-    if (viewRequests.length === 0) {
-      this.products = [];
-      this.loading = false;
-      this.isLoadingViews = false;
-      return;
-    }
-
-    // Batch processing - ყველა request-ის პარალელურად გაშვება
-    forkJoin(viewRequests).subscribe({
-      next: (results) => {
-        console.log('✅ ნახვების მონაცემები მიღებულია:', results);
-        
-        const productsWithViews = results
-          .filter(result => result.viewCount > 0)
-          .sort((a, b) => b.viewCount - a.viewCount)
-          .slice(0, 12)
-          .map(result => ({
-            ...result.product,
-            viewCount: result.viewCount
-          }));
-
-        console.log(`🔥 საბოლოო სია ნახვებით: ${productsWithViews.length}`);
-        
-        this.products = productsWithViews;
-        this.loading = false;
-        this.isLoadingViews = false;
-      },
-      error: (error) => {
-        console.error('❌ ნახვების მონაცემების მიღების შეცდომა:', error);
-        this.products = allProducts.slice(0, 12);
-        this.loading = false;
-        this.isLoadingViews = false;
-      }
-    });
-  }
-
-  // ნახვების ფორმატირება (1000+ -> 1.0ც, 1000000+ -> 1.0მ)
   formatViews(views: number | undefined | null): string {
     const numViews = Number(views);
     
-    if (isNaN(numViews) || numViews < 0) {
-      return '0';
-    }
-    
-    if (numViews >= 1000000) {
-      return Math.floor(numViews / 100000) / 10 + 'მ';
-    } else if (numViews >= 1000) {
-      return Math.floor(numViews / 100) / 10 + 'ც';
-    } else {
-      return numViews.toString();
-    }
+    if (isNaN(numViews) || numViews < 0) return '0';
+    if (numViews >= 1000000) return Math.floor(numViews / 100000) / 10 + 'მ';
+    if (numViews >= 1000) return Math.floor(numViews / 100) / 10 + 'ც';
+    return numViews.toString();
   }
 
-  // პროდუქტის ნახვა - ნახვის რეგისტრაციით
   viewProduct(productId: string) {
     console.log('🔍 იხსნება პროდუქტი:', productId);
-    const slug = this.generateProductUrl(productId);
-    this.router.navigate([slug]);
+    
     if (!productId) {
       console.error('❌ არასწორი პროდუქტის ID');
       this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
       return;
     }
     
-    
-    // ვრეკორდავთ ნახვას
     this.productService.recordView(productId).subscribe({
       next: (response) => {
         console.log('✅ ნახვა დაფიქსირდა:', response);
-        
-        // ვაღრმავებთ ნახვების რაოდენობას UI-ში
         const product = this.products.find(p => (p._id || p.id) === productId);
         if (product) {
           product.viewCount = (product.viewCount || 0) + 1;
-          console.log(`📈 განახლებული ნახვები: ${product.viewCount}`);
         }
       },
-      error: (error) => {
-        console.error('❌ ნახვის რეგისტრაციის შეცდომა:', error);
-      }
+      error: (error) => console.error('❌ ნახვის რეგისტრაციის შეცდომა:', error)
     });
 
-    // გადასვლა პროდუქტის დეტალებზე
     const product = this.products.find(p => (p._id || p.id) === productId);
     if (product && product.title) {
       const productUrl = this.generateProductUrl(product.title);
-      console.log('🔗 გადავდივართ URL-ზე:', productUrl);
-      
       this.router.navigate([productUrl]).then(success => {
-        if (success) {
-          console.log('✅ წარმატებით გადავედით პროდუქტის დეტალებზე');
-          this.scrollToTop();
-        } else {
-          console.error('❌ URL navigation ვერ მოხერხდა');
-          this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
-        }
+        if (success) this.scrollToTop();
+        else this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
       });
     } else {
-      // Fallback navigation ID-ს გამოყენებით
       this.router.navigate(['/product-details', productId]).then(success => {
-        if (success) {
-          console.log('✅ Fallback navigation წარმატებული');
-          this.scrollToTop();
-        } else {
-          console.error('❌ Fallback navigation-იც ვერ მოხერხდა');
-          this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
-        }
+        if (success) this.scrollToTop();
+        else this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
       });
     }
   }
 
-  // SnackBar შეტყობინების ჩვენება
   private showSnackBar(message: string): void {
     if (this.snackBar) {
       this.snackBar.open(message, 'დახურვა', {
@@ -363,264 +261,233 @@ getPopularProductsCount(): number {
     }
   }
 
-  // SEO კონფიგურაცია
-  private setupSEO(): void {
-    this.title.setTitle('ყიდვა გაყიდვა საქართველოში | iMarket Zone - ონლაინ მარკეტპლეისი');
-
+  // ✅ გაფართოებული SEO Setup
+  private setupComprehensiveSEO(): void {
+    // Title tag
+    this.title.setTitle('iMarketZone - ყიდვა გაყიდვა საქართველოში | უფასო განცხადებები ონლაინ');
+    
+    // Meta Description
     this.meta.updateTag({ 
       name: 'description', 
-      content: 'ყიდვა გაყიდვა მარტივად საქართველოში! ახალი და გამოყენებული ნივთები - ტელეფონები, ტექნიკა, მანქანები, ტანსაცმელი. უფასო განცხადებები, სწრაფი მყიდველი, მარტივი გაყიდვა.' 
+      content: 'iMarketZone - საქართველოს #1 ონლაინ მარკეტპლეისი. ყიდვა გაყიდვა მარტივად! ტელეფონები, ტექნიკა, მანქანები, ტანსაცმელი, სათამაშოები. უფასო განცხადებები, სწრაფი მყიდველი, უსაფრთხო გარიგება.' 
     });
-
+    
+    // Keywords
     this.meta.updateTag({ 
       name: 'keywords', 
-      content: 'ყიდვა, გაყიდვა, უფასო განცხადებები, ონლაინ მაღაზია, მყიდველი, გამყიდველი, ახალი ნივთები, გამოყენებული ნივთები, ტელეფონების ყიდვა, მანქანების გაყიდვა, ტექნიკის ყიდვა, ონლაინ მარკეტპლეისი, imarket zone' 
+      content: 'imarketzone, იმარკეტ ზონი, ყიდვა გაყიდვა, უფასო განცხადებები საქართველოში, ონლაინ მაღაზია, მყიდველი, გამყიდველი, ახალი ნივთები, გამოყენებული ნივთები, ტელეფონების ყიდვა, მანქანების გაყიდვა, ტექნიკის ყიდვა, ონლაინ მარკეტპლეისი თბილისი' 
     });
 
-    // Open Graph tags
-    this.meta.updateTag({ property: 'og:title', content: 'ყიდვა გაყიდვა საქართველოში | iMarket Zone' });
-    this.meta.updateTag({ property: 'og:description', content: 'ყიდვა გაყიდვა მარტივად! ახალი და გამოყენებული ნივთები, უფასო განცხადებები, სწრაფი გადაწყვეტილება.' });
+    // Open Graph Tags
+    this.meta.updateTag({ property: 'og:title', content: 'iMarketZone - ყიდვა გაყიდვა საქართველოში' });
+    this.meta.updateTag({ property: 'og:description', content: 'საქართველოს საუკეთესო ონლაინ მარკეტპლეისი - ყიდვა გაყიდვა მარტივად!' });
     this.meta.updateTag({ property: 'og:type', content: 'website' });
     this.meta.updateTag({ property: 'og:url', content: 'https://imarketzone.ge' });
-    this.meta.updateTag({ property: 'og:image', content: 'https://imarketzone.ge/assets/images/og-buy-sell.jpg' });
+    this.meta.updateTag({ property: 'og:image', content: 'https://imarketzone.ge/assets/og-image.jpg' });
     this.meta.updateTag({ property: 'og:locale', content: 'ka_GE' });
     this.meta.updateTag({ property: 'og:site_name', content: 'iMarket Zone' });
 
-    // Twitter Card tags
+    // Twitter Card
     this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.meta.updateTag({ name: 'twitter:title', content: 'ყიდვა გაყიდვა საქართველოში | iMarket Zone' });
-    this.meta.updateTag({ name: 'twitter:description', content: 'ყიდვა გაყიდვა მარტივად! ახალი და გამოყენებული ნივთები, უფასო განცხადებები.' });
-    this.meta.updateTag({ name: 'twitter:image', content: 'https://imarketzone.ge/assets/images/twitter-buy-sell.jpg' });
+    this.meta.updateTag({ name: 'twitter:title', content: 'iMarket Zone - ყიდვა გაყიდვა საქართველოში' });
+    this.meta.updateTag({ name: 'twitter:description', content: 'საქართველოს საუკეთესო ონლაინ მარკეტპლეისი' });
+    this.meta.updateTag({ name: 'twitter:image', content: 'https://imarketzone.ge/assets/twitter-image.jpg' });
 
-    // Additional SEO tags
-    this.meta.updateTag({ name: 'robots', content: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' });
+    // Additional SEO Tags
+    this.meta.updateTag({ name: 'robots', content: 'index, follow, max-image-preview:large' });
     this.meta.updateTag({ name: 'author', content: 'iMarket Zone' });
     this.meta.updateTag({ name: 'language', content: 'Georgian' });
+    this.meta.updateTag({ httpEquiv: 'Content-Language', content: 'ka' });
     this.meta.updateTag({ name: 'geo.region', content: 'GE' });
-    this.meta.updateTag({ name: 'geo.country', content: 'Georgia' });
-    this.meta.updateTag({ name: 'geo.placename', content: 'Tbilisi, Georgia' });
-
-    this.meta.updateTag({ rel: 'canonical', href: 'https://imarketzone.ge' });
-    this.meta.updateTag({ rel: 'alternate', hreflang: 'ka', href: 'https://imarketzone.ge' });
-    this.meta.updateTag({ rel: 'alternate', hreflang: 'en', href: 'https://imarketzone.ge/en' });
+    this.meta.updateTag({ name: 'geo.placename', content: 'Tbilisi' });
+    
+    // Mobile optimization
+    this.meta.updateTag({ name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' });
+    this.meta.updateTag({ name: 'theme-color', content: '#4F46E5' });
+    
+    // Canonical URL
+    if (isPlatformBrowser(this.platformId)) {
+      const link: HTMLLinkElement = document.querySelector("link[rel='canonical']") || document.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      link.setAttribute('href', 'https://imarketzone.ge');
+      if (!document.querySelector("link[rel='canonical']")) {
+        document.head.appendChild(link);
+      }
+    }
   }
 
-  // Structured Data-ს დამატება
-  private addStructuredData(): void {
-    const existingScript = document.querySelector('script[type="application/ld+json"]');
-    if (existingScript) {
-      existingScript.remove();
-    }
+  // ✅ გაფართოებული Structured Data
+  private addEnhancedStructuredData(): void {
+    const existingScript = document.querySelector('script[type="application/ld+json"]#website-schema');
+    if (existingScript) existingScript.remove();
 
-    const structuredData = [
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "iMarket Zone - ყიდვა გაყიდვის ონლაინ მარკეტპლეისი",
-        "alternateName": [
-          "iMarket Zone",
-          "ყიდვა გაყიდვა საქართველოში",
-          "ონლაინ მაღაზია საქართველო"
-        ],
-        "url": "https://imarketzone.ge",
-        "description": "ყიდვა გაყიდვა მარტივად საქართველოში! ახალი და გამოყენებული ნივთები - ტელეფონები, ტექნიკა, მანქანები, ტანსაცმელი. უფასო განცხადებები.",
-        "inLanguage": ["ka-GE", "en-US"],
-        "potentialAction": [
-          {
-            "@type": "SearchAction",
-            "target": "https://imarketzone.ge/public-products?search={search_term_string}",
-            "query-input": "required name=search_term_string"
-          },
-          {
-            "@type": "BuyAction",
-            "target": "https://imarketzone.ge/public-products"
-          },
-          {
-            "@type": "SellAction",
-            "target": "https://imarketzone.ge/login"
-          }
-        ],
-        "sameAs": [
-          "https://www.facebook.com/imarketzone",
-          "https://www.instagram.com/imarketzone"
-        ],
-        "publisher": {
-          "@type": "Organization",
-          "name": "iMarket Zone",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://imarketzone.ge/assets/images/logo.png"
-          }
-        }
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "Marketplace",
-        "name": "iMarket Zone",
-        "url": "https://imarketzone.ge",
-        "description": "საქართველოს ყველაზე დიდი ონლაინ მარკეტპლეისი ყიდვა-გაყიდვისთვის",
-        "areaServed": {
-          "@type": "Country",
-          "name": "Georgia"
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "iMarketZone",
+      "alternateName": "იმარკეტ ზონი",
+      "url": "https://imarketzone.ge",
+      "description": "საქართველოს #1 ონლაინ მარკეტპლეისი - ყიდვა გაყიდვა მარტივად",
+      "inLanguage": "ka-GE",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://imarketzone.ge/public-products?search={search_term_string}"
         },
-        "hasOfferCatalog": {
-          "@type": "OfferCatalog",
-          "name": "პროდუქტების კატალოგი",
-          "itemListElement": this.categories.map((category, index) => ({
-            "@type": "OfferCatalog",
-            "name": category,
-            "position": index + 1,
-            "url": `https://imarketzone.ge/public-products?category=${encodeURIComponent(category)}`
-          }))
-        },
-        "paymentAccepted": ["Cash", "Bank Transfer", "PayPal", "Credit Card"],
-        "priceRange": "1₾ - 50000₾",
-        "geo": {
-          "@type": "GeoCoordinates",
-          "latitude": "41.7151",
-          "longitude": "44.8271"
-        },
-        "address": {
-          "@type": "PostalAddress",
-          "addressCountry": "GE",
-          "addressRegion": "Tbilisi"
-        }
+        "query-input": "required name=search_term_string"
       }
-    ];
+    };
 
     const script = document.createElement('script');
     script.type = 'application/ld+json';
+    script.id = 'website-schema';
     script.textContent = JSON.stringify(structuredData);
     document.head.appendChild(script);
   }
 
-  // პროდუქტის URL-ის გენერირება
+  // ✅ Organization Schema
+  private addOrganizationSchema(): void {
+    const existingScript = document.querySelector('script[type="application/ld+json"]#org-schema');
+    if (existingScript) existingScript.remove();
+
+    const orgData = {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "iMarketZone",
+      "alternateName": "იმარკეტ ზონი",
+      "url": "https://imarketzone.ge",
+      "logo": "https://imarketzone.ge/assets/logo.png",
+      "description": "საქართველოს საუკეთესო ონლაინ მარკეტპლეისი",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "თბილისი",
+        "addressRegion": "თბილისი",
+        "addressCountry": "GE"
+      },
+      "sameAs": [
+        "https://www.facebook.com/imarketzone",
+        "https://www.instagram.com/imarketzone"
+      ]
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'org-schema';
+    script.textContent = JSON.stringify(orgData);
+    document.head.appendChild(script);
+  }
+
+  // ✅ Breadcrumb Schema
+  private addBreadcrumbSchema(): void {
+    const existingScript = document.querySelector('script[type="application/ld+json"]#breadcrumb-schema');
+    if (existingScript) existingScript.remove();
+
+    const breadcrumbData = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "მთავარი",
+        "item": "https://imarketzone.ge"
+      }]
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'breadcrumb-schema';
+    script.textContent = JSON.stringify(breadcrumbData);
+    document.head.appendChild(script);
+  }
+
+  // ✅ Product List Schema (დინამიური)
+  private addProductListSchema(products: any[]): void {
+    if (!isPlatformBrowser(this.platformId) || products.length === 0) return;
+
+    const existingScript = document.querySelector('script[type="application/ld+json"]#product-list-schema');
+    if (existingScript) existingScript.remove();
+
+    const productListData = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "პოპულარული პროდუქტები",
+      "description": "100+ ნახვის მქონე პროდუქტები iMarketZone-ზე",
+      "itemListElement": products.slice(0, 10).map((product, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "Product",
+          "name": product.title,
+          "description": product.description?.substring(0, 200),
+          "image": this.getProductImage(product),
+          "offers": {
+            "@type": "Offer",
+            "price": product.price || 0,
+            "priceCurrency": "GEL",
+            "availability": "https://schema.org/InStock",
+            "url": `https://imarketzone.ge${this.generateProductUrl(product.title)}`
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.5",
+            "reviewCount": product.viewCount || 0
+          }
+        }
+      }))
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'product-list-schema';
+    script.textContent = JSON.stringify(productListData);
+    document.head.appendChild(script);
+  }
+
   private generateProductUrl(title: string): string {
-    const slug = title
-      .toLowerCase()
-      .trim()
+    const slug = title.toLowerCase().trim()
       .replace(/[^\w\s\-ა-ჰ]/g, '')
       .replace(/\s+/g, '-')
       .replace(/\-+/g, '-')
       .replace(/^-+|-+$/g, '');
-    
-    const encodedSlug = encodeURIComponent(slug);
-    return `/product-details/${encodedSlug}`;
+    return `/product-details/${encodeURIComponent(slug)}`;
   }
 
-  // ძებნის ფუნქციონალი
   onSearch(): void {
     if (this.searchQuery.trim()) {
       this.scrollToTop();
       this.showSuggestions = false;
-      
-      if (isPlatformBrowser(this.platformId) && (window as any).gtag) {
-        (window as any).gtag('event', 'search', {
-          search_term: this.searchQuery.trim()
-        });
-      }
-      
-      console.log(`ძებნა: ${this.searchQuery}`);
-      
-      this.title.setTitle(`${this.searchQuery} - ძებნა | iMarket Zone`);
-      this.meta.updateTag({ 
-        name: 'description', 
-        content: `იპოვეთ ${this.searchQuery} iMarket Zone-ზე. ყიდვა გაყიდვა მარტივად საქართველოში. ახალი და გამოყენებული ნივთები.` 
-      });
-      
-      this.seoService.updatePageSEO('search', this.searchQuery);
-      this.router.navigate(['/public-products'], { 
-        queryParams: { search: this.searchQuery.trim() } 
-      });
+      this.router.navigate(['/public-products'], { queryParams: { search: this.searchQuery.trim() } });
     }
   }
 
-  // კატეგორიის არჩევა
   onCategoryClick(category: string): void {
     this.scrollToTop();
-    
-    if (isPlatformBrowser(this.platformId) && (window as any).gtag) {
-      (window as any).gtag('event', 'select_content', {
-        content_type: 'category',
-        item_id: category
-      });
-    }
-    
-    console.log(`კატეგორია დაჭერილია: ${category}`);
-    
-    this.title.setTitle(`${category} - ყიდვა გაყიდვა | iMarket Zone`);
-    this.meta.updateTag({ 
-      name: 'description', 
-      content: `${category} ყიდვა გაყიდვა საქართველოში. იპოვეთ ახალი და გამოყენებული ${category} iMarket Zone-ზე. უფასო განცხადებები.` 
-    });
-    
-    this.seoService.updatePageSEO('category', category);
-    this.router.navigate(['/public-products'], { 
-      queryParams: { category: category } 
-    });
+    this.router.navigate(['/public-products'], { queryParams: { category: category } });
   }
 
-  // კატეგორიის არჩევა suggestions-იდან
   selectCategory(category: string): void {
     this.searchQuery = category;
     this.showSuggestions = false;
     this.onCategoryClick(category);
   }
 
-  // პროდუქტის არჩევა suggestions-იდან
   selectProduct(product: any): void {
-    console.log('პროდუქტი არჩეულია:', product);
     this.searchQuery = product.title;
     this.showSuggestions = false;
-    
-    if (isPlatformBrowser(this.platformId) && (window as any).gtag) {
-      (window as any).gtag('event', 'select_item', {
-        item_category: product.category,
-        item_name: product.title,
-        value: product.price
-      });
-    }
-    
     const productUrl = this.generateProductUrl(product.title);
-    console.log('გადავდივართ URL-ზე:', productUrl);
-    
     this.router.navigate([productUrl]).then(success => {
-      if (success) {
-        console.log('წარმატებით გადავედით პროდუქტის დეტალებზე');
-        this.scrollToTop();
-      } else {
-        console.error('URL navigation ვერ მოხერხდა, ვცადოთ ID-ით');
-        const productId = product._id || product.id;
-        this.router.navigate(['/product-details', productId]).then(fallbackSuccess => {
-          if (fallbackSuccess) {
-            console.log('Fallback navigation წარმატებული');
-            this.scrollToTop();
-          } else {
-            console.error('Fallback navigation-იც ვერ მოხერხდა');
-            this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
-          }
-        });
-      }
-    }).catch(error => {
-      console.error('Navigation შეცდომა:', error);
-      this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
+      if (success) this.scrollToTop();
     });
   }
 
-  // Products Loading for Search Suggestions
   private loadAllProducts(): void {
-    if (this.isLoadingProducts) {
-      console.log('Already loading products, skipping...');
-      return;
-    }
+    if (this.isLoadingProducts) return;
     
     this.isLoadingProducts = true;
-    console.log('Starting to load products for suggestions...');
     
     this.productService.getAllProducts().subscribe({
       next: (response: any) => {
-        console.log('Raw API Response:', response);
-        
         let products = [];
         if (response.products) {
           products = response.products;
@@ -628,14 +495,10 @@ getPopularProductsCount(): number {
           products = response.data;
         } else if (Array.isArray(response)) {
           products = response;
-        } else {
-          products = [];
         }
         
         this.allProducts = products;
         this.isLoadingProducts = false;
-        
-        console.log('Successfully loaded products for suggestions:', this.allProducts.length);
         
         if (this.searchQuery.trim().length > 0) {
           this.updateSuggestions();
@@ -644,42 +507,10 @@ getPopularProductsCount(): number {
       error: (error) => {
         console.error('Error loading products for suggestions:', error);
         this.isLoadingProducts = false;
-        
-        // Fallback data for suggestions
-        this.allProducts = [
-          { 
-            _id: 'fallback-1',
-            title: 'Samsung Galaxy S24', 
-            image: 'https://via.placeholder.com/40', 
-            category: 'ტელეფონები',
-            price: 1200 
-          },
-          { 
-            _id: 'fallback-2',
-            title: 'iPhone 15 Pro', 
-            image: 'https://via.placeholder.com/40', 
-            category: 'ტელეფონები',
-            price: 1500 
-          },
-          { 
-            _id: 'fallback-3',
-            title: 'MacBook Pro', 
-            image: 'https://via.placeholder.com/40', 
-            category: 'კომპიუტერები',
-            price: 2000 
-          }
-        ];
-        
-        console.log('Using fallback products for suggestions:', this.allProducts.length);
-        
-        if (this.searchQuery.trim().length > 0) {
-          this.updateSuggestions();
-        }
       }
     });
   }
 
-  // Document Click Handler - Hide suggestions when clicking outside
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: any) {
     const searchContainer = document.querySelector('.search-container');
@@ -687,25 +518,21 @@ getPopularProductsCount(): number {
       this.showSuggestions = false;
     }
   }
-  // Scroll to Top
+
   private scrollToTop(): void {
     if (isPlatformBrowser(this.platformId)) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
-  // Search Input Handler
   onSearchInput(event: any): void {
     const value = event.target.value;
     this.searchQuery = value;
     if (value.trim().length > 0) {
       this.showSuggestions = true;
-      
       if (this.allProducts.length === 0 && !this.isLoadingProducts) {
-     
         this.loadAllProducts();
       }
-      
       this.updateSuggestions();
     } else {
       this.showSuggestions = false;
@@ -713,54 +540,32 @@ getPopularProductsCount(): number {
     }
   }
 
-  // Update Suggestions based on search query
   private updateSuggestions(): void {
-    const query = this.searchQuery.toLowerCase();
     const categories = this.getFilteredCategories();
     const products = this.getFilteredProducts();
-    
-  
-    
     this.filteredSuggestions = [...categories, ...products];
   }
 
-  // Get Filtered Categories
   getFilteredCategories(): string[] {
     if (!this.searchQuery.trim()) return [];
     const query = this.searchQuery.toLowerCase();
-    return this.categories.filter(category => 
-      category.toLowerCase().includes(query)
-    );
+    return this.categories.filter(category => category.toLowerCase().includes(query));
   }
 
-  // Get Filtered Products
   getFilteredProducts(): any[] {
-    if (!this.searchQuery.trim()) {
-  
-      return [];
-    }
-    
-    if (this.allProducts.length === 0) {
-      return [];
-      
-    }
+    if (!this.searchQuery.trim() || this.allProducts.length === 0) return [];
     
     const query = this.searchQuery.toLowerCase();
-
-    
     const filtered = this.allProducts.filter(product => {
       const titleMatch = product.title && product.title.toLowerCase().includes(query);
       const descriptionMatch = product.description && product.description.toLowerCase().includes(query);
       const categoryMatch = product.category && product.category.toLowerCase().includes(query);
-      
-      const isMatch = titleMatch || descriptionMatch || categoryMatch;
-    
-      return isMatch;
+      return titleMatch || descriptionMatch || categoryMatch;
     });
-    return filtered.slice(0, 5); // Limit to 5 suggestions
+    
+    return filtered.slice(0, 5);
   }
 
-  // Get Product Image with fallback
   getProductImage(product: any): string {
     if (product.images && product.images.length > 0) {
       return product.images[0];
@@ -768,11 +573,10 @@ getPopularProductsCount(): number {
     if (product.image) {
       return product.image;
     }
-    return 'https://via.placeholder.com/300x200?text=No+Image';
+    return 'https://via.placeholder.com/300x200?text=iMarket+Zone';
   }
 
-  // Handle Image Loading Errors
   onImageError(event: any): void {
-    event.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
+    event.target.src = 'https://via.placeholder.com/300x200?text=iMarket+Zone';
   }
 }

@@ -1,7 +1,7 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { throwError, timer, of } from 'rxjs';
-import { catchError, retryWhen, mergeMap, tap } from 'rxjs/operators';
+import { catchError, retryWhen, mergeMap, tap, finalize, share } from 'rxjs/operators';
 
 // Cache storage (singleton)
 export const requestCache = new Map<string, { response: any; timestamp: number }>();
@@ -21,7 +21,13 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
     const cached = getFromCache(cacheKey);
     if (cached) {
       console.log('✅ Cache hit:', cacheKey);
-      return of(cached);
+      // ✅ გამოსწორება: ვაბრუნებთ HttpResponse-ს
+      return of(new HttpResponse({ 
+        body: cached, 
+        status: 200,
+        statusText: 'OK (from cache)',
+        url: req.url
+      }));
     }
 
     // 2️⃣ თუ იგივე request უკვე მიმდინარეობს
@@ -33,7 +39,11 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
     // 3️⃣ ახალი request
     const request$ = next(req).pipe(
       tap(event => {
-        saveToCache(cacheKey, event);
+        // ✅ შევინახოთ მხოლოდ HttpResponse body
+        if (event instanceof HttpResponse) {
+          console.log('💾 Saving to cache:', cacheKey, event.body);
+          saveToCache(cacheKey, event.body);
+        }
       }),
       retryWhen(errors =>
         errors.pipe(
@@ -50,9 +60,11 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         )
       ),
       catchError(error => handleError(error, req.url)),
-      tap({
-        finalize: () => pendingRequests.delete(cacheKey)
-      })
+      finalize(() => {
+        console.log('🧹 Cleaning up pending request:', cacheKey);
+        pendingRequests.delete(cacheKey);
+      }),
+      share() // ✅ დავამატოთ share() multicast-ისთვის
     );
 
     pendingRequests.set(cacheKey, request$);
@@ -83,19 +95,27 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 function getFromCache(key: string): any {
   const cached = requestCache.get(key);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log('📦 Cache valid, age:', (Date.now() - cached.timestamp) / 1000, 'seconds');
     return cached.response;
   }
+  
+  if (cached) {
+    console.log('⏰ Cache expired, age:', (Date.now() - cached.timestamp) / 1000, 'seconds');
+  }
+  
   requestCache.delete(key);
   return null;
 }
 
 function saveToCache(key: string, response: any): void {
+  console.log('💾 Caching response for:', key);
   requestCache.set(key, { response, timestamp: Date.now() });
   
   // გავასუფთავოთ ძველი cache (მაქს 50 ჩანაწერი)
   if (requestCache.size > 50) {
     const oldestKey = requestCache.keys().next().value;
     if (typeof oldestKey === 'string') {
+      console.log('🗑️ Removing oldest cache entry:', oldestKey);
       requestCache.delete(oldestKey);
     }
   }

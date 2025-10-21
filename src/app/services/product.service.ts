@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
+import { Observable, throwError, of, BehaviorSubject } from 'rxjs';
 import { tap, map, catchError, retry, timeout, switchMap } from 'rxjs/operators';
 import { Product } from '../models/product';
 import { environment } from '../environment';
@@ -11,8 +11,35 @@ import { environment } from '../environment';
 export class ProductService {
   private baseUrl = environment.apiUrl;
 
+  // ✅ პროდუქტების Cache
+  private cachedProducts$ = new BehaviorSubject<any[]>([]);
+  public cachedProducts = this.cachedProducts$.asObservable();
+
   constructor(private http: HttpClient) { 
     console.log('ProductService initialized with baseUrl:', this.baseUrl);
+  }
+
+  // ✅ Cache Management Methods
+  setCachedProducts(products: any[]): void {
+    console.log(`💾 Caching ${products.length} products`);
+    this.cachedProducts$.next(products);
+  }
+
+  getCachedProducts(): any[] {
+    const cached = this.cachedProducts$.value;
+    console.log(`📦 Retrieved ${cached.length} cached products`);
+    return cached;
+  }
+
+  hasCachedProducts(): boolean {
+    const hasCached = this.cachedProducts$.value.length > 0;
+    console.log(`🔍 Cache check: ${hasCached ? 'YES' : 'NO'} (${this.cachedProducts$.value.length} products)`);
+    return hasCached;
+  }
+
+  clearCache(): void {
+    console.log('🗑️ Clearing product cache');
+    this.cachedProducts$.next([]);
   }
 
   // ავთენტიფიკაციის ტოკენის მიღება
@@ -73,295 +100,241 @@ export class ProductService {
     return throwError(() => new Error(errorMessage));
   }
 
-  // ✅ Enhanced getProductBySlug with comprehensive debugging
+  // ✅ განახლებული getAllProducts - Cache-ის გამოყენებით
+  getAllProducts(filters?: {
+    category?: string,
+    minPrice?: number,
+    maxPrice?: number,
+    search?: string
+    city?: string
+  }): Observable<any> {
+    
+    // ✅ თუ არ არის ფილტრები და cache არსებობს, დავაბრუნოთ cache
+    if (!filters && this.hasCachedProducts()) {
+      console.log('⚡ Using cached products (no filters applied)');
+      return of({ 
+        success: true, 
+        products: this.getCachedProducts(),
+        source: 'cache'
+      });
+    }
+    
+    let params = new HttpParams();
+    
+    if (filters) {
+      if (filters.category) params = params.append('category', filters.category);
+      if (filters.minPrice) params = params.append('minPrice', filters.minPrice.toString());
+      if (filters.maxPrice) params = params.append('maxPrice', filters.maxPrice.toString());
+      if (filters.city) params = params.append('city', filters.city);
+      if (filters.search) params = params.append('search', filters.search);
+    }
+    
+    console.log('📡 Making getAllProducts API request:', {
+      url: `${this.baseUrl}/products`,
+      params: params.toString(),
+      hasFilters: !!filters
+    });
+    
+    return this.http.get(`${this.baseUrl}/products`, { 
+      params,
+      headers: this.getHeaders()
+    }).pipe(
+      timeout(10000),
+      retry(1),
+      tap(response => {
+        console.log('✅ getAllProducts API response received');
+        
+        // ✅ თუ ფილტრები არ არის, cache-ში შევინახოთ
+        if (!filters) {
+          const products = (response as any).products || 
+                          (response as any).data || 
+                          response || [];
+          
+          if (products.length > 0) {
+            this.setCachedProducts(products);
+          }
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  // ✅ 🔥 FIXED: Enhanced getProductBySlug with automatic fallback
   getProductBySlug(slug: string): Observable<any> {
     console.log(`🔍 Looking for product with slug: "${slug}"`);
     
-    // ✅ სწორი URL - რაც ბექენდში გაქვთ განსაზღვრული
     const url = `${this.baseUrl}/products/by-slug/${encodeURIComponent(slug)}`;
-    
-    console.log(`📡 Making request to: ${url}`);
+    console.log(`📡 Trying primary endpoint: ${url}`);
     
     return this.http.get<any>(url, { 
       headers: this.getHeaders() 
     }).pipe(
-      timeout(10000),
+      timeout(8000),
       tap(response => {
-        console.log('✅ Successfully found product:', response);
+        console.log('✅ Primary endpoint success:', response);
       }),
       map((response: any) => {
-        // ✅ ბექენდი აბრუნებს { success: true, data: product }
-        // ფრონტენდი მოელის { product: ... }
         if (response.success && response.data) {
           return { product: response.data };
         }
         return response;
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error(`❌ Failed: ${url} - Status: ${error.status}`, error);
+        console.warn(`⚠️ Primary endpoint failed (${error.status}), trying fallback...`);
         
-        // თუ 404 არის, ვცდით fallback-ს
-        if (error.status === 404) {
-          return this.fallbackSearchProduct(slug);
-        }
-        
-        return this.handleError(error);
+        // ✅ AUTOMATIC FALLBACK - ყველა შეცდომაზე
+        return this.fallbackSearchProduct(slug);
       })
     );
   }
 
-  // Create different variations of the slug to try
+  // ✅ 🔥 IMPROVED: Fallback search with multiple strategies
   private fallbackSearchProduct(searchTerm: string): Observable<any> {
-    console.log('🔍 Fallback: Searching in all products for:', searchTerm);
+    console.log('🔄 FALLBACK SEARCH START');
+    console.log('Search term:', searchTerm);
     
+    // Strategy 1: Try exact title match via search
     return this.getAllProducts({ search: searchTerm }).pipe(
+      timeout(8000),
       map((response: any) => {
         const products = response.products || response.data || response || [];
         
+        console.log(`📦 Fallback found ${products.length} products`);
+        
         if (!Array.isArray(products) || products.length === 0) {
-          throw new Error('პროდუქტი ვერ მოიძებნა');
+          throw new Error('No products found in fallback search');
         }
         
-        // ვეძებთ ზუსტ დამთხვევას title-ში
-        let product = products.find((p: any) => 
+        // Strategy 1: Exact slug match
+        let product = products.find((p: any) => {
+          const productSlug = this.generateSlug(p.title);
+          const searchSlug = this.generateSlug(searchTerm);
+          return productSlug === searchSlug;
+        });
+        
+        if (product) {
+          console.log('✅ Found by exact slug match:', product.title);
+          return { product };
+        }
+        
+        // Strategy 2: Exact title match (case-insensitive)
+        product = products.find((p: any) => 
           p.title && p.title.toLowerCase() === searchTerm.toLowerCase()
         );
         
-        // თუ ზუსტი არ არის, ვეძებთ ნაწილობრივ დამთხვევას
-        if (!product) {
-          product = products.find((p: any) => 
-            p.title && p.title.toLowerCase().includes(searchTerm.toLowerCase())
-          );
+        if (product) {
+          console.log('✅ Found by exact title match:', product.title);
+          return { product };
         }
         
-        // თუ მაინც არ არის, ვუბრუნებთ პირველს
-        if (!product) {
-          product = products[0];
+        // Strategy 3: Partial title match
+        product = products.find((p: any) => 
+          p.title && p.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        
+        if (product) {
+          console.log('✅ Found by partial title match:', product.title);
+          return { product };
         }
         
-        console.log('✅ Found product via fallback:', product);
-        return { product };
+        // Strategy 4: Slug similarity check
+        const normalizedSearch = searchTerm.toLowerCase().replace(/[-_]/g, '');
+        product = products.find((p: any) => {
+          if (!p.title) return false;
+          const normalizedTitle = p.title.toLowerCase().replace(/[-_\s]/g, '');
+          return normalizedTitle.includes(normalizedSearch) || 
+                 normalizedSearch.includes(normalizedTitle);
+        });
+        
+        if (product) {
+          console.log('✅ Found by normalized similarity:', product.title);
+          return { product };
+        }
+        
+        // Strategy 5: Return first result as last resort
+        console.warn('⚠️ No exact match found, returning first result');
+        return { product: products[0] };
       }),
       catchError(error => {
-        console.error('❌ Fallback search also failed:', error);
+        console.error('❌ All fallback strategies failed:', error);
         return throwError(() => new Error('პროდუქტი ვერ მოიძებნა'));
       })
     );
   }
 
-  // Recursively try endpoint/slug combinations
-  private tryEndpointSlugCombinations(
-    endpoints: string[], 
-    slugs: string[], 
-    currentIndex: number
-  ): Observable<any> {
-    if (currentIndex >= endpoints.length * slugs.length) {
-      return throwError(() => new Error('All endpoint/slug combinations failed'));
-    }
-    
-    const endpointIndex = Math.floor(currentIndex / slugs.length);
-    const slugIndex = currentIndex % slugs.length;
-    
-    const endpoint = endpoints[endpointIndex];
-    const slug = slugs[slugIndex];
-    const fullUrl = `${this.baseUrl}${endpoint}${slug}`;
-    
-    console.log(`🌐 Attempt ${currentIndex + 1}: ${fullUrl}`);
-    
-    return this.http.get<any>(fullUrl, { 
-      headers: this.getHeaders() 
-    }).pipe(
-      timeout(5000),
-      tap(response => {
-        console.log(`✅ Success with: ${fullUrl}`, response);
-      }),
-      catchError(error => {
-        console.warn(`❌ Failed: ${fullUrl} - ${error.message}`);
-        return this.tryEndpointSlugCombinations(endpoints, slugs, currentIndex + 1);
-      })
-    );
-  }
-
-  // Fallback: search through all products
-  private fallbackProductSearch(searchTerm: string): Observable<any> {
-    console.log('🔍 Fallback: Searching through all products for:', searchTerm);
-    
-    return this.getAllProducts({ search: searchTerm }).pipe(
-      map((response: any) => {
-        const products = response.products || response.data || response;
-        console.log('Search response:', response);
-        console.log('Found products:', products);
-        
-        if (!Array.isArray(products) || products.length === 0) {
-          throw new Error('No products found in search');
-        }
-        
-        // Try different matching strategies
-        const searchStrategies = [
-          // Exact match
-          (p: any) => p.title && p.title.toLowerCase() === searchTerm.toLowerCase(),
-          // Normalized slug match
-          (p: any) => p.title && this.normalizeSlug(p.title) === this.normalizeSlug(searchTerm),
-          // Contains match
-          (p: any) => p.title && p.title.toLowerCase().includes(searchTerm.toLowerCase()),
-          // Slug field match (if exists)
-          (p: any) => p.slug && p.slug.toLowerCase() === searchTerm.toLowerCase(),
-          // Partial slug match
-          (p: any) => p.slug && p.slug.toLowerCase().includes(searchTerm.toLowerCase()),
-          // ID match (if search term looks like ID)
-          (p: any) => p._id && p._id === searchTerm,
-          // Any field contains search term
-          (p: any) => JSON.stringify(p).toLowerCase().includes(searchTerm.toLowerCase())
-        ];
-        
-        for (let i = 0; i < searchStrategies.length; i++) {
-          const strategy = searchStrategies[i];
-          const match = products.find(strategy);
-          
-          if (match) {
-            console.log(`✅ Found match using strategy ${i + 1}:`, match);
-            return { product: match };
-          }
-        }
-        
-        // If no match found, return first product as last resort
-        console.log('⚠️ No exact match found, returning first product');
-        return { product: products[0] };
-      }),
-      catchError(error => {
-        console.error('Fallback search failed:', error);
-        return this.tryAlternativeApis(searchTerm);
-      })
-    );
-  }
-
-  // Try alternative API structures
-  private tryAlternativeApis(searchTerm: string): Observable<any> {
-    console.log('🔄 Trying alternative API structures...');
-    
-    const alternativeEndpoints = [
-      `${this.baseUrl}/api/products?title=${encodeURIComponent(searchTerm)}`,
-      `${this.baseUrl}/products?q=${encodeURIComponent(searchTerm)}`,
-      `${this.baseUrl}/search/products?term=${encodeURIComponent(searchTerm)}`,
-      `${this.baseUrl}/products/search?query=${encodeURIComponent(searchTerm)}`,
-      `${this.baseUrl}/api/search?type=product&q=${encodeURIComponent(searchTerm)}`
-    ];
-    
-    return this.tryAlternativeEndpoints(alternativeEndpoints, 0);
-  }
-
-  private tryAlternativeEndpoints(endpoints: string[], index: number): Observable<any> {
-    if (index >= endpoints.length) {
-      return throwError(() => new Error('All alternative endpoints failed'));
-    }
-    
-    const endpoint = endpoints[index];
-    console.log(`🌐 Trying alternative: ${endpoint}`);
-    
-    return this.http.get<any>(endpoint, { 
-      headers: this.getHeaders() 
-    }).pipe(
-      timeout(5000),
-      map(response => this.normalizeProductResponse(response)),
-      catchError(error => {
-        console.warn(`❌ Alternative endpoint failed: ${endpoint}`);
-        return this.tryAlternativeEndpoints(endpoints, index + 1);
-      })
-    );
-  }
-
-  // Normalize different response formats
-  private normalizeProductResponse(response: any): any {
-    console.log('Normalizing response:', response);
-    
-    // Direct product object
-    if (response.title || response._id) {
-      return { product: response };
-    }
-    
-    // Wrapped in product property
-    if (response.product) {
-      return response;
-    }
-    
-    // Array in data property
-    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
-      return { product: response.data[0] };
-    }
-    
-    // Direct array
-    if (Array.isArray(response) && response.length > 0) {
-      return { product: response[0] };
-    }
-    
-    // Products array property
-    if (response.products && Array.isArray(response.products) && response.products.length > 0) {
-      return { product: response.products[0] };
-    }
-    
-    throw new Error('Invalid response format');
-  }
-
-  // Enhanced slug normalization
-  private normalizeSlug(title: string): string {
+  // ✅ Slug generation helper (matches backend logic)
+  private generateSlug(title: string): string {
     if (!title) return '';
     
     return title
       .toLowerCase()
       .trim()
-      // Remove special characters but keep Georgian letters and basic punctuation
       .replace(/[^\w\s\-ა-ჰ]/g, '')
-      // Replace multiple spaces with single space
-      .replace(/\s+/g, ' ')
-      // Replace spaces with hyphens
-      .replace(/\s/g, '-')
-      // Replace multiple hyphens with single hyphen
+      .replace(/\s+/g, '-')
       .replace(/\-+/g, '-')
-      // Remove leading/trailing hyphens
       .replace(/^-+|-+$/g, '');
   }
 
-  // Debug method to test API connectivity
-  testApiConnectivity(): Observable<any> {
-    console.log('🔧 Testing API connectivity...');
+  // ====================================
+  // 🔥 VIEW TRACKING METHODS 🔥
+  // ====================================
+
+  recordViewAndGetStats(productId: string): Observable<any> {
+    console.log('🔍 RECORD VIEW AND GET STATS - START');
+    console.log('Product ID:', productId);
     
-    const testEndpoints = [
-      `${this.baseUrl}/health`,
-      `${this.baseUrl}/api/health`,
-      `${this.baseUrl}/status`,
-      `${this.baseUrl}/products`,
-      `${this.baseUrl}/api/products`
-    ];
+    if (!productId || productId.trim() === '') {
+      console.error('❌ Invalid product ID');
+      return of({ 
+        success: false, 
+        totalViews: 0,
+        todayViews: 0,
+        weekViews: 0,
+        monthViews: 0
+      });
+    }
     
-    const tests = testEndpoints.map(endpoint => 
-      this.http.get(endpoint, { headers: this.getHeaders() }).pipe(
-        timeout(5000),
-        map(() => ({ endpoint, status: 'success' })),
-        catchError(error => of({ endpoint, status: 'failed', error: error.message }))
-      )
-    );
-    
-    return of(tests).pipe(
-      switchMap(() => Promise.all(tests.map(test => test.toPromise()))),
-      tap(results => {
-        console.log('API Connectivity Test Results:', results);
+    // ✅ Combined endpoint for recording view and getting stats
+    return this.recordView(productId).pipe(
+      switchMap(recordResponse => {
+        console.log('📊 View recorded, now fetching stats...');
+        
+        // If recording includes stats, return them
+        if (recordResponse.views !== undefined || recordResponse.totalViews !== undefined) {
+          return of(recordResponse);
+        }
+        
+        // Otherwise fetch stats separately
+        return this.getProductViewStats(productId);
+      }),
+      map(stats => {
+        console.log('✅ Final view stats:', stats);
+        return {
+          success: true,
+          totalViews: stats.totalViews || stats.views || stats.viewCount || 0,
+          todayViews: stats.todayViews || 0,
+          weekViews: stats.weekViews || 0,
+          monthViews: stats.monthViews || 0,
+          data: stats
+        };
+      }),
+      catchError(error => {
+        console.error('❌ View tracking error:', error);
+        return of({ 
+          success: false, 
+          totalViews: 0,
+          todayViews: 0,
+          weekViews: 0,
+          monthViews: 0
+        });
       })
     );
   }
 
-  // ====================================
-  // 🔥 ENHANCED VIEW TRACKING METHODS 🔥
-  // ====================================
-
-  // ✅ 1. View Recording with Enhanced Debug
   recordView(productId: string): Observable<any> {
-    console.log('🔍 RECORD VIEW DEBUG START');
-    console.log('Product ID:', productId);
-    console.log('Current timestamp:', new Date().toISOString());
-    console.log('User IP/Session info:', navigator.userAgent);
+    console.log('📝 Recording view for product:', productId);
     
     if (!productId || productId.trim() === '') {
-      console.error('❌ Invalid product ID for view recording');
       return of({ success: false, message: 'Invalid product ID' });
     }
     
@@ -372,167 +345,49 @@ export class ProductService {
       referrer: document.referrer || 'direct'
     };
     
-    console.log('📤 Sending view data:', viewData);
-    
     const url = `${this.baseUrl}/products/${productId}/view`;
-    console.log(`📡 POST request to: ${url}`);
     
     return this.http.post(url, viewData, {
       headers: this.getHeaders()
     }).pipe(
-      timeout(10000), // Increased timeout
+      timeout(8000),
       tap(response => {
-        console.log('✅ BACKEND RESPONSE:', response);
-        console.log('Response status:', (response as any)?.status || 'unknown');
-        console.log('Response message:', (response as any)?.message || 'no message');
-        console.log('New view count:', (response as any)?.views || (response as any)?.newViewCount || 'not provided');
+        console.log('✅ View recorded:', response);
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ VIEW RECORDING ERROR:', error);
-        console.error('Error status:', error?.status);
-        console.error('Error message:', error?.message || error?.error?.message);
-        console.error('Full error object:', error);
-        
-        // Return mock success for fallback
+        console.warn('⚠️ View recording failed:', error.message);
         return of({ 
           success: false, 
           message: 'ნახვის რეგისტრაცია ვერ მოხერხდა',
-          error: error.message,
           fallback: true
         });
       })
     );
   }
 
-  // ✅ 2. View Stats with Enhanced Debug
   getProductViewStats(productId: string): Observable<any> {
-    console.log('📊 GET VIEW STATS DEBUG START');
-    console.log('Requesting stats for product ID:', productId);
+    console.log('📊 Fetching view stats for:', productId);
     
     if (!productId || productId.trim() === '') {
-      console.error('❌ Invalid product ID for stats');
       return of({ views: 0, success: false });
     }
     
     const url = `${this.baseUrl}/products/${productId}/views`;
-    console.log(`📡 GET request to: ${url}`);
     
     return this.http.get<any>(url, {
       headers: this.getHeaders()
     }).pipe(
-      timeout(10000),
+      timeout(8000),
       tap(response => {
-        console.log('✅ STATS RESPONSE:', response);
-        console.log('Total views:', response?.views || response?.viewCount || response?.totalViews);
-        console.log('Unique views:', response?.uniqueViews || 'not provided');
-        console.log('Today views:', response?.todayViews || 'not provided');
+        console.log('✅ View stats received:', response);
       }),
       catchError((error: HttpErrorResponse) => {
-        console.error('❌ VIEW STATS ERROR:', error);
-        console.error('Trying fallback stats method...');
-        
-        // Fallback - try alternative endpoint
-        return this.getFallbackViewStats(productId);
-      })
-    );
-  }
-
-  // ✅ 3. Fallback View Stats Method
-  private getFallbackViewStats(productId: string): Observable<any> {
-    console.log('🔄 Trying fallback view stats methods...');
-    
-    const fallbackEndpoints = [
-      `${this.baseUrl}/products/${productId}/statistics`,
-      `${this.baseUrl}/api/products/${productId}/views`,
-      `${this.baseUrl}/stats/products/${productId}`,
-      `${this.baseUrl}/products/${productId}` // Get full product and extract views
-    ];
-    
-    return this.tryFallbackStatsEndpoints(fallbackEndpoints, productId, 0);
-  }
-
-  private tryFallbackStatsEndpoints(endpoints: string[], productId: string, index: number): Observable<any> {
-    if (index >= endpoints.length) {
-      console.warn('⚠️ All fallback stats endpoints failed, returning 0');
-      return of({ views: 0, success: false, message: 'No stats available' });
-    }
-    
-    const endpoint = endpoints[index];
-    console.log(`🌐 Trying fallback stats: ${endpoint}`);
-    
-    return this.http.get<any>(endpoint, { headers: this.getHeaders() }).pipe(
-      timeout(5000),
-      map((response: any) => {
-        // Extract views from different response formats
-        const views = response.views || 
-                     response.viewCount || 
-                     response.totalViews || 
-                     response.data?.views ||
-                     response.product?.views ||
-                     0;
-        
-        console.log(`✅ Fallback stats successful: ${views} views`);
-        return { views, success: true, source: 'fallback' };
-      }),
-      catchError(error => {
-        console.warn(`❌ Fallback endpoint failed: ${endpoint}`);
-        return this.tryFallbackStatsEndpoints(endpoints, productId, index + 1);
-      })
-    );
-  }
-
-  // ✅ 4. Combined Method - Record + Get Stats
-  recordViewAndGetStats(productId: string): Observable<any> {
-    console.log('🔄 COMBINED VIEW OPERATION START');
-    console.log('Product ID:', productId);
-    
-    return this.recordView(productId).pipe(
-      switchMap((recordResponse) => {
-        console.log('✅ View recorded, now getting updated stats...', recordResponse);
-        
-        // Small delay to ensure backend processing
-        return of(null).pipe(
-          switchMap(() => {
-            // Wait 500ms for backend to process
-            return new Promise(resolve => setTimeout(resolve, 500));
-          }),
-          switchMap(() => this.getProductViewStats(productId))
-        );
-      }),
-      tap(stats => {
-        console.log('📈 FINAL COMBINED STATS:', stats);
-      }),
-      catchError(error => {
-        console.error('❌ Combined operation failed:', error);
-        // Return fallback stats
-        return this.getFallbackViewStats(productId);
-      })
-    );
-  }
-
-  // ✅ 5. Enhanced Product By ID with View Recording
-  getProductByIdWithView(productId: string): Observable<any> {
-    console.log(`📱 Getting product with view recording: ${productId}`);
-    
-    // Record view first, then get product
-    return this.recordView(productId).pipe(
-      switchMap((viewResponse) => {
-        console.log('View recorded, now getting product:', viewResponse);
-        return this.getProductById(productId);
-      }),
-      // Add view stats to product
-      switchMap((productResponse) => {
-        return this.getProductViewStats(productId).pipe(
-          map(stats => ({
-            ...productResponse,
-            viewStats: stats
-          })),
-          catchError(() => of(productResponse)) // If stats fail, return product anyway
-        );
-      }),
-      catchError((error) => {
-        console.warn('View recording failed, getting product anyway:', error);
-        return this.getProductById(productId);
+        console.warn('⚠️ Stats fetch failed:', error.message);
+        return of({ 
+          views: 0, 
+          totalViews: 0,
+          success: false 
+        });
       })
     );
   }
@@ -540,17 +395,17 @@ export class ProductService {
   // Rest of existing methods...
   addProduct(productData: FormData): Observable<any> {
     console.log('პროდუქტის დამატება იწყება...');
-    console.log('API URL:', `${this.baseUrl}/products`);
     
     return this.http.post(`${this.baseUrl}/products`, productData, {
       headers: this.getFormDataHeaders()
     }).pipe(
       timeout(30000),
       retry(1),
-      catchError(this.handleError),
       tap((response: any) => {
         console.log('პროდუქტი წარმატებით დაემატა:', response);
-      })
+        this.clearCache();
+      }),
+      catchError(this.handleError)
     );
   }
 
@@ -571,39 +426,9 @@ export class ProductService {
     }).pipe(
       timeout(10000),
       retry(1),
-      catchError(this.handleError)
-    );
-  }
-
-  getAllProducts(filters?: {
-    category?: string,
-    minPrice?: number,
-    maxPrice?: number,
-    search?: string
-    city?: string
-  }): Observable<any> {
-    let params = new HttpParams();
-    
-    if (filters) {
-      if (filters.category) params = params.append('category', filters.category);
-      if (filters.minPrice) params = params.append('minPrice', filters.minPrice.toString());
-      if (filters.maxPrice) params = params.append('maxPrice', filters.maxPrice.toString());
-      if (filters.city) params = params.append('city', filters.city);
-      if (filters.search) params = params.append('search', filters.search);
-    }
-    
-    console.log('📡 Making getAllProducts request:', {
-      url: `${this.baseUrl}/products`,
-      params: params.toString()
-    });
-    
-    return this.http.get(`${this.baseUrl}/products`, { 
-      params,
-      headers: this.getHeaders()
-    }).pipe(
-      timeout(10000),
-      retry(1),
-      tap(response => console.log('getAllProducts response:', response)),
+      tap(() => {
+        this.clearCache();
+      }),
       catchError(this.handleError)
     );
   }
@@ -633,14 +458,11 @@ export class ProductService {
       retry(1),
       catchError(this.handleError),
       tap((response: any) => {
-        console.log('API-დან მიღებული რო პასუხი:', response);
+        console.log('API-დან მიღებული პასუხი:', response);
       }),
       map((response: any) => {
         let product = response.product || response;
         
-        console.log('დამუშავებამდე პროდუქტი:', product);
-        
-        // Contact info processing remains the same...
         const contactSources = [
           {
             email: product.email,
@@ -683,8 +505,6 @@ export class ProductService {
         product.phone = finalContact.phone || 'არ არის მითითებული';
         product.userName = finalContact.name || 'არ არის მითითებული';
         
-        console.log('საბოლოო კონტაქტი:', finalContact);
-        
         return response.product ? { product } : product;
       })
     );
@@ -710,7 +530,6 @@ export class ProductService {
     );
   }
 
-  // Legacy method - kept for backward compatibility
   getProductViews(id: string | undefined): Observable<any> {
     if (!id) {
       return of({ views: 0, success: false });

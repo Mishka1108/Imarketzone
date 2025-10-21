@@ -149,14 +149,14 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
     this.isLoadingViews = true;
 
-    this.productService.recordViewAndGetStats(this.product._id)
+    (this.productService.recordViewAndGetStats(this.product._id) as unknown as any)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (stats) => {
+        next: (stats: any) => {
           this.processViewStats(stats);
           this.isLoadingViews = false;
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('❌ View stats error:', error);
           this.isLoadingViews = false;
           this.getViewStatsOnly();
