@@ -311,6 +311,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   closeMenu(): void {
+    window.scrollTo(0, 0);
     this.isShow = false;
   }
 

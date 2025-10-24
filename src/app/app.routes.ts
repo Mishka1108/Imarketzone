@@ -8,6 +8,7 @@ import { ProductDetailsComponent } from './product-details/product-details.compo
 import { LoginComponent } from './login/login.component';
 import { ForgotpasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { RulesComponent } from './rules/rules.component';
 
 export const routes: Routes = [
   {
@@ -90,5 +91,7 @@ export const routes: Routes = [
   { path: 'auth/reset-password/:token', component: ResetPasswordComponent },
   
   // ✅ Wildcard route - ბოლოში
+   {path: 'rules', component:RulesComponent},
+
   { path: '**', redirectTo: '/home' }
 ];
