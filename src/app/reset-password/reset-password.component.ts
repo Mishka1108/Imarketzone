@@ -4,10 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core'; // ✅ დამატება
 
 @Component({
   selector: 'app-reset-password',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule], // ✅ დამატება
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss'
 })
@@ -23,7 +24,8 @@ export class ResetPasswordComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private translate: TranslateService // ✅ დამატება
   ) {}
 
   ngOnInit() {
@@ -31,7 +33,9 @@ export class ResetPasswordComponent implements OnInit {
     this.token = this.route.snapshot.paramMap.get('token') || '';
     
     if (!this.token) {
-      this.showMessage('არასწორი ბმული', 'error');
+      this.translate.get('RESET_PASSWORD.ERRORS.INVALID_LINK').subscribe(msg => {
+        this.showMessage(msg, 'error');
+      });
       setTimeout(() => {
         this.router.navigate(['/auth/forgot-password']);
       }, 2000);
@@ -40,12 +44,16 @@ export class ResetPasswordComponent implements OnInit {
 
   async onSubmit() {
     if (!this.password || this.password.length < 6) {
-      this.showMessage('პაროლი უნდა შედგებოდეს მინიმუმ 6 სიმბოლოსგან', 'error');
+      this.translate.get('RESET_PASSWORD.VALIDATION.PASSWORD_MIN_LENGTH').subscribe(msg => {
+        this.showMessage(msg, 'error');
+      });
       return;
     }
 
     if (this.password !== this.confirmPassword) {
-      this.showMessage('პაროლები არ ემთხვევა', 'error');
+      this.translate.get('RESET_PASSWORD.VALIDATION.PASSWORD_MISMATCH').subscribe(msg => {
+        this.showMessage(msg, 'error');
+      });
       return;
     }
 
@@ -68,8 +76,14 @@ export class ResetPasswordComponent implements OnInit {
     } catch (error: any) {
       console.error('Reset password error:', error);
       
-      const errorMessage = error?.error?.message || 'შეცდომა მოხდა. თხოვნა გაიმეორეთ';
-      this.showMessage(errorMessage, 'error');
+      const errorMessage = error?.error?.message;
+      if (errorMessage) {
+        this.showMessage(errorMessage, 'error');
+      } else {
+        this.translate.get('RESET_PASSWORD.ERRORS.GENERAL_ERROR').subscribe(msg => {
+          this.showMessage(msg, 'error');
+        });
+      }
       
       // თუ ტოკენი ვადაგასულია, გადაატანე forgot password გვერდზე
       if (error?.error?.expired) {
@@ -91,4 +105,3 @@ export class ResetPasswordComponent implements OnInit {
     this.router.navigate(['/auth/login']);
   }
 }
-

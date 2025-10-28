@@ -14,6 +14,10 @@ import { Product } from '../models/product';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { User } from '../models/user.model';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CityTranslatePipe } from '../pipes/city-translate.pipe';
+
+
 
 @Component({
   selector: 'app-public-products',
@@ -29,8 +33,12 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     MatProgressSpinnerModule,
     FormsModule,
     MatSnackBarModule,
-    MatAutocompleteModule
-  ],
+    MatAutocompleteModule,
+    TranslateModule,
+    CityTranslatePipe
+   
+
+],
   templateUrl: './public-products.component.html',
   styleUrls: ['./public-products.component.scss'],
   schemas:[CUSTOM_ELEMENTS_SCHEMA]
@@ -73,7 +81,8 @@ export class PublicProductsComponent implements OnInit {
     private productService: ProductService,
     private router: Router,
     private snackBar: MatSnackBar,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private translate: TranslateService // ✅ დამატება
   ) {}
 
   ngOnInit(): void {
@@ -153,7 +162,10 @@ export class PublicProductsComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Load Products Error:', error);
-        this.showSnackBar('პროდუქტების ჩატვირთვა ვერ მოხერხდა');
+        // ✅ განახლებული თარგმანით
+        this.translate.get('PUBLIC_PRODUCTS.ERRORS.LOAD_FAILED').subscribe(msg => {
+          this.showSnackBar(msg);
+        });
         this.isLoading = false;
       }
     });
@@ -195,7 +207,10 @@ export class PublicProductsComponent implements OnInit {
     
     if (!productId) {
       console.error('❌ Product ID not found');
-      this.showSnackBar('პროდუქტის ID ვერ მოიძებნა');
+      // ✅ განახლებული თარგმანით
+      this.translate.get('PUBLIC_PRODUCTS.ERRORS.PRODUCT_ID_NOT_FOUND').subscribe(msg => {
+        this.showSnackBar(msg);
+      });
       return;
     }
 
@@ -231,12 +246,14 @@ export class PublicProductsComponent implements OnInit {
     return product.id || product._id || product.productId || product.product_id || '';
   }
 
-  // შეტყობინება
+  // ✅ განახლებული შეტყობინება
   showSnackBar(message: string): void {
-    this.snackBar.open(message, 'დახურვა', {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'bottom'
+    this.translate.get('PUBLIC_PRODUCTS.CLOSE').subscribe(closeText => {
+      this.snackBar.open(message, closeText, {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom'
+      });
     });
   }
 
@@ -314,16 +331,20 @@ export class PublicProductsComponent implements OnInit {
     return viewCount;
   }
 
-  // 🔸 გამასწორებული ნახვების ფორმატირება
+  // ✅ განახლებული ნახვების ფორმატირება თარგმანით
   formatViewCount(count: number): string {
     if (!count || count === 0) return '0';
     
     if (count < 1000) {
       return count.toString();
     } else if (count < 1000000) {
-      return (count / 1000).toFixed(1) + 'ათ';
+      // ✅ 'ათ' ან 'K' თარგმანის მიხედვით
+      const suffix = this.translate.instant('PUBLIC_PRODUCTS.VIEW_SUFFIX_THOUSAND');
+      return (count / 1000).toFixed(1) + suffix;
     } else {
-      return (count / 1000000).toFixed(1) + 'მ';
+      // ✅ 'მ' ან 'M' თარგმანის მიხედვით
+      const suffix = this.translate.instant('PUBLIC_PRODUCTS.VIEW_SUFFIX_MILLION');
+      return (count / 1000000).toFixed(1) + suffix;
     }
   }
 }

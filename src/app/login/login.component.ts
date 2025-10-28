@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core'; // ✅ დამატება
 
 // თუ გაქვთ Auth სერვისი, შეცვალეთ იმპორტის გზა რეალური მისამართით
 import { AuthService } from '../services/auth.service';
@@ -13,7 +14,8 @@ import { AuthService } from '../services/auth.service';
   imports: [
     CommonModule,        // *ngIf, *ngFor და სხვა დირექტივებისთვის
     ReactiveFormsModule, // FormGroup, formControlName და სხვა ფორმის დირექტივებისთვის
-    RouterModule         // routerLink-ისთვის
+    RouterModule,        // routerLink-ისთვის
+    TranslateModule      // ✅ დამატება translate pipe-ისთვის
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -21,12 +23,13 @@ import { AuthService } from '../services/auth.service';
 export class LoginComponent {
   loginForm: FormGroup;
   errorMessage: string = '';
-  isSubmitting: boolean = false; // შევცვალე isLoading -> isSubmitting, რადგან ტემპლეიტში ეს სახელი გამოიყენება
+  isSubmitting: boolean = false;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService // ✅ დამატება
   ) {
     // ფორმის ინიციალიზაცია
     this.loginForm = this.fb.group({
@@ -52,7 +55,19 @@ export class LoginComponent {
       error: (error) => {
         this.isSubmitting = false;
         console.log('Login error:', error);
-        this.errorMessage = error.error?.message || 'ავტორიზაციის დროს დაფიქსირდა შეცდომა';
+        
+        // შეცდომის შეტყობინება - თარგმნილი
+        const backendMessage = error.error?.message;
+        
+        if (backendMessage) {
+          // თუ backend აბრუნებს შეტყობინებას (ქართულად/ინგლისურად)
+          this.errorMessage = backendMessage;
+        } else {
+          // თუ არა, გამოიყენე ლოკალური თარგმანი
+          this.translate.get('LOGIN.ERRORS.LOGIN_FAILED').subscribe(msg => {
+            this.errorMessage = msg;
+          });
+        }
       }
     });
   }

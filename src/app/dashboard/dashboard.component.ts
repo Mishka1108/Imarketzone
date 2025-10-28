@@ -24,6 +24,9 @@ import { ProfileImageService } from '../services/profileImage.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MessageService } from '../services/message.service';
 import { MessagesModalComponent } from '../messages-modal/messages-modal.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { CityTranslatePipe } from '../pipes/city-translate.pipe';
+import { CategoryTranslatePipe } from '../pipes/category-translate.pipe';
 
 
 @Component({
@@ -44,8 +47,10 @@ import { MessagesModalComponent } from '../messages-modal/messages-modal.compone
    MatFormFieldModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    MatDialogModule
-
+    MatDialogModule,
+    TranslateModule,
+    CityTranslatePipe,
+    CategoryTranslatePipe
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],

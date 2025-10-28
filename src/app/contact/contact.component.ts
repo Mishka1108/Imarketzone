@@ -8,11 +8,13 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NgIf } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core'; // ✅ დამატება
 
 import { ContactService } from '../services/contact.service';
 
 @Component({
   selector: 'app-contact',
+  standalone: true,
   imports: [
     NgIf,
     MatInput,
@@ -22,11 +24,11 @@ import { ContactService } from '../services/contact.service';
     MatButton,
     FormsModule,
     HttpClientModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    TranslateModule // ✅ დამატება
   ],
   templateUrl: './contact.component.html',
-  styleUrl: './contact.component.scss',
-  standalone: true
+  styleUrl: './contact.component.scss'
 })
 export class ContactComponent {
   // მოდელი საკონტაქტო ფორმის მონაცემებისთვის
@@ -43,18 +45,21 @@ export class ContactComponent {
 
   constructor(
     private contactService: ContactService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private translate: TranslateService // ✅ დამატება
   ) {}
 
   // ფორმის გაგზავნის ფუნქცია
   onSubmit(): void {
     this.errorMessage = '';
     
-    // ვალიდაცია
+    // ვალიდაცია - თარგმნილი შეტყობინებით
     if (!this.contactForm.name || !this.contactForm.email || !this.contactForm.message) {
-      this.errorMessage = 'გთხოვთ შეავსოთ ყველა სავალდებულო ველი';
-      this.snackBar.open(this.errorMessage, 'დახურვა', {
-        duration: 3000
+      this.translate.get('CONTACT.ERROR.REQUIRED_FIELDS').subscribe(message => {
+        this.errorMessage = message;
+        this.snackBar.open(this.errorMessage, this.translate.instant('COMMON.CLOSE'), {
+          duration: 3000
+        });
       });
       return;
     }
@@ -68,9 +73,11 @@ export class ContactComponent {
           this.loading = false;
           this.formSubmitted = true;
           
-          // შეტყობინების ჩვენება
-          this.snackBar.open('შეტყობინება წარმატებით გაიგზავნა!', 'დახურვა', {
-            duration: 3000
+          // შეტყობინების ჩვენება - თარგმნილი
+          this.translate.get('CONTACT.SUCCESS.MESSAGE').subscribe(message => {
+            this.snackBar.open(message, this.translate.instant('COMMON.CLOSE'), {
+              duration: 3000
+            });
           });
           
           // ფორმის გასუფთავება
@@ -80,10 +87,12 @@ export class ContactComponent {
           this.loading = false;
           console.error('შეცდომა გაგზავნისას:', error);
           
-          // შეცდომის შეტყობინება
-          this.errorMessage = error.error?.error || 'შეცდომა შეტყობინების გაგზავნისას. გთხოვთ სცადოთ მოგვიანებით.';
-          this.snackBar.open(this.errorMessage, 'დახურვა', {
-            duration: 5000
+          // შეცდომის შეტყობინება - თარგმნილი
+          this.translate.get('CONTACT.ERROR.SEND_FAILED').subscribe(message => {
+            this.errorMessage = error.error?.error || message;
+            this.snackBar.open(this.errorMessage, this.translate.instant('COMMON.CLOSE'), {
+              duration: 5000
+            });
           });
         }
       });

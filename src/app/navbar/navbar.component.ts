@@ -1,4 +1,4 @@
-// navbar.component.ts - COMPLETE WITH BEAUTIFUL NOTIFICATIONS
+// navbar.component.ts - WITH TRANSLATION SUPPORT
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
@@ -12,6 +12,8 @@ import { AuthService } from '../services/auth.service';
 import { MatIcon } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LanguageService } from '../services/language.service';
 
 @Component({
   selector: 'app-navbar',
@@ -24,7 +26,8 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
     FormsModule, 
     RouterModule, 
     MatIcon,
-    MatSnackBarModule
+    MatSnackBarModule,
+    TranslateModule // ✅ დაამატეთ TranslateModule
   ],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
@@ -52,6 +55,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   profileImageUrl: string = 'https://i.ibb.co/GvshXkLK/307ce493-b254-4b2d-8ba4-d12c080d6651.jpg';
   
   unreadMessagesCount: number = 0;
+  currentLang: string = 'ka'; // ✅ Current language
   
   showNotification: boolean = false;
   notificationData: {
@@ -69,13 +73,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private socketService: SocketService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private translate: TranslateService, // ✅ დაამატეთ
+    private languageService: LanguageService // ✅ დაამატეთ
   ) {
     console.log('🔔 Navbar constructor called');
   }
 
   ngOnInit(): void {
     console.log('🔔 Navbar ngOnInit started');
+    
+    // ✅ Subscribe to language changes
+    const langSub = this.languageService.currentLang$.subscribe(lang => {
+      this.currentLang = lang;
+      console.log('🌍 Language changed to:', lang);
+    });
     
     // Profile image subscription
     const profileSub = this.profileImageService.profileImage$.subscribe(
@@ -84,7 +96,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     );
 
-    // Auth subscription - CRITICAL!
+    // Auth subscription
     const authSub = this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
       console.log('🔔 User login status:', this.isLoggedIn);
@@ -93,14 +105,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
         const userId = localStorage.getItem('userId');
         if (userId) {
           console.log('✅ User logged in, starting socket connection...');
-          
-          // CRITICAL: Connect socket
           this.connectToSocket(userId);
-          
-          // Start unread count monitoring
           this.startUnreadCountMonitoring();
-          
-          // Listen for new messages
           this.listenForNewMessages();
         }
       } else {
@@ -110,26 +116,27 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Load saved profile image from localStorage
     const savedImage = localStorage.getItem('userProfileImage');
     if (savedImage) {
       this.profileImageUrl = savedImage;
     }
 
+    this.subscriptions.add(langSub);
     this.subscriptions.add(profileSub);
     this.subscriptions.add(authSub);
     
     console.log('✅ Navbar initialization complete');
   }
 
-  // ✅ Socket Connection
+  // ✅ Change Language Method
+  changeLanguage(lang: 'ka' | 'en'): void {
+    this.languageService.setLanguage(lang);
+  }
+
   private connectToSocket(userId: string): void {
     console.log('🔌 Connecting to socket with userId:', userId);
-    
-    // Force connection
     this.socketService.connect(userId);
     
-    // Verify connection after delay
     setTimeout(() => {
       if (this.socketService.isConnected()) {
         console.log('✅ Socket connection verified');
@@ -139,7 +146,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     }, 1000);
 
-    // Monitor connection status
     const connectionSub = this.socketService.getConnectionStatus().subscribe({
       next: (connected) => {
         console.log('🔌 Socket connection status changed:', connected);
@@ -158,11 +164,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.subscriptions.add(connectionSub);
   }
 
-  // ✅ Unread count monitoring
   private startUnreadCountMonitoring(): void {
     console.log('🔔 Starting unread count monitoring');
     
-    // Initial load
     this.messageService.getUnreadCount().subscribe({
       next: (count) => {
         console.log('📊 Initial unread count:', count);
@@ -173,7 +177,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Subscribe to real-time updates
     const unreadSub = this.messageService.unreadCount$.subscribe({
       next: (count) => {
         console.log('🔔 Navbar received unread count update:', count);
@@ -188,7 +191,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.subscriptions.add(unreadSub);
   }
 
-  // ✅ Listen for incoming messages - MAIN FEATURE!
   private listenForNewMessages(): void {
     console.log('👂 Navbar listening for new messages');
     
@@ -200,58 +202,34 @@ export class NavbarComponent implements OnInit, OnDestroy {
         const senderId = typeof msg.senderId === 'object' ? msg.senderId._id : msg.senderId;
         const userId = localStorage.getItem('userId');
         
-        console.log('🔍 Checking message:', {
-          senderId,
-          userId,
-          isFromCurrentUser: senderId === userId
-        });
-        
-        // Only show notification if message is NOT from current user
         if (senderId !== userId) {
           console.log('✅ Message is from another user, showing notification!');
           
           const senderName = typeof msg.senderId === 'object' && msg.senderId.name 
             ? msg.senderId.name 
-            : 'უცნობი მომხმარებელი';
+            : this.translate.instant('NOTIFICATIONS.UNKNOWN_USER');
           
           const senderAvatar = typeof msg.senderId === 'object' && msg.senderId.avatar
             ? msg.senderId.avatar
             : this.profileImageService.getDefaultAvatar();
           
-          // Show notification
-          this.showMessageNotification(
-            senderName, 
-            msg.content,
-            senderAvatar
-          );
-          
-          // Play sound
+          this.showMessageNotification(senderName, msg.content, senderAvatar);
           this.playNotificationSound();
-          
-          // Update unread count
           this.messageService.getUnreadCount().subscribe();
-        } else {
-          console.log('ℹ️ Message is from current user, skipping notification');
         }
-      } else {
-        console.warn('⚠️ Invalid message data received:', data);
       }
     });
 
     this.subscriptions.add(messageSub);
-    console.log('✅ Message listener registered');
   }
 
-  // ✅ Show beautiful notification popup
   showMessageNotification(senderName: string, message: string, avatar?: string): void {
     console.log('🔔 Showing notification:', { senderName, message });
     
-    // Clear previous timeout
     if (this.notificationTimeout) {
       clearTimeout(this.notificationTimeout);
     }
 
-    // Set notification data
     this.notificationData = {
       senderName,
       message: message.length > 50 ? message.substring(0, 50) + '...' : message,
@@ -259,16 +237,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     };
 
     this.showNotification = true;
-    console.log('✅ Notification displayed');
 
-    // Auto-hide after 5 seconds
     this.notificationTimeout = setTimeout(() => {
-      console.log('⏱️ Auto-hiding notification');
       this.hideNotification();
     }, 5000);
   }
 
-  // ✅ Hide notification
   hideNotification(): void {
     this.showNotification = false;
     if (this.notificationTimeout) {
@@ -276,16 +250,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ Navigate to messages when notification clicked
   onNotificationClick(): void {
-    console.log('🖱️ Notification clicked');
     this.hideNotification();
     this.router.navigate(['/dashboard'], { 
       queryParams: { tab: 'messages' } 
     });
   }
 
-  // ✅ Play notification sound
   private playNotificationSound(): void {
     try {
       const audio = new Audio('assets/sounds/notification.mp3');
@@ -298,7 +269,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ Handle image load errors
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement;
     if (target) {

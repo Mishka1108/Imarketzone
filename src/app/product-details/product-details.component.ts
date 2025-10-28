@@ -15,6 +15,9 @@ import { Subject, takeUntil } from 'rxjs';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
 import { AuthService } from '../services/auth.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core'; 
+import { CategoryTranslatePipe } from '../pipes/category-translate.pipe'; 
+import { CityTranslatePipe } from '../pipes/city-translate.pipe';
 
 @Component({
   selector: 'app-product-details',
@@ -27,7 +30,10 @@ import { AuthService } from '../services/auth.service';
     MatSnackBarModule,
     MatIconModule,
     MatChipsModule,
-    MatDialogModule
+    MatDialogModule,
+    TranslateModule, 
+    CategoryTranslatePipe,
+    CityTranslatePipe
   ],
   templateUrl: './product-details.component.html',
   styleUrls: ['./product-details.component.scss'],
@@ -61,7 +67,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     private titleService: Title,
     private metaService: Meta,
     private dialog: MatDialog,
-    private authService: AuthService
+    private authService: AuthService,
+    private translate: TranslateService // ✅ დამატება
   ) {}
 
   private setSEOData(product: Product): void {
@@ -239,18 +246,20 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     return this.monthViews || 0;
   }
 
+  // ✅ განახლებული თარგმანით
   getFormattedViewsWithDetails(): string {
     const total = this.getTotalViews();
     const today = this.getTodayViews();
     
     if (total === 0) {
-      return '0 ნახვა';
+      return '0 ' + this.translate.instant('PRODUCT_DETAILS.VIEWS.LABEL');
     }
     
-    let result = this.formatViews(total) + ' ნახვა';
+    let result = this.formatViews(total) + ' ' + this.translate.instant('PRODUCT_DETAILS.VIEWS.LABEL');
     
     if (today > 0) {
-      result += ` (დღეს: ${today})`;
+      const todayLabel = this.translate.instant('PRODUCT_DETAILS.VIEWS.TODAY');
+      result += ` (${todayLabel}: ${today})`;
     }
     
     return result;
@@ -475,28 +484,50 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ✅ განახლებული თარგმანით
   sendEmail(): void {
-    if (!this.product?.email || this.product.email === 'არ არის მითითებული') {
-      this.showSnackBar('იმეილის მისამართი არ არის ხელმისაწვდომი');
+    const notSpecified = this.translate.instant('PRODUCT_DETAILS.INFO.NOT_SPECIFIED');
+    
+    if (!this.product?.email || this.product.email === notSpecified) {
+      this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.EMAIL_NOT_AVAILABLE').subscribe(msg => {
+        this.showSnackBar(msg);
+      });
       return;
     }
 
     try {
-      const subject = encodeURIComponent(`${this.product.title} - პროდუქტთან დაკავშირებით`);
-      const body = encodeURIComponent(`გამარჯობა,\n\nმაინტერესებს თქვენი პროდუქტი: ${this.product.title}\nფასი: ${this.formatPrice(this.product.price)}\n\nგთხოვთ, დამიკავშირდით დეტალური ინფორმაციისთვის.\n\nმადლობა!`);
-      const mailtoLink = `mailto:${this.product.email}?subject=${subject}&body=${body}`;
+      const subject = this.translate.instant('PRODUCT_DETAILS.EMAIL_TEMPLATE.SUBJECT', {
+        title: this.product.title
+      });
+      
+      const body = this.translate.instant('PRODUCT_DETAILS.EMAIL_TEMPLATE.BODY', {
+        title: this.product.title,
+        price: this.formatPrice(this.product.price)
+      });
+      
+      const mailtoLink = `mailto:${this.product.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       
       window.open(mailtoLink, '_blank');
-      this.showSnackBar('იმეილის კლიენტი გაიხსნა');
+      
+      this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.EMAIL_OPENED').subscribe(msg => {
+        this.showSnackBar(msg);
+      });
     } catch (error) {
       console.error('იმეილის გაგზავნის შეცდომა:', error);
-      this.showSnackBar('იმეილის გაგზავნისას წარმოიშვა შეცდომა');
+      this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.EMAIL_ERROR').subscribe(msg => {
+        this.showSnackBar(msg);
+      });
     }
   }
 
+  // ✅ განახლებული თარგმანით
   callPhone(): void {
-    if (!this.product?.phone || this.product.phone === 'არ არის მითითებული') {
-      this.showSnackBar('ტელეფონის ნომერი არ არის ხელმისაწვდომი');
+    const notSpecified = this.translate.instant('PRODUCT_DETAILS.INFO.NOT_SPECIFIED');
+    
+    if (!this.product?.phone || this.product.phone === notSpecified) {
+      this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.PHONE_NOT_AVAILABLE').subscribe(msg => {
+        this.showSnackBar(msg);
+      });
       return;
     }
 
@@ -504,13 +535,19 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       const cleanPhone = this.product.phone.replace(/[^\d+]/g, '');
       const telLink = `tel:${cleanPhone}`;
       window.location.href = telLink;
-      this.showSnackBar('ტელეფონის აპლიკაცია გაიხსნა');
+      
+      this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.PHONE_OPENED').subscribe(msg => {
+        this.showSnackBar(msg);
+      });
     } catch (error) {
       console.error('დარეკვის შეცდომა:', error);
-      this.showSnackBar('დარეკვისას წარმოიშვა შეცდომა');
+      this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.PHONE_ERROR').subscribe(msg => {
+        this.showSnackBar(msg);
+      });
     }
   }
 
+  // ✅ განახლებული თარგმანით
   shareProduct(): void {
     if (!this.product) return;
     
@@ -520,8 +557,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     
     const title = this.product?.title || 'პროდუქტი';
     const viewsText = this.getTotalViews() > 0 ? 
-      ` - ნახვები: ${this.formatViews(this.getTotalViews())}` : '';
-    const text = `შეხედეთ ამ საინტერესო პროდუქტს: ${title}${viewsText}`;
+      ` - ${this.translate.instant('PRODUCT_DETAILS.VIEWS.LABEL')}: ${this.formatViews(this.getTotalViews())}` : '';
+    
+    const text = this.translate.instant('PRODUCT_DETAILS.SHARE_TEXT', {
+      title: title,
+      views: viewsText
+    });
 
     if (navigator.share) {
       navigator.share({
@@ -529,7 +570,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         text: text,
         url: productUrl
       }).then(() => {
-        this.showSnackBar('პროდუქტი გაზიარდა');
+        this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.SHARED').subscribe(msg => {
+          this.showSnackBar(msg);
+        });
       }).catch((error) => {
         this.fallbackShare(productUrl);
       });
@@ -538,10 +581,13 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ✅ განახლებული თარგმანით
   private fallbackShare(url: string): void {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
-        this.showSnackBar('ლინკი კოპირებულია ბუფერში');
+        this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.LINK_COPIED').subscribe(msg => {
+          this.showSnackBar(msg);
+        });
       }).catch(() => {
         this.openFacebookShare(url);
       });
@@ -550,19 +596,24 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ✅ განახლებული თარგმანით
   private openFacebookShare(url: string): void {
     const encodedUrl = encodeURIComponent(url);
     const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
     window.open(fbShareUrl, '_blank', 'width=600,height=400');
-    this.showSnackBar('Facebook გაზიარების ფანჯარა გაიხსნა');
+    
+    this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.FACEBOOK_OPENED').subscribe(msg => {
+      this.showSnackBar(msg);
+    });
   }
 
   goBack(): void {
     this.location.back();
   }
 
+  // ✅ განახლებული თარგმანით
   private showSnackBar(message: string): void {
-    this.snackBar.open(message, 'დახურვა', {
+    this.snackBar.open(message, this.translate.instant('PRODUCT_DETAILS.NOTIFICATIONS.CLOSE'), {
       duration: 3000,
       horizontalPosition: 'center',
       verticalPosition: 'bottom',
@@ -570,16 +621,19 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ✅ განახლებული თარგმანით
   getSellerName(): string {
-    return this.product?.userName || 'არ არის მითითებული';
+    return this.product?.userName || this.translate.instant('PRODUCT_DETAILS.INFO.NOT_SPECIFIED');
   }
 
+  // ✅ განახლებული თარგმანით
   getSellerEmail(): string {
-    return this.product?.email || 'არ არის მითითებული';
+    return this.product?.email || this.translate.instant('PRODUCT_DETAILS.INFO.NOT_SPECIFIED');
   }
 
+  // ✅ განახლებული თარგმანით
   getSellerPhone(): string {
-    return this.product?.phone || 'არ არის მითითებული';
+    return this.product?.phone || this.translate.instant('PRODUCT_DETAILS.INFO.NOT_SPECIFIED');
   }
 
   formatPrice(price: number): string {
@@ -587,12 +641,17 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     return price.toLocaleString('ka-GE') + '₾';
   }
 
+  // ✅ განახლებული თარგმანით
   formatDate(date: string): string {
-    if (!date) return 'არ არის მითითებული';
+    if (!date) {
+      return this.translate.instant('PRODUCT_DETAILS.INFO.NOT_SPECIFIED');
+    }
     try {
-      return new Date(date).toLocaleDateString('ka-GE');
+      const currentLang = this.translate.currentLang || 'ka';
+      const locale = currentLang === 'ka' ? 'ka-GE' : 'en-US';
+      return new Date(date).toLocaleDateString(locale);
     } catch {
-      return 'არ არის მითითებული';
+      return this.translate.instant('PRODUCT_DETAILS.INFO.NOT_SPECIFIED');
     }
   }
 
@@ -629,89 +688,92 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ მხოლოდ ერთი openMessageDialog() ფუნქცია
- // ✅ ახალი (სწორი):
-openMessageDialog(): void {
-  const currentUser = this.authService.getCurrentUser();
-  const userId = localStorage.getItem('userId');
-  
-  if (!currentUser && !userId) {
-    this.snackBar.open('გთხოვთ გაიაროთ ავტორიზაცია', 'დახურვა', {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'bottom'
+  // ✅ განახლებული თარგმანით
+  openMessageDialog(): void {
+    const currentUser = this.authService.getCurrentUser();
+    const userId = localStorage.getItem('userId');
+    
+    if (!currentUser && !userId) {
+      this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.LOGIN_REQUIRED').subscribe(msg => {
+        this.snackBar.open(msg, this.translate.instant('PRODUCT_DETAILS.NOTIFICATIONS.CLOSE'), {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
+        });
+      });
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Extract seller ID correctly with type casting
+    const sellerData = this.product?.userId || this.product?.sellerId;
+    const sellerId = typeof sellerData === 'object' 
+      ? ((sellerData as any)?._id || (sellerData as any)?.id)
+      : sellerData;
+    
+    // Extract seller name correctly
+    const sellerName = typeof sellerData === 'object'
+      ? (sellerData as any)?.name
+      : (this.product?.userName || this.product?.sellerName || 'გამყიდველი');
+    
+    // Extract seller avatar correctly
+    const sellerAvatar = typeof sellerData === 'object'
+      ? (sellerData as any)?.avatar
+      : this.product?.userAvatar;
+
+    // Extract product ID correctly
+    const productData = this.product?._id || this.product?.id;
+    const productId = typeof productData === 'object'
+      ? ((productData as any)?._id || (productData as any)?.id)
+      : productData;
+
+    // Check if trying to message yourself
+    if (userId === sellerId) {
+      this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.OWN_PRODUCT').subscribe(msg => {
+        this.snackBar.open(msg, this.translate.instant('PRODUCT_DETAILS.NOTIFICATIONS.CLOSE'), {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom'
+        });
+      });
+      return;
+    }
+
+    // Validate required fields
+    if (!sellerId) {
+      this.translate.get('PRODUCT_DETAILS.NOTIFICATIONS.SELLER_INFO_NOT_AVAILABLE').subscribe(msg => {
+        this.snackBar.open(msg, this.translate.instant('PRODUCT_DETAILS.NOTIFICATIONS.CLOSE'), {
+          duration: 3000
+        });
+      });
+      return;
+    }
+
+    // All IDs are now strings
+    const dialogData = {
+      senderId: userId!,
+      receiverId: sellerId as string,
+      receiverName: sellerName || 'გამყიდველი',
+      receiverAvatar: sellerAvatar,
+      productId: productId as string,
+      productTitle: this.product?.title
+    };
+
+    console.log('💬 Opening message dialog with data:', dialogData);
+
+    const dialogRef = this.dialog.open(MessageDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      height: '700px',
+      maxHeight: '90vh',
+      data: dialogData,
+      panelClass: 'message-dialog-container',
+      disableClose: false,
+      autoFocus: true
     });
-    this.router.navigate(['/login']);
-    return;
-  }
 
-  // ✅ Extract seller ID correctly with type casting
-  const sellerData = this.product?.userId || this.product?.sellerId;
-  const sellerId = typeof sellerData === 'object' 
-    ? ((sellerData as any)?._id || (sellerData as any)?.id)
-    : sellerData;
-  
-  // ✅ Extract seller name correctly
-  const sellerName = typeof sellerData === 'object'
-    ? (sellerData as any)?.name
-    : (this.product?.userName || this.product?.sellerName || 'გამყიდველი');
-  
-  // ✅ Extract seller avatar correctly
-  const sellerAvatar = typeof sellerData === 'object'
-    ? (sellerData as any)?.avatar
-    : this.product?.userAvatar;
-
-  // ✅ Extract product ID correctly
-  const productData = this.product?._id || this.product?.id;
-  const productId = typeof productData === 'object'
-    ? ((productData as any)?._id || (productData as any)?.id)
-    : productData;
-
-  // ✅ Check if trying to message yourself
-  if (userId === sellerId) {
-    this.snackBar.open('ეს თქვენი პროდუქტია', 'დახურვა', {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'bottom'
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('Dialog closed:', result);
     });
-    return;
   }
-
-  // ✅ Validate required fields
-  if (!sellerId) {
-    this.snackBar.open('გამყიდველის ინფორმაცია არ არის ხელმისაწვდომი', 'დახურვა', {
-      duration: 3000
-    });
-    return;
-  }
-
-  // ✅ All IDs are now strings
-  const dialogData = {
-    senderId: userId!,
-    receiverId: sellerId as string,
-    receiverName: sellerName || 'გამყიდველი',
-    receiverAvatar: sellerAvatar,
-    productId: productId as string,
-    productTitle: this.product?.title
-  };
-
-  console.log('💬 Opening message dialog with data:', dialogData);
-
-  const dialogRef = this.dialog.open(MessageDialogComponent, {
-    width: '600px',
-    maxWidth: '95vw',
-    height: '700px',
-    maxHeight: '90vh',
-    data: dialogData,
-    panelClass: 'message-dialog-container',
-    disableClose: false,
-    autoFocus: true
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-    console.log('Dialog closed:', result);
-  });
-}
-
-
 }

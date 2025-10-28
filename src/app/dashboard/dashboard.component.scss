@@ -1,5 +1,11 @@
 /* dashboard.component.scss - Enhanced styles for 5-product limit */
-
+body {
+  background: #f5f7fa;
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  margin-top: 60px;
+  padding: 0;
+}
 .dashboard-container {
   max-width: 1200px;
   margin: 0 auto;

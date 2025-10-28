@@ -1,19 +1,20 @@
+<!-- public-products.component.html -->
 <div class="products-container">
   <header class="products-header">
-    <h1>ყველა პროდუქტი</h1>
+    <h1>{{ 'PUBLIC_PRODUCTS.TITLE' | translate }}</h1>
     <div class="search-filters">
       <mat-form-field appearance="outline">
-        <mat-label>ძიება</mat-label>
+        <mat-label>{{ 'PUBLIC_PRODUCTS.FILTERS.SEARCH' | translate }}</mat-label>
         <input matInput [(ngModel)]="searchTerm" (keyup.enter)="applyFilters()">
-        <button *ngIf="searchTerm" matSuffix mat-icon-button aria-label="გასუფთავება" (click)="clearSearch()">
+        <button *ngIf="searchTerm" matSuffix mat-icon-button [attr.aria-label]="'PUBLIC_PRODUCTS.FILTERS.CLEAR' | translate" (click)="clearSearch()">
           <mat-icon>close</mat-icon>
         </button>
       </mat-form-field>
       
       <mat-form-field appearance="outline">
-        <mat-label>კატეგორია</mat-label>
+        <mat-label>{{ 'PUBLIC_PRODUCTS.FILTERS.CATEGORY' | translate }}</mat-label>
         <mat-select [(ngModel)]="selectedCategory" (selectionChange)="applyFilters()">
-          <mat-option [value]="">ყველა კატეგორია</mat-option>
+          <mat-option [value]="">{{ 'PUBLIC_PRODUCTS.FILTERS.ALL_CATEGORIES' | translate }}</mat-option>
           <mat-option *ngFor="let category of categories" [value]="category">
             {{ category }}
           </mat-option>
@@ -21,14 +22,14 @@
       </mat-form-field>
       
       <mat-form-field appearance="outline">
-        <mat-label>ქალაქი</mat-label>
+        <mat-label>{{ 'PUBLIC_PRODUCTS.FILTERS.CITY' | translate }}</mat-label>
         <input type="text"
                matInput
                [matAutocomplete]="auto"
                [(ngModel)]="selectedCity"
                (ngModelChange)="applyFilters()" />
         <mat-autocomplete #auto="matAutocomplete" autoActiveFirstOption>
-          <mat-option [value]="">ყველა ქალაქი</mat-option>
+          <mat-option [value]="">{{ 'PUBLIC_PRODUCTS.FILTERS.ALL_CITIES' | translate }}</mat-option>
           <mat-option *ngFor="let city of filteredCities" [value]="city">
             {{ city }}
           </mat-option>
@@ -36,29 +37,29 @@
       </mat-form-field>
       
       <mat-form-field appearance="outline">
-        <mat-label>ფასი (მინ)</mat-label>
+        <mat-label>{{ 'PUBLIC_PRODUCTS.FILTERS.MIN_PRICE' | translate }}</mat-label>
         <input matInput type="number" [(ngModel)]="minPrice" (change)="applyFilters()">
       </mat-form-field>
       
       <mat-form-field appearance="outline">
-        <mat-label>ფასი (მაქს)</mat-label>
+        <mat-label>{{ 'PUBLIC_PRODUCTS.FILTERS.MAX_PRICE' | translate }}</mat-label>
         <input matInput type="number" [(ngModel)]="maxPrice" (change)="applyFilters()">
       </mat-form-field>
      
     </div>
      <div class="button-container">
-        <button mat-raised-button color="primary" class="search-button" (click)="applyFilters()">ძიება</button>
-        <button mat-raised-button color="accent" class="reset-button" (click)="resetFilters()">გასუფთავება</button>
+        <button mat-raised-button color="primary" class="search-button" (click)="applyFilters()">{{ 'PUBLIC_PRODUCTS.ACTIONS.SEARCH' | translate }}</button>
+        <button mat-raised-button color="accent" class="reset-button" (click)="resetFilters()">{{ 'PUBLIC_PRODUCTS.ACTIONS.RESET' | translate }}</button>
       </div>
   </header>
   
   <div class="loading" *ngIf="isLoading">
     <mat-spinner diameter="50"></mat-spinner>
-    <p>იტვირთება პროდუქტები...</p>
+    <p>{{ 'PUBLIC_PRODUCTS.LOADING' | translate }}</p>
   </div>
   
   <div class="no-products" *ngIf="!isLoading && products.length === 0">
-    <p>პროდუქტები ვერ მოიძებნა ან არ არის დამატებული</p>
+    <p>{{ 'PUBLIC_PRODUCTS.NO_PRODUCTS' | translate }}</p>
   </div>
   
   <div class="products-grid" *ngIf="!isLoading && products.length > 0">
@@ -74,15 +75,15 @@
       
       <span class="name">{{pro.title}}</span>
       <span class="price">{{pro.price}} ₾</span>
-      <span class="city">{{pro.cities}}</span>
-        <div class="product-stats" *ngIf="getViewCount(pro) > 0">
+      <span class="city">{{pro.cities | cityTranslate}}</span>
+      <div class="product-stats" *ngIf="getViewCount(pro) > 0">
         <span class="views-count">
           <mat-icon>visibility</mat-icon>
-          {{formatViewCount(getViewCount(pro))}} ნახვა
+          {{formatViewCount(getViewCount(pro))}} {{ 'PUBLIC_PRODUCTS.VIEWS' | translate }}
         </span>
       </div>
 
     </div>
 
-    </div>
   </div>
+</div>

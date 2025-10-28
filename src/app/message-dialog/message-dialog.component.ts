@@ -14,6 +14,7 @@ import { SocketService } from '../services/socket.service';
 import { Message, SendMessageRequest } from '../models/message.model';
 import { Subject, takeUntil } from 'rxjs';
 import { ProfileImageService } from '../services/profileImage.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface MessageDialogData {
   receiverId: string;
@@ -36,7 +37,8 @@ export interface MessageDialogData {
     MatFormFieldModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    TranslateModule
   ],
   templateUrl: './message-dialog.component.html',
   styleUrls: ['./message-dialog.component.scss']

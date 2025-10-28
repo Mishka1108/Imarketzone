@@ -1,27 +1,27 @@
-    <div class="container">
+<div class="container">
         <div class="footer">
             <div class="footer-section about floating">
-                <h3>ჩვენ შესახებ 🌟</h3>
-                <p>ჩვენი პლატფორმა გთავაზობთ მარტივ და უსაფრთხო გზას ყიდვა-გაყიდვისთვის. აღმოაჩინე ათასობით პროდუქტი და იპოვე სწორედ ის, რაც გჭირდება.</p>
+                <h3>{{ 'FOOTER.ABOUT.TITLE' | translate }}</h3>
+                <p>{{ 'FOOTER.ABOUT.DESCRIPTION' | translate }}</p>
             </div>
             
             <div class="footer-section links">
-                <h3>სწრაფი ლინკები 🚀</h3>
-                <a routerLink="/home" class="nav-button" (click)="onClick()" >🏠 მთავარი</a>
-                <a routerLink="/public-products" class="nav-button" (click)="onClick()" >📦 პროდუქტები</a>
-                <a routerLink="/contact" class="nav-button" (click)="onClick()" >📞 კონტაქტი</a>
+                <h3>{{ 'FOOTER.LINKS.TITLE' | translate }}</h3>
+                <a routerLink="/home" class="nav-button" (click)="onClick()">{{ 'FOOTER.LINKS.HOME' | translate }}</a>
+                <a routerLink="/public-products" class="nav-button" (click)="onClick()">{{ 'FOOTER.LINKS.PRODUCTS' | translate }}</a>
+                <a routerLink="/contact" class="nav-button" (click)="onClick()">{{ 'FOOTER.LINKS.CONTACT' | translate }}</a>
             </div>
             
             <div class="footer-section address">
-                <h3>დაკავშირება 📱</h3>
+                <h3>{{ 'FOOTER.CONTACT.TITLE' | translate }}</h3>
                 <div class="contact-info">
                     <div class="contact-item">
                         <span class="material-icons">phone</span>
-                        <p>+995 555 649 476</p>
+                        <p>{{ 'FOOTER.CONTACT.PHONE' | translate }}</p>
                     </div>
                     <div class="contact-item">
                         <span class="material-icons">email</span>
-                        <p>mr.mishka3003&#64;gmail.com</p>
+                        <p>{{ 'FOOTER.CONTACT.EMAIL' | translate }}</p>
                     </div>
                 </div>
             </div>
@@ -29,11 +29,11 @@
         
         <div class="bottom-section">
             <div class="copyright">
-                <h5>© <span id="currentYear">{{currentYear}}</span> ყველა უფლება დაცულია ✨</h5>
+                <h5>{{ 'FOOTER.BOTTOM.COPYRIGHT' | translate: {year: currentYear} }}</h5>
             </div>
             
             <div class="creator-info">
-                <p>შექმნილია ❤️ მიშიკო ჩოჩიას მიერ</p>
+                <p>{{ 'FOOTER.BOTTOM.CREATED_BY' | translate }}</p>
                 <div class="social-icons">
                     <a href="https://www.facebook.com/profile.php?id=100027342321609" target="_blank" class="social-icon glow">
                         <span class="material-icons">facebook</span>
