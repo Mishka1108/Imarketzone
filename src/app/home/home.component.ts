@@ -1,4 +1,4 @@
-// home.component.ts - SEO-ოპტიმიზებული ვერსია
+// home.component.ts - WITH TRANSLATION SUPPORT
 
 import { Component, OnInit, HostListener, OnDestroy, Inject, PLATFORM_ID, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { MatButton } from '@angular/material/button';
@@ -15,10 +15,21 @@ import { CarouselModule } from 'primeng/carousel';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslatePipe } from '../pipes/translate.pipe'; // ✅ Import TranslatePipe
+import { TranslationService } from '../services/translation.service'; // ✅ Import TranslationService
 
 @Component({
   selector: 'app-home',
-  imports: [MatButtonModule, RouterLink, FormsModule, CommonModule, CarouselModule, ButtonModule, TagModule],
+  imports: [
+    MatButtonModule, 
+    RouterLink, 
+    FormsModule, 
+    CommonModule, 
+    CarouselModule, 
+    ButtonModule, 
+    TagModule,
+    TranslatePipe // ✅ Add TranslatePipe to imports
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -48,8 +59,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     private meta: Meta,
     private title: Title,
     private snackBar: MatSnackBar,
+    public translationService: TranslationService, // ✅ Add TranslationService
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) {
+    console.log('🏠 HomeComponent constructor');
+  }
   
   ngOnInit() {
     this.loadProductsWithRealViews();
@@ -65,7 +79,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     
     setTimeout(() => {
       console.log('⏰ Starting loadProductsWithRealViews after 100ms delay');
-      
     }, 100);
     
     this.responsiveOptions = [
@@ -159,7 +172,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         
         if (allProducts.length > 0) {
           this.processProductsWithRealViews(allProducts);
-          // SEO-სთვის დინამიური structured data
           this.addProductListSchema(allProducts.slice(0, 12));
         } else {
           this.products = [];
@@ -219,7 +231,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     
     if (!productId) {
       console.error('❌ არასწორი პროდუქტის ID');
-      this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
+      this.showSnackBar(this.translationService.translate('home.errorOpeningProduct'));
       return;
     }
     
@@ -239,19 +251,19 @@ export class HomeComponent implements OnInit, OnDestroy {
       const productUrl = this.generateProductUrl(product.title);
       this.router.navigate([productUrl]).then(success => {
         if (success) this.scrollToTop();
-        else this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
+        else this.showSnackBar(this.translationService.translate('home.errorOpeningProduct'));
       });
     } else {
       this.router.navigate(['/product-details', productId]).then(success => {
         if (success) this.scrollToTop();
-        else this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
+        else this.showSnackBar(this.translationService.translate('home.errorOpeningProduct'));
       });
     }
   }
 
   private showSnackBar(message: string): void {
     if (this.snackBar) {
-      this.snackBar.open(message, 'დახურვა', {
+      this.snackBar.open(message, this.translationService.translate('common.close'), {
         duration: 3000,
         horizontalPosition: 'center',
         verticalPosition: 'bottom',
@@ -262,24 +274,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ გაფართოებული SEO Setup
   private setupComprehensiveSEO(): void {
-    // Title tag
     this.title.setTitle('iMarketZone - ყიდვა გაყიდვა საქართველოში | უფასო განცხადებები ონლაინ');
     
-    // Meta Description
     this.meta.updateTag({ 
       name: 'description', 
       content: 'iMarketZone - საქართველოს #1 ონლაინ მარკეტპლეისი. ყიდვა გაყიდვა მარტივად! ტელეფონები, ტექნიკა, მანქანები, ტანსაცმელი, სათამაშოები. უფასო განცხადებები, სწრაფი მყიდველი, უსაფრთხო გარიგება.' 
     });
     
-    // Keywords
     this.meta.updateTag({ 
       name: 'keywords', 
       content: 'imarketzone, იმარკეტ ზონი, ყიდვა გაყიდვა, უფასო განცხადებები საქართველოში, ონლაინ მაღაზია, მყიდველი, გამყიდველი, ახალი ნივთები, გამოყენებული ნივთები, ტელეფონების ყიდვა, მანქანების გაყიდვა, ტექნიკის ყიდვა, ონლაინ მარკეტპლეისი თბილისი' 
     });
 
-    // Open Graph Tags
     this.meta.updateTag({ property: 'og:title', content: 'iMarketZone - ყიდვა გაყიდვა საქართველოში' });
     this.meta.updateTag({ property: 'og:description', content: 'საქართველოს საუკეთესო ონლაინ მარკეტპლეისი - ყიდვა გაყიდვა მარტივად!' });
     this.meta.updateTag({ property: 'og:type', content: 'website' });
@@ -288,13 +295,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.meta.updateTag({ property: 'og:locale', content: 'ka_GE' });
     this.meta.updateTag({ property: 'og:site_name', content: 'iMarket Zone' });
 
-    // Twitter Card
     this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
     this.meta.updateTag({ name: 'twitter:title', content: 'iMarket Zone - ყიდვა გაყიდვა საქართველოში' });
     this.meta.updateTag({ name: 'twitter:description', content: 'საქართველოს საუკეთესო ონლაინ მარკეტპლეისი' });
     this.meta.updateTag({ name: 'twitter:image', content: 'https://imarketzone.ge/assets/twitter-image.jpg' });
 
-    // Additional SEO Tags
     this.meta.updateTag({ name: 'robots', content: 'index, follow, max-image-preview:large' });
     this.meta.updateTag({ name: 'author', content: 'iMarket Zone' });
     this.meta.updateTag({ name: 'language', content: 'Georgian' });
@@ -302,11 +307,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.meta.updateTag({ name: 'geo.region', content: 'GE' });
     this.meta.updateTag({ name: 'geo.placename', content: 'Tbilisi' });
     
-    // Mobile optimization
     this.meta.updateTag({ name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' });
     this.meta.updateTag({ name: 'theme-color', content: '#4F46E5' });
     
-    // Canonical URL
     if (isPlatformBrowser(this.platformId)) {
       const link: HTMLLinkElement = document.querySelector("link[rel='canonical']") || document.createElement('link');
       link.setAttribute('rel', 'canonical');
@@ -317,7 +320,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ გაფართოებული Structured Data
   private addEnhancedStructuredData(): void {
     const existingScript = document.querySelector('script[type="application/ld+json"]#website-schema');
     if (existingScript) existingScript.remove();
@@ -347,7 +349,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     document.head.appendChild(script);
   }
 
-  // ✅ Organization Schema
   private addOrganizationSchema(): void {
     const existingScript = document.querySelector('script[type="application/ld+json"]#org-schema');
     if (existingScript) existingScript.remove();
@@ -379,7 +380,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     document.head.appendChild(script);
   }
 
-  // ✅ Breadcrumb Schema
   private addBreadcrumbSchema(): void {
     const existingScript = document.querySelector('script[type="application/ld+json"]#breadcrumb-schema');
     if (existingScript) existingScript.remove();
@@ -402,7 +402,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     document.head.appendChild(script);
   }
 
-  // ✅ Product List Schema (დინამიური)
   private addProductListSchema(products: any[]): void {
     if (!isPlatformBrowser(this.platformId) || products.length === 0) return;
 

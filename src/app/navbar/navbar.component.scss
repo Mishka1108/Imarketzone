@@ -3,7 +3,11 @@
 // ===========================
 // 💎 LUXURY NAVBAR WITH 3D EFFECTS
 // ===========================
-
+.language-selector button.active {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
 .nav {
   position: fixed;
   top: 0;

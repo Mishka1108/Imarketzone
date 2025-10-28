@@ -20,30 +20,53 @@
             routerLinkActive="active" 
             (click)="closeMenu()" 
             routerLink="home">
-      მთავარი
+      {{ 'nav.home' | translate }}
     </button>
     <button mat-raised-button 
             class="btn" 
             routerLinkActive="active" 
             (click)="closeMenu()" 
             routerLink="public-products">
-      პროდუქტები
+      {{ 'nav.products' | translate }}
     </button>
     <button mat-raised-button 
             class="btn" 
             routerLinkActive="active" 
             (click)="closeMenu()" 
             routerLink="contact">
-      დაკავშირება
+      {{ 'nav.contact' | translate }}
     </button>
-      <button mat-raised-button 
+    <button mat-raised-button 
             class="btn" 
             routerLinkActive="active" 
             (click)="closeMenu()" 
             routerLink="rules">
-      წესები
+      {{ 'nav.rules' | translate }}
     </button>
   </div>
+
+  <!-- ✅ LANGUAGE SELECTOR BUTTONS -->
+  <div class="language-selector">
+    <button 
+      (click)="testLanguageChange('en')" 
+      [class.active]="currentLanguage === 'en'"
+      [style.background]="currentLanguage === 'en' ? 'green' : 'gray'"
+      [style.color]="'white'"
+      [style.padding]="'10px'"
+      type="button">
+      Eng [{{currentLanguage === 'en' ? '✓' : '✗'}}]
+    </button>
+    <button 
+      (click)="testLanguageChange('ka')" 
+      [class.active]="currentLanguage === 'ka'"
+      [style.background]="currentLanguage === 'ka' ? 'green' : 'gray'"
+      [style.color]="'white'"
+      [style.padding]="'10px'"
+      type="button">
+      Geo [{{currentLanguage === 'ka' ? '✓' : '✗'}}]
+    </button>
+  </div>
+
 
   <!-- ✨ PERFECT CIRCULAR PROFILE IMAGE WITH BEAUTIFUL BADGE -->
   <div class="profile-container">
@@ -53,7 +76,7 @@
         class="profileimg" 
         (click)="closeMenu(); onProfileImageClick()" 
         alt="Profile"
-        [title]="unreadMessagesCount > 0 ? unreadMessagesCount + ' წაუკითხავი შეტყობინება' : 'პროფილი'">
+        [title]="unreadMessagesCount > 0 ? unreadMessagesCount + ' ' + ('msg.unread' | translate) : ('profile.profile' | translate)">
       
       <!-- Custom Beautiful Badge -->
       <div class="custom-badge" *ngIf="unreadMessagesCount > 0">
@@ -75,8 +98,8 @@
     <button 
       class="close-btn" 
       (click)="hideNotification(); $event.stopPropagation()" 
-      aria-label="შეტყობინების დახურვა"
-      title="დახურვა">
+      [attr.aria-label]="'common.close' | translate"
+      [title]="'common.close' | translate">
       <mat-icon>close</mat-icon>
     </button>
     
@@ -84,14 +107,14 @@
     <div class="notification-header">
       <img 
         [src]="notificationData.avatar" 
-        alt="მომხმარებლის ავატარი" 
+        [alt]="'profile.avatar' | translate" 
         class="notification-avatar"
         (error)="onImageError($event)">
       
       <div class="notification-info">
         <div class="notification-title">
           <mat-icon class="message-icon">mail</mat-icon>
-          <span>ახალი შეტყობინება</span>
+          <span>{{ 'msg.newMessage' | translate }}</span>
         </div>
         <div class="sender-name">{{ notificationData.senderName }}</div>
       </div>
@@ -104,7 +127,7 @@
     
     <!-- Action Hint -->
     <div class="notification-action">
-      <small>დააჭირეთ პასუხის გასაცემად</small>
+      <small>{{ 'msg.clickToReply' | translate }}</small>
     </div>
   </div>
 </div>

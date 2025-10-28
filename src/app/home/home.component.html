@@ -1,14 +1,14 @@
 <div class="home">
     <div class="market">
-        <span class="buysel">იყიდე და გაყიდე </span>
-        <span class="mart">მარტივად!</span>
-        <p class="text">თქვენთვის საუკეთესო ონლაინ მარკეტპლეისი სადაც შეგიძლიათ იყიდოთ და გაყიდოთ ნებისმიერი პროდუქცია</p>
+        <span class="buysel">{{ 'home.buySell' | translate }} </span>
+        <span class="mart">{{ 'home.easily' | translate }}</span>
+        <p class="text">{{ 'home.subtitle' | translate }}</p>
         
         <!-- ძებნის სექცია -->
       <div class="search-section">
   <div class="search-container">
     <input type="text" 
-           placeholder="რისი ძებნა გინდათ?" 
+           [placeholder]="'home.searchPlaceholder' | translate" 
            [(ngModel)]="searchQuery" 
            (input)="onSearchInput($event)"
            (keyup.enter)="onSearch()"
@@ -25,20 +25,20 @@
       <div class="suggestions-section" *ngIf="isLoadingProducts">
         <div class="loading-item">
           <span class="material-icons">refresh</span>
-          <span>იტვირთება...</span>
+          <span>{{ 'common.loading' | translate }}</span>
         </div>
       </div>
       
       <!-- Categories section -->
       <div class="suggestions-section" *ngIf="getFilteredCategories().length > 0">
-        <h4>მოძებნე კატეგორიით</h4>
+        <h4>{{ 'home.searchByCategory' | translate }}</h4>
         <div class="category-suggestions">
           <div class="suggestion-item category-item" 
                *ngFor="let category of getFilteredCategories()" 
                (click)="selectCategory(category)"
                role="button"
                tabindex="0"
-               [attr.aria-label]="'კატეგორია: ' + category">
+               [attr.aria-label]="('home.category' | translate) + ': ' + category">
             <span class="material-icons">folder</span>
             <span>{{category}}</span>
             <span class="material-icons category-arrow">arrow_forward_ios</span>
@@ -46,16 +46,16 @@
         </div>
       </div>
       
-      <!-- ✅ განახლებული Products section - უკეთესი UI-ით -->
+      <!-- Products section -->
       <div class="suggestions-section" *ngIf="getFilteredProducts().length > 0 && !isLoadingProducts">
-        <h4>ნაფოვნი პროდუქტი ({{getFilteredProducts().length}})</h4>
+        <h4>{{ 'home.foundProducts' | translate }} ({{getFilteredProducts().length}})</h4>
         <div class="product-suggestions">
           <div class="suggestion-item product-item clickable-product" 
                *ngFor="let product of getFilteredProducts()" 
                (click)="selectProduct(product)"
                role="button"
                tabindex="0"
-               [attr.aria-label]="'პროდუქტი: ' + product.title + ', ფასი: ' + (product.price ? product.price + ' ლარი' : 'ფასი არ არის მითითებული')"
+               [attr.aria-label]="('home.product' | translate) + ': ' + product.title + ', ' + ('home.price' | translate) + ': ' + (product.price ? product.price + ' ' + ('common.currency' | translate) : ('home.priceNotSpecified' | translate))"
                (keydown.enter)="selectProduct(product)"
                (keydown.space)="selectProduct(product)">
             <img [src]="getProductImage(product)" 
@@ -69,7 +69,7 @@
             </div>
             <div class="product-action">
               <span class="material-icons">arrow_forward_ios</span>
-              <span class="action-text">დეტალები</span>
+              <span class="action-text">{{ 'home.details' | translate }}</span>
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@
       <div class="suggestions-section" *ngIf="!isLoadingProducts && getFilteredCategories().length === 0 && getFilteredProducts().length === 0 && searchQuery.trim().length > 0">
         <div class="no-results">
           <span class="material-icons">search_off</span>
-          <span>პროდუქტი ვერ მოიძებნა</span>
+          <span>{{ 'home.noProductsFound' | translate }}</span>
         </div>
       </div>
     </div>
@@ -87,13 +87,11 @@
 </div>
         
         <div class="start">
-            <button mat-flat-button routerLink="/login" >დაიწყე ახლავე</button>
-            <!-- <button mat-flat-button >გაიგე მეტი</button> -->
+            <button mat-flat-button routerLink="/login">{{ 'home.startNow' | translate }}</button>
         </div>
     </div>
 
     <div class="circle">
-
         <div class="circle1">
             <img src="https://i.ibb.co/XN3xpnt/Chat-GPT-Image-Apr-30-2025-09-51-56-AM-removebg-preview.png" alt="">
         </div>
@@ -103,14 +101,11 @@
         <div class="circle3">
             <img src="https://i.ibb.co/676XHMsn/Chat-GPT-Image-Apr-30-2025-09-51-56-AM-removebg-preview-removebg-preview-removebg-preview.png" alt="">
         </div>
-
     </div>
-
-    
 </div>
 
 <div *ngIf="getProductsWithHighViews().length > 0;" class="popular-products-carousel">
-  <h1 class="popular-products-title">პოპულარული პროდუქტები</h1>
+  <h1 class="popular-products-title">{{ 'home.popularProducts' | translate }}</h1>
 
   <p-carousel 
     [value]="getProductsWithHighViews()"
@@ -120,9 +115,7 @@
     [showIndicators]="true"
     [showNavigators]="true"
     [circular]="true"
-    
     [autoplayInterval]="5000"
-   
     class="custom-carousel">
     
     <ng-template let-product pTemplate="item">
@@ -138,9 +131,8 @@
           <div class="product-info2">
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description | slice:0:100 }}...</p>
-            <div class="product-price">{{ product.price }} ლარი</div>
+            <div class="product-price">{{ product.price }} {{ 'common.currency' | translate }}</div>
             
-            <!-- Enhanced View Counter Display -->
             <div class="product-stats">
               <div class="category-chip">
                 <i class="pi pi-tag category-icon"></i>
@@ -148,16 +140,14 @@
               </div>
               <div class="view-count" [class.loading]="isLoadingViews">
                 <i class="pi pi-eye view-icon"></i>
-                <span class="view-text">{{ formatViews(product.viewCount || 0) }} ნახვა</span>
+                <span class="view-text">{{ formatViews(product.viewCount || 0) }} {{ 'home.views' | translate }}</span>
               </div>
             </div>
             
-            <!-- Enhanced View Product Button -->
             <button mat-stroked-button
-              label="პროდუქტის ნახვა"
               icon="pi pi-external-link"
               styleClass="p-button-raised p-button-primary view-product-btn"
-              (click)="selectProduct(product)"  >პროდუქტის ნახვა</button>
+              (click)="selectProduct(product)">{{ 'home.viewProduct' | translate }}</button>
           </div>
         </div>
       </div>
@@ -166,75 +156,66 @@
   </p-carousel>
 </div>
 
-<!-- No Popular Products Template -->
-
-
 <div class="categorymain">
-        <h1>პოპულარული კატეგორიები</h1>
-        <div class="category-list">
-            <div class="category" (click)="onCategoryClick('ტელეფონები')">
-                <div class="icon-container">
-                    <span class="material-icons">smartphone</span>  
-                </div>
-                <p>ტელეფონები</p>
-                <div class="category-description">iPhone, Samsung, Xiaomi და სხვა</div>
+    <h1>{{ 'home.popularCategories' | translate }}</h1>
+    <div class="category-list">
+        <div class="category" (click)="onCategoryClick('ტელეფონები')">
+            <div class="icon-container">
+                <span class="material-icons">smartphone</span>  
             </div>
-            <div class="category" (click)="onCategoryClick('ტექნიკა')">
-                <div class="icon-container">
-                    <span class="material-icons">devices_other</span>
-                </div>
-                <p>ტექნიკა</p>
-                <div class="category-description">ლეპტოპები, ტელევიზორები, აუდიო</div>
+            <p>{{ 'categories.phones' | translate }}</p>
+            <div class="category-description">{{ 'categories.phonesDesc' | translate }}</div>
+        </div>
+        <div class="category" (click)="onCategoryClick('ტექნიკა')">
+            <div class="icon-container">
+                <span class="material-icons">devices_other</span>
             </div>
-            <div class="category" (click)="onCategoryClick('ავტომობილები')">
-                <div class="icon-container">
-                    <span class="material-icons">directions_car</span>
-                </div>
-                <p>ავტომობილები</p>
-                <div class="category-description">ახალი და გამოყენებული მანქანები</div>
+            <p>{{ 'categories.tech' | translate }}</p>
+            <div class="category-description">{{ 'categories.techDesc' | translate }}</div>
+        </div>
+        <div class="category" (click)="onCategoryClick('ავტომობილები')">
+            <div class="icon-container">
+                <span class="material-icons">directions_car</span>
             </div>
-            <div class="category" (click)="onCategoryClick('ტანსაცმელი')">
-                <div class="icon-container">
-                    <span class="material-icons">checkroom</span>
-                </div>
-                <p>ტანსაცმელი</p>
-                <div class="category-description">მოდური ტანსაცმელი ყველასთვის</div>
+            <p>{{ 'categories.cars' | translate }}</p>
+            <div class="category-description">{{ 'categories.carsDesc' | translate }}</div>
+        </div>
+        <div class="category" (click)="onCategoryClick('ტანსაცმელი')">
+            <div class="icon-container">
+                <span class="material-icons">checkroom</span>
             </div>
-            <div class="category" (click)="onCategoryClick('სათამაშოები')">
-                <div class="icon-container">
-                    <span class="material-icons">toys</span>
-                </div>
-                <p>სათამაშოები</p>
-                <div class="category-description">ბავშვებისთვის და მოზრდილებისთვის</div>
+            <p>{{ 'categories.clothing' | translate }}</p>
+            <div class="category-description">{{ 'categories.clothingDesc' | translate }}</div>
+        </div>
+        <div class="category" (click)="onCategoryClick('სათამაშოები')">
+            <div class="icon-container">
+                <span class="material-icons">toys</span>
             </div>
-            <div class="category" (click)="onCategoryClick('კომპიუტერები')">
-                <div class="icon-container">
-                    <span class="material-icons">computer</span>
-                </div>
-                <p>კომპიუტერები</p>
-                <div class="category-description">PC, Mac, აქსესუარები</div>
+            <p>{{ 'categories.toys' | translate }}</p>
+            <div class="category-description">{{ 'categories.toysDesc' | translate }}</div>
+        </div>
+        <div class="category" (click)="onCategoryClick('კომპიუტერები')">
+            <div class="icon-container">
+                <span class="material-icons">computer</span>
             </div>
+            <p>{{ 'categories.computers' | translate }}</p>
+            <div class="category-description">{{ 'categories.computersDesc' | translate }}</div>
         </div>
     </div>
+</div>
 
-
-    <div class="sell">
-
+<div class="sell">
    <div class="sell-text">
-    <span class="sell-free">🚀 გაყიდე მარტივად — უფასოდ!</span>
-    <span class="sell-info">🔹განათავსე შენი პირველი 5 პროდუქტი სრულიად უფასოდ</span>
-    <span class="sell-info">🔹გაიარე სწრაფი რეგისტრაცია</span>
-    <span class="sell-info">🔹განათავსე ფოტოები, აღწერა და დაიწყე გაყიდვა წამებში</span>
-    <span class="sell-info">🔹ტექნიკა, სათამაშოები, ტანსაცმელი, მანქანები და სხვა — რაც გინდა!</span>
-    <button mat-flat-button routerLink="/login" target="_blank" class="btnsing">🔹დაიწყე დღესვე!</button>
+    <span class="sell-free">{{ 'home.sellEasyFree' | translate }}</span>
+    <span class="sell-info">{{ 'home.sellPoint1' | translate }}</span>
+    <span class="sell-info">{{ 'home.sellPoint2' | translate }}</span>
+    <span class="sell-info">{{ 'home.sellPoint3' | translate }}</span>
+    <span class="sell-info">{{ 'home.sellPoint4' | translate }}</span>
+    <button mat-flat-button routerLink="/login" target="_blank" class="btnsing">{{ 'home.startToday' | translate }}</button>
    </div>
 
    <div class="sell-img">
-
-
-   
       <div class="circle">
-  
           <div class="circle1">
               <img src="https://upload.wikimedia.org/wikipedia/en/thumb/d/d2/Stitch_%28Lilo_%26_Stitch%29.svg/1200px-Stitch_%28Lilo_%26_Stitch%29.svg.png" alt="">
           </div>
@@ -244,21 +225,14 @@
           <div class="circle3">
               <img src="https://i.ibb.co/676XHMsn/Chat-GPT-Image-Apr-30-2025-09-51-56-AM-removebg-preview-removebg-preview-removebg-preview.png" alt="">
           </div>
-     
-  
-
-
+      </div>
    </div>
-   </div>
-    </div>
+</div>
 
-
-    <div class="whyus">
-    <span class="why">🌟 რატომ ჩვენ?</span>
-    <span class="free1">✅ უფასო რეგისტრაცია</span>
-    <span class="free1">✅ იპოვე მყიდველი ან გამყიდველი მარტივად</span>
-    <span class="free1">✅ მომხმარებელზე ორიენტირებული სერვისი</span>
-    <span class="free1">✅ თანამედროვე დიზაინი და სწრაფი მუშაობა</span>
-    </div>
-
-    
+<div class="whyus">
+    <span class="why">{{ 'home.whyUs' | translate }}</span>
+    <span class="free1">{{ 'home.whyPoint1' | translate }}</span>
+    <span class="free1">{{ 'home.whyPoint2' | translate }}</span>
+    <span class="free1">{{ 'home.whyPoint3' | translate }}</span>
+    <span class="free1">{{ 'home.whyPoint4' | translate }}</span>
+</div>

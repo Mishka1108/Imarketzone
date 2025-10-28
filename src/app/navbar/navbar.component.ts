@@ -1,4 +1,4 @@
-// navbar.component.ts - COMPLETE WITH BEAUTIFUL NOTIFICATIONS
+// navbar.component.ts - WITH LANGUAGE SWITCHER
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
@@ -10,8 +10,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { MatIcon } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { TranslationService, Language } from '../services/translation.service';
+import { TranslatePipe } from '../pipes/translate.pipe';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-navbar',
@@ -21,10 +24,12 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
     RouterLink, 
     RouterLinkActive, 
     CommonModule, 
+    MatTooltipModule,
     FormsModule, 
     RouterModule, 
     MatIcon,
-    MatSnackBarModule
+    MatSnackBarModule,
+    TranslatePipe
   ],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
@@ -60,6 +65,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     avatar?: string;
   } | null = null;
   
+  // ✅ Language properties
+  currentLanguage: Language = 'ka';
+  
   private subscriptions = new Subscription();
   private notificationTimeout: any;
 
@@ -69,13 +77,22 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private socketService: SocketService,
     private router: Router,
-    private snackBar: MatSnackBar
+    public translationService: TranslationService
   ) {
     console.log('🔔 Navbar constructor called');
   }
 
   ngOnInit(): void {
     console.log('🔔 Navbar ngOnInit started');
+    console.log('🌐 Initial language:', this.translationService.getCurrentLanguage());
+    
+    // ✅ Subscribe to language changes
+    const langSub = this.translationService.currentLang$.subscribe(lang => {
+      this.currentLanguage = lang;
+      console.log('🌐 Language changed in subscription to:', lang);
+      console.log('🔍 Testing translation:', this.translationService.translate('nav.home'));
+    });
+    this.subscriptions.add(langSub);
     
     // Profile image subscription
     const profileSub = this.profileImageService.profileImage$.subscribe(
@@ -84,7 +101,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     );
 
-    // Auth subscription - CRITICAL!
+    // Auth subscription
     const authSub = this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
       console.log('🔔 User login status:', this.isLoggedIn);
@@ -93,14 +110,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
         const userId = localStorage.getItem('userId');
         if (userId) {
           console.log('✅ User logged in, starting socket connection...');
-          
-          // CRITICAL: Connect socket
           this.connectToSocket(userId);
-          
-          // Start unread count monitoring
           this.startUnreadCountMonitoring();
-          
-          // Listen for new messages
           this.listenForNewMessages();
         }
       } else {
@@ -110,7 +121,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Load saved profile image from localStorage
     const savedImage = localStorage.getItem('userProfileImage');
     if (savedImage) {
       this.profileImageUrl = savedImage;
@@ -122,14 +132,69 @@ export class NavbarComponent implements OnInit, OnDestroy {
     console.log('✅ Navbar initialization complete');
   }
 
-  // ✅ Socket Connection
+  // ✅ Set specific language
+  setLanguage(lang: Language): void {
+    console.log('🔘 Language button clicked! Switching to:', lang);
+    console.log('📍 Current language before switch:', this.currentLanguage);
+    
+    this.translationService.setLanguage(lang);
+    
+    console.log('✅ Language set to:', lang);
+    console.log('📍 Current language after switch:', this.currentLanguage);
+    console.log('💾 LocalStorage language:', localStorage.getItem('preferredLanguage'));
+  }
+
+  // 🔬 SUPER DETAILED TEST METHOD
+  testLanguageChange(lang: Language): void {
+    console.log('═══════════════════════════════════════════');
+    console.log('🧪 TEST LANGUAGE CHANGE STARTED');
+    console.log('═══════════════════════════════════════════');
+    console.log('🎯 Target language:', lang);
+    console.log('📍 Current this.currentLanguage:', this.currentLanguage);
+    console.log('📍 Service getCurrentLanguage():', this.translationService.getCurrentLanguage());
+    console.log('💾 localStorage before:', localStorage.getItem('preferredLanguage'));
+    
+    console.log('---');
+    console.log('🔄 Calling translationService.setLanguage(' + lang + ')...');
+    this.translationService.setLanguage(lang);
+    
+    console.log('---');
+    console.log('✅ After setLanguage call:');
+    console.log('📍 Current this.currentLanguage:', this.currentLanguage);
+    console.log('📍 Service getCurrentLanguage():', this.translationService.getCurrentLanguage());
+    console.log('💾 localStorage after:', localStorage.getItem('preferredLanguage'));
+    
+    console.log('---');
+    console.log('🔤 Testing translations:');
+    console.log('  nav.home =', this.translationService.translate('nav.home'));
+    console.log('  nav.products =', this.translationService.translate('nav.products'));
+    console.log('  nav.contact =', this.translationService.translate('nav.contact'));
+    
+    console.log('---');
+    console.log('🔍 Checking subscriptions:');
+    console.log('  Subscriptions count:', this.subscriptions.closed ? 'CLOSED' : 'ACTIVE');
+    
+    console.log('═══════════════════════════════════════════');
+    console.log('🧪 TEST LANGUAGE CHANGE COMPLETED');
+    console.log('═══════════════════════════════════════════');
+    
+    // Force change detection
+    setTimeout(() => {
+      console.log('⏰ After 100ms timeout:');
+      console.log('📍 this.currentLanguage:', this.currentLanguage);
+      console.log('🔤 nav.home =', this.translationService.translate('nav.home'));
+    }, 100);
+  }
+
+  // 🐛 Debug method for template
+  getStorageLang(): string {
+    return localStorage.getItem('preferredLanguage') || 'none';
+  }
+
   private connectToSocket(userId: string): void {
     console.log('🔌 Connecting to socket with userId:', userId);
-    
-    // Force connection
     this.socketService.connect(userId);
     
-    // Verify connection after delay
     setTimeout(() => {
       if (this.socketService.isConnected()) {
         console.log('✅ Socket connection verified');
@@ -139,7 +204,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     }, 1000);
 
-    // Monitor connection status
     const connectionSub = this.socketService.getConnectionStatus().subscribe({
       next: (connected) => {
         console.log('🔌 Socket connection status changed:', connected);
@@ -158,11 +222,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.subscriptions.add(connectionSub);
   }
 
-  // ✅ Unread count monitoring
   private startUnreadCountMonitoring(): void {
     console.log('🔔 Starting unread count monitoring');
     
-    // Initial load
     this.messageService.getUnreadCount().subscribe({
       next: (count) => {
         console.log('📊 Initial unread count:', count);
@@ -173,7 +235,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Subscribe to real-time updates
     const unreadSub = this.messageService.unreadCount$.subscribe({
       next: (count) => {
         console.log('🔔 Navbar received unread count update:', count);
@@ -188,7 +249,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.subscriptions.add(unreadSub);
   }
 
-  // ✅ Listen for incoming messages - MAIN FEATURE!
   private listenForNewMessages(): void {
     console.log('👂 Navbar listening for new messages');
     
@@ -200,58 +260,32 @@ export class NavbarComponent implements OnInit, OnDestroy {
         const senderId = typeof msg.senderId === 'object' ? msg.senderId._id : msg.senderId;
         const userId = localStorage.getItem('userId');
         
-        console.log('🔍 Checking message:', {
-          senderId,
-          userId,
-          isFromCurrentUser: senderId === userId
-        });
-        
-        // Only show notification if message is NOT from current user
         if (senderId !== userId) {
           console.log('✅ Message is from another user, showing notification!');
           
           const senderName = typeof msg.senderId === 'object' && msg.senderId.name 
             ? msg.senderId.name 
-            : 'უცნობი მომხმარებელი';
+            : this.translationService.translate('msg.unknown');
           
           const senderAvatar = typeof msg.senderId === 'object' && msg.senderId.avatar
             ? msg.senderId.avatar
             : this.profileImageService.getDefaultAvatar();
           
-          // Show notification
-          this.showMessageNotification(
-            senderName, 
-            msg.content,
-            senderAvatar
-          );
-          
-          // Play sound
+          this.showMessageNotification(senderName, msg.content, senderAvatar);
           this.playNotificationSound();
-          
-          // Update unread count
           this.messageService.getUnreadCount().subscribe();
-        } else {
-          console.log('ℹ️ Message is from current user, skipping notification');
         }
-      } else {
-        console.warn('⚠️ Invalid message data received:', data);
       }
     });
 
     this.subscriptions.add(messageSub);
-    console.log('✅ Message listener registered');
   }
 
-  // ✅ Show beautiful notification popup
   showMessageNotification(senderName: string, message: string, avatar?: string): void {
-    console.log('🔔 Showing notification:', { senderName, message });
-    
-    // Clear previous timeout
     if (this.notificationTimeout) {
       clearTimeout(this.notificationTimeout);
     }
 
-    // Set notification data
     this.notificationData = {
       senderName,
       message: message.length > 50 ? message.substring(0, 50) + '...' : message,
@@ -259,16 +293,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
     };
 
     this.showNotification = true;
-    console.log('✅ Notification displayed');
 
-    // Auto-hide after 5 seconds
     this.notificationTimeout = setTimeout(() => {
-      console.log('⏱️ Auto-hiding notification');
       this.hideNotification();
     }, 5000);
   }
 
-  // ✅ Hide notification
   hideNotification(): void {
     this.showNotification = false;
     if (this.notificationTimeout) {
@@ -276,16 +306,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ Navigate to messages when notification clicked
   onNotificationClick(): void {
-    console.log('🖱️ Notification clicked');
     this.hideNotification();
     this.router.navigate(['/dashboard'], { 
       queryParams: { tab: 'messages' } 
     });
   }
 
-  // ✅ Play notification sound
   private playNotificationSound(): void {
     try {
       const audio = new Audio('assets/sounds/notification.mp3');
@@ -298,7 +325,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ Handle image load errors
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement;
     if (target) {
@@ -338,6 +364,5 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this.notificationTimeout) {
       clearTimeout(this.notificationTimeout);
     }
-    console.log('✅ Navbar cleanup complete');
   }
 }
