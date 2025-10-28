@@ -310,4 +310,5 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
     console.log('✅ Navbar cleanup complete');
   }
+  
 }
