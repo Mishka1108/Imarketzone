@@ -3,17 +3,17 @@
   <!-- Loading State -->
   <div class="loading-container" *ngIf="isLoading">
     <mat-spinner diameter="60"></mat-spinner>
-    <p class="loading-text">იტვირთება პროდუქტის დეტალები...</p>
+    <p class="loading-text">{{ 'PRODUCT_DETAILS.LOADING' | translate }}</p>
   </div>
   
   <!-- Error State -->
   <div class="error-container" *ngIf="!isLoading && error">
     <mat-icon class="error-icon">error_outline</mat-icon>
-    <h2 class="error-title">შეცდომა</h2>
+    <h2 class="error-title">{{ 'PRODUCT_DETAILS.ERROR.TITLE' | translate }}</h2>
     <p class="error-message">{{ error }}</p>
     <button mat-raised-button color="primary" (click)="goBack()" class="error-button">
       <mat-icon>arrow_back</mat-icon>
-      უკან დაბრუნება
+      {{ 'PRODUCT_DETAILS.ACTIONS.GO_BACK' | translate }}
     </button>
   </div>
   
@@ -25,7 +25,7 @@
         <button mat-icon-button (click)="goBack()" class="back-button">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <h1 class="page-title">პროდუქტის დეტალები</h1>
+        <h1 class="page-title">{{ 'PRODUCT_DETAILS.PAGE_TITLE' | translate }}</h1>
       </div>
       
       <!-- Enhanced Views Counter -->
@@ -59,7 +59,7 @@
                 <div class="main-image-container">
                   <img 
                     [src]="image" 
-                    [alt]="product.title + ' - სურათი ' + (i + 1)" 
+                    [alt]="product.title + ' - ' + ('PRODUCT_DETAILS.IMAGE' | translate) + ' ' + (i + 1)" 
                     (error)="onImageError($event)"
                     (click)="openImageModal(image, i)"
                     class="main-image zoomable-image"
@@ -110,13 +110,13 @@
             <div class="info-section">
               <h3 class="section-title">
                 <mat-icon>info</mat-icon>
-                ძირითადი ინფორმაცია
+                {{ 'PRODUCT_DETAILS.BASIC_INFO_TITLE' | translate }}
               </h3>
               
               <div class="info-grid">
                 <mat-chip class="info-chip" *ngIf="product.category">
                   <mat-icon matChipAvatar>category</mat-icon>
-                  {{ product.category }}
+                  {{ product.category | categoryTranslate }}
                 </mat-chip>
                 
                 <mat-chip class="info-chip" *ngIf="product.year">
@@ -125,31 +125,31 @@
                 </mat-chip>
                 
                 <mat-chip class="info-chip" *ngIf="product.cities">
-                  <mat-icon matChipAvatar>location_on</mat-icon>
-                  {{ product.cities }}
-                </mat-chip>
+  <mat-icon matChipAvatar>location_on</mat-icon>
+  {{ product.cities | cityTranslate }}
+</mat-chip>
 
                 <!-- Enhanced Views chip with more details -->
                 <mat-chip class="info-chip views-chip" [class.loading]="isLoadingViews">
                   <mat-icon matChipAvatar>visibility</mat-icon>
                   <span *ngIf="!isLoadingViews">{{ getFormattedViewsWithDetails() }}</span>
-                  <span *ngIf="isLoadingViews">იტვირთება...</span>
+                  <span *ngIf="isLoadingViews">{{ 'PRODUCT_DETAILS.LOADING_SHORT' | translate }}</span>
                 </mat-chip>
 
                 <!-- Additional view statistics if available -->
                 <mat-chip class="info-chip today-views-chip" *ngIf="getTodayViews() > 0">
                   <mat-icon matChipAvatar>today</mat-icon>
-                  დღეს: {{ getTodayViews() }}
+                  {{ 'PRODUCT_DETAILS.VIEWS.TODAY' | translate }}: {{ getTodayViews() }}
                 </mat-chip>
 
                 <mat-chip class="info-chip week-views-chip" *ngIf="getWeekViews() > 0">
                   <mat-icon matChipAvatar>date_range</mat-icon>
-                  კვირაში: {{ getWeekViews() }}
+                  {{ 'PRODUCT_DETAILS.VIEWS.WEEK' | translate }}: {{ getWeekViews() }}
                 </mat-chip>
 
                 <mat-chip class="info-chip month-views-chip" *ngIf="getMonthViews() > 0">
                   <mat-icon matChipAvatar>event</mat-icon>
-                  თვეში: {{ getMonthViews() }}
+                  {{ 'PRODUCT_DETAILS.VIEWS.MONTH' | translate }}: {{ getMonthViews() }}
                 </mat-chip>
               </div>
             </div>
@@ -158,7 +158,7 @@
             <div class="info-section" *ngIf="product.description">
               <h3 class="section-title">
                 <mat-icon>description</mat-icon>
-                აღწერა
+                {{ 'PRODUCT_DETAILS.DESCRIPTION_TITLE' | translate }}
               </h3>
               <div class="description-text">{{ product.description }}</div>
             </div>
@@ -167,25 +167,25 @@
             <div class="info-section seller-section">
               <h3 class="section-title">
                 <mat-icon>person</mat-icon>
-                გამყიდველის ინფორმაცია
+                {{ 'PRODUCT_DETAILS.SELLER_INFO_TITLE' | translate }}
               </h3>
               
               <div class="seller-info">
                 <div class="seller-detail" *ngIf="product.userName">
                   <mat-icon class="seller-icon">account_circle</mat-icon>
-                  <span class="seller-label">სახელი:</span>
+                  <span class="seller-label">{{ 'PRODUCT_DETAILS.SELLER_NAME' | translate }}:</span>
                   <span class="seller-value">{{ product.userName }}</span>
                 </div>
                 
-                <div class="seller-detail" *ngIf="product.phone && product.phone !== 'არ არის მითითებული'">
+                <div class="seller-detail" *ngIf="product.phone && product.phone !== ('PRODUCT_DETAILS.INFO.NOT_SPECIFIED' | translate)">
                   <mat-icon class="seller-icon">phone</mat-icon>
-                  <span class="seller-label">ტელეფონი:</span>
+                  <span class="seller-label">{{ 'PRODUCT_DETAILS.SELLER_PHONE' | translate }}:</span>
                   <span class="seller-value">{{ product.phone }}</span>
                 </div>
                 
-                <div class="seller-detail" *ngIf="product.email && product.email !== 'არ არის მითითებული'">
+                <div class="seller-detail" *ngIf="product.email && product.email !== ('PRODUCT_DETAILS.INFO.NOT_SPECIFIED' | translate)">
                   <mat-icon class="seller-icon">email</mat-icon>
-                  <span class="seller-label">ელ. ფოსტა:</span>
+                  <span class="seller-label">{{ 'PRODUCT_DETAILS.SELLER_EMAIL' | translate }}:</span>
                   <span class="seller-value">{{ product.email }}</span>
                 </div>
               </div>
@@ -198,20 +198,20 @@
               mat-raised-button 
               color="primary" 
               class="contact-button"
-              *ngIf="product.phone && product.phone !== 'არ არის მითითებული'"
+              *ngIf="product.phone && product.phone !== ('PRODUCT_DETAILS.INFO.NOT_SPECIFIED' | translate)"
               (click)="callPhone()">
               <mat-icon>phone</mat-icon>
-              <span>დარეკვა</span>
+              <span>{{ 'PRODUCT_DETAILS.ACTIONS.CALL' | translate }}</span>
             </button>
             
             <button 
               mat-raised-button 
               color="accent"
               class="contact-button"
-              *ngIf="product.email && product.email !== 'არ არის მითითებული'"
+              *ngIf="product.email && product.email !== ('PRODUCT_DETAILS.INFO.NOT_SPECIFIED' | translate)"
               (click)="sendEmail()">
               <mat-icon>email</mat-icon>
-              <span>იმეილი</span>
+              <span>{{ 'PRODUCT_DETAILS.ACTIONS.EMAIL' | translate }}</span>
             </button>
              <button 
               mat-raised-button 
@@ -219,7 +219,7 @@
               class="contact-button"
               (click)="shareProduct()">
               <mat-icon>share</mat-icon>
-              <span>გაზიარება</span>
+              <span>{{ 'PRODUCT_DETAILS.ACTIONS.SHARE' | translate }}</span>
             </button>
           </mat-card-actions>
           <mat-card-actions class="message-action">
@@ -229,7 +229,7 @@
               class="message-button"
               (click)="openMessageDialog()">
               <mat-icon>chat</mat-icon>
-              <span>შეტყობინების გაგზავნა</span>
+              <span>{{ 'PRODUCT_DETAILS.SEND_MESSAGE' | translate }}</span>
             </button>
           </mat-card-actions>
         </mat-card>
@@ -257,7 +257,7 @@
       <div class="modal-image-container">
         <img 
           [src]="productImages[currentModalIndex]" 
-          [alt]="product?.title + ' - სურათი ' + (currentModalIndex + 1)"
+          [alt]="product?.title + ' - ' + ('PRODUCT_DETAILS.IMAGE' | translate) + ' ' + (currentModalIndex + 1)"
           class="modal-image"
           (error)="onImageError($event)" />
       </div>

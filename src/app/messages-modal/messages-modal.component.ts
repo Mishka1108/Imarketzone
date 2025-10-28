@@ -19,6 +19,7 @@ import { SocketService } from '../services/socket.service';
 import { Message, Conversation } from '../models/message.model';
 import { ProfileImageService } from '../services/profileImage.service';
 import { Subject, takeUntil } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface MessagesModalData {
   userId: string;
@@ -41,7 +42,8 @@ export interface MessagesModalData {
     MatTabsModule,
     MatListModule,
     MatBadgeModule,
-    MatTooltipModule
+    MatTooltipModule,
+    TranslateModule
   ],
   templateUrl: './messages-modal.component.html',
   styleUrls: ['./messages-modal.component.scss']

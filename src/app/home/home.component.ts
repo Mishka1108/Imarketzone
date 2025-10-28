@@ -1,4 +1,4 @@
-// home.component.ts - WITH TRANSLATION SUPPORT
+// home.component.ts - SEO-ოპტიმიზებული ვერსია (Fixed TranslateModule)
 
 import { Component, OnInit, HostListener, OnDestroy, Inject, PLATFORM_ID, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { MatButton } from '@angular/material/button';
@@ -15,21 +15,24 @@ import { CarouselModule } from 'primeng/carousel';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { MatButtonModule } from '@angular/material/button';
-import { TranslatePipe } from '../pipes/translate.pipe'; // ✅ Import TranslatePipe
-import { TranslationService } from '../services/translation.service'; // ✅ Import TranslationService
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CategoryTranslatePipe } from "../pipes/category-translate.pipe";
 
 @Component({
   selector: 'app-home',
+  standalone: true, // დარწმუნდით რომ standalone: true არის
   imports: [
-    MatButtonModule, 
-    RouterLink, 
-    FormsModule, 
-    CommonModule, 
-    CarouselModule, 
-    ButtonModule, 
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    MatButtonModule,
+    CarouselModule,
+    ButtonModule,
     TagModule,
-    TranslatePipe // ✅ Add TranslatePipe to imports
-  ],
+    TranslateModule // ეს არის გასაღები - TranslateModule უნდა იყოს imports-ში
+    ,
+    CategoryTranslatePipe
+],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -59,15 +62,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     private meta: Meta,
     private title: Title,
     private snackBar: MatSnackBar,
-    public translationService: TranslationService, // ✅ Add TranslationService
+    private translate: TranslateService,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-    console.log('🏠 HomeComponent constructor');
-  }
-  
+  ) {}
+
   ngOnInit() {
     this.loadProductsWithRealViews();
-    console.log('🏠 HomeComponent ngOnInit started');
     this.setupComprehensiveSEO();
     this.loadAllProducts();
     
@@ -78,7 +78,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     
     setTimeout(() => {
-      console.log('⏰ Starting loadProductsWithRealViews after 100ms delay');
     }, 100);
     
     this.responsiveOptions = [
@@ -97,24 +96,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   getProductsWithHighViews(): any[] {
     if (!this.products || this.products.length === 0) {
-      console.log('⚠️ this.products is empty or null');
       return [];
     }
 
-    console.log(`🔍 Checking ${this.products.length} products for high views...`);
 
     const highViewProducts = this.products.filter(product => {
       const viewCount = product.viewCount || product.views || product.totalViews || 0;
-      console.log(`  - ${product.title}: ${viewCount} views`);
       return viewCount >= 100;
     });
 
     if (highViewProducts.length === 0) {
-      console.log('⚠️ არცერთ პროდუქტს არ აქვს 100+ ნახვა');
       return [];
     }
 
-    console.log(`✅ პოპულარული პროდუქტები (100+ ნახვა): ${highViewProducts.length}/${this.products.length}`);
 
     const sortedProducts = highViewProducts.sort((a, b) => {
       const viewsA = a.viewCount || a.views || a.totalViews || 0;
@@ -127,7 +121,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   hasPopularProducts(): boolean {
     const hasProducts = this.getProductsWithHighViews().length > 0;
-    console.log(`🔍 hasPopularProducts: ${hasProducts}`);
     return hasProducts;
   }
 
@@ -136,16 +129,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
      
   loadProductsWithRealViews() {
-    console.log('➡️ იწყება პროდუქტების ჩატვირთვა რეალური ნახვებით...');
     this.loading = true;
     this.isLoadingViews = true;
     this.error = null;
     
     this.productService.getAllProducts().subscribe({
       next: (response) => {
-        console.log('✅ loadProductsWithRealViews - Subscribe triggered!');
-        console.log('🎯 RAW response received:', response);
-        
         let allProducts: any[] = [];
         
         if (!response) {
@@ -168,7 +157,6 @@ export class HomeComponent implements OnInit, OnDestroy {
           }
         }
 
-        console.log('📦 სულ დამუშავებული პროდუქტები:', allProducts.length);
         
         if (allProducts.length > 0) {
           this.processProductsWithRealViews(allProducts);
@@ -189,7 +177,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private processProductsWithRealViews(allProducts: any[]) {
-    console.log('🔄 იწყება პროდუქტების დამუშავება...', allProducts.length);
     
     const productsWithViewData = allProducts.map(product => {
       const viewCount = product.viewCount || product.views || product.totalViews || 0;
@@ -211,7 +198,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     const highViewCount = this.products.filter(p => (p.viewCount || 0) >= 100).length;
-    console.log(`🔥 პროდუქტები 100+ ნახვით: ${highViewCount}/${this.products.length}`);
     
     this.loading = false;
     this.isLoadingViews = false;
@@ -227,17 +213,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   viewProduct(productId: string) {
-    console.log('🔍 იხსნება პროდუქტი:', productId);
     
     if (!productId) {
       console.error('❌ არასწორი პროდუქტის ID');
-      this.showSnackBar(this.translationService.translate('home.errorOpeningProduct'));
+      this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
       return;
     }
     
     this.productService.recordView(productId).subscribe({
       next: (response) => {
-        console.log('✅ ნახვა დაფიქსირდა:', response);
         const product = this.products.find(p => (p._id || p.id) === productId);
         if (product) {
           product.viewCount = (product.viewCount || 0) + 1;
@@ -251,19 +235,19 @@ export class HomeComponent implements OnInit, OnDestroy {
       const productUrl = this.generateProductUrl(product.title);
       this.router.navigate([productUrl]).then(success => {
         if (success) this.scrollToTop();
-        else this.showSnackBar(this.translationService.translate('home.errorOpeningProduct'));
+        else this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
       });
     } else {
       this.router.navigate(['/product-details', productId]).then(success => {
         if (success) this.scrollToTop();
-        else this.showSnackBar(this.translationService.translate('home.errorOpeningProduct'));
+        else this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
       });
     }
   }
 
   private showSnackBar(message: string): void {
     if (this.snackBar) {
-      this.snackBar.open(message, this.translationService.translate('common.close'), {
+      this.snackBar.open(message, 'დახურვა', {
         duration: 3000,
         horizontalPosition: 'center',
         verticalPosition: 'bottom',
@@ -275,49 +259,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private setupComprehensiveSEO(): void {
-    this.title.setTitle('iMarketZone - ყიდვა გაყიდვა საქართველოში | უფასო განცხადებები ონლაინ');
-    
-    this.meta.updateTag({ 
-      name: 'description', 
-      content: 'iMarketZone - საქართველოს #1 ონლაინ მარკეტპლეისი. ყიდვა გაყიდვა მარტივად! ტელეფონები, ტექნიკა, მანქანები, ტანსაცმელი, სათამაშოები. უფასო განცხადებები, სწრაფი მყიდველი, უსაფრთხო გარიგება.' 
+    this.translate.get('SEO.PAGE_TITLE').subscribe(title => {
+      this.title.setTitle(title);
     });
     
-    this.meta.updateTag({ 
-      name: 'keywords', 
-      content: 'imarketzone, იმარკეტ ზონი, ყიდვა გაყიდვა, უფასო განცხადებები საქართველოში, ონლაინ მაღაზია, მყიდველი, გამყიდველი, ახალი ნივთები, გამოყენებული ნივთები, ტელეფონების ყიდვა, მანქანების გაყიდვა, ტექნიკის ყიდვა, ონლაინ მარკეტპლეისი თბილისი' 
+    this.translate.get('SEO.PAGE_DESCRIPTION').subscribe(desc => {
+      this.meta.updateTag({ name: 'description', content: desc });
     });
-
-    this.meta.updateTag({ property: 'og:title', content: 'iMarketZone - ყიდვა გაყიდვა საქართველოში' });
-    this.meta.updateTag({ property: 'og:description', content: 'საქართველოს საუკეთესო ონლაინ მარკეტპლეისი - ყიდვა გაყიდვა მარტივად!' });
-    this.meta.updateTag({ property: 'og:type', content: 'website' });
-    this.meta.updateTag({ property: 'og:url', content: 'https://imarketzone.ge' });
-    this.meta.updateTag({ property: 'og:image', content: 'https://imarketzone.ge/assets/og-image.jpg' });
-    this.meta.updateTag({ property: 'og:locale', content: 'ka_GE' });
-    this.meta.updateTag({ property: 'og:site_name', content: 'iMarket Zone' });
-
-    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.meta.updateTag({ name: 'twitter:title', content: 'iMarket Zone - ყიდვა გაყიდვა საქართველოში' });
-    this.meta.updateTag({ name: 'twitter:description', content: 'საქართველოს საუკეთესო ონლაინ მარკეტპლეისი' });
-    this.meta.updateTag({ name: 'twitter:image', content: 'https://imarketzone.ge/assets/twitter-image.jpg' });
-
-    this.meta.updateTag({ name: 'robots', content: 'index, follow, max-image-preview:large' });
-    this.meta.updateTag({ name: 'author', content: 'iMarket Zone' });
-    this.meta.updateTag({ name: 'language', content: 'Georgian' });
-    this.meta.updateTag({ httpEquiv: 'Content-Language', content: 'ka' });
-    this.meta.updateTag({ name: 'geo.region', content: 'GE' });
-    this.meta.updateTag({ name: 'geo.placename', content: 'Tbilisi' });
     
-    this.meta.updateTag({ name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' });
-    this.meta.updateTag({ name: 'theme-color', content: '#4F46E5' });
-    
-    if (isPlatformBrowser(this.platformId)) {
-      const link: HTMLLinkElement = document.querySelector("link[rel='canonical']") || document.createElement('link');
-      link.setAttribute('rel', 'canonical');
-      link.setAttribute('href', 'https://imarketzone.ge');
-      if (!document.querySelector("link[rel='canonical']")) {
-        document.head.appendChild(link);
-      }
-    }
+    this.translate.get('SEO.KEYWORDS').subscribe(keywords => {
+      this.meta.updateTag({ name: 'keywords', content: keywords });
+    });
   }
 
   private addEnhancedStructuredData(): void {

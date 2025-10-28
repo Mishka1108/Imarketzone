@@ -3,7 +3,7 @@
   <div class="modal-header">
     <h2>
       <mat-icon>chat</mat-icon>
-      შეტყობინებები
+      {{ 'MESSAGES_MODAL.TITLE' | translate }}
     </h2>
     <button mat-icon-button (click)="close()">
       <mat-icon>close</mat-icon>
@@ -15,21 +15,21 @@
     <!-- Left Sidebar - საუბრების სია -->
     <div class="conversations-sidebar" [class.hidden]="selectedConversation && isMobile">
       <div class="sidebar-header">
-        <h3>საუბრები</h3>
+        <h3>{{ 'MESSAGES_MODAL.CONVERSATIONS' | translate }}</h3>
         <span class="conversations-count">{{ conversations.length }}</span>
       </div>
 
       <!-- Loading -->
       <div *ngIf="isLoadingConversations" class="loading-container">
         <mat-spinner diameter="40"></mat-spinner>
-        <p>იტვირთება...</p>
+        <p>{{ 'MESSAGES_MODAL.LOADING' | translate }}</p>
       </div>
 
       <!-- No conversations -->
       <div *ngIf="!isLoadingConversations && conversations.length === 0" class="no-conversations">
         <mat-icon>chat_bubble_outline</mat-icon>
-        <p>საუბრები არ არის</p>
-        <small>ახალი შეტყობინება გაგზავნეთ პროდუქტის გვერდიდან</small>
+        <p>{{ 'MESSAGES_MODAL.NO_CONVERSATIONS' | translate }}</p>
+        <small>{{ 'MESSAGES_MODAL.SEND_FROM_PRODUCT' | translate }}</small>
       </div>
 
       <!-- Conversations List -->
@@ -41,7 +41,7 @@
           
           <!-- Avatar -->
           <img [src]="conversation.otherUser.avatar || getDefaultAvatar()" 
-               alt="avatar" 
+               [alt]="'MESSAGES_MODAL.AVATAR' | translate" 
                class="user-avatar"
                (error)="onAvatarError($event)">
           
@@ -49,7 +49,7 @@
           <div class="conversation-info">
             <!-- Header: Name + Time -->
             <div class="conversation-header">
-              <h4>{{ conversation.otherUser.name || 'უცნობი მომხმარებელი' }}</h4>
+              <h4>{{ conversation.otherUser.name || ('MESSAGES_MODAL.UNKNOWN_USER' | translate) }}</h4>
               <span class="time">{{ getLastMessageTime(conversation) }}</span>
             </div>
             
@@ -68,7 +68,7 @@
           <button mat-icon-button 
                   class="delete-conversation-btn"
                   (click)="deleteConversation(conversation, $event)"
-                  matTooltip="საუბრის წაშლა">
+                  [matTooltip]="'MESSAGES_MODAL.DELETE_CONVERSATION' | translate">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
@@ -80,7 +80,7 @@
       <!-- No conversation selected -->
       <div *ngIf="!selectedConversation" class="no-selection">
         <mat-icon>forum</mat-icon>
-        <p>აირჩიეთ საუბარი შეტყობინებების სანახავად</p>
+        <p>{{ 'MESSAGES_MODAL.SELECT_CONVERSATION' | translate }}</p>
       </div>
 
       <!-- Selected Conversation -->
@@ -96,11 +96,11 @@
           </button>
 
           <img [src]="selectedConversation.otherUser.avatar || getDefaultAvatar()" 
-               alt="avatar" 
+               [alt]="'MESSAGES_MODAL.AVATAR' | translate" 
                class="user-avatar-small"
                (error)="onAvatarError($event)">
           <div class="user-details">
-            <h3>{{ selectedConversation.otherUser.name || 'უცნობი მომხმარებელი' }}</h3>
+            <h3>{{ selectedConversation.otherUser.name || ('MESSAGES_MODAL.UNKNOWN_USER' | translate) }}</h3>
             <p class="user-email" *ngIf="!isTyping">{{ selectedConversation.otherUser.email || '' }}</p>
             <p class="typing-indicator" *ngIf="isTyping">
               <span class="typing-dots">
@@ -108,7 +108,7 @@
                 <span></span>
                 <span></span>
               </span>
-              იწერს...
+              {{ 'MESSAGES_MODAL.TYPING' | translate }}
             </p>
           </div>
         </div>
@@ -118,14 +118,14 @@
           <!-- Loading -->
           <div *ngIf="isLoadingMessages" class="loading-messages">
             <mat-spinner diameter="40"></mat-spinner>
-            <p>შეტყობინებები იტვირთება...</p>
+            <p>{{ 'MESSAGES_MODAL.LOADING_MESSAGES' | translate }}</p>
           </div>
 
           <!-- No messages -->
           <div *ngIf="!isLoadingMessages && messages.length === 0" class="no-messages">
             <mat-icon>chat_bubble_outline</mat-icon>
-            <p>შეტყობინებები არ არის</p>
-            <small>გააგზავნეთ პირველი შეტყობინება</small>
+            <p>{{ 'MESSAGES_MODAL.NO_MESSAGES' | translate }}</p>
+            <small>{{ 'MESSAGES_MODAL.SEND_FIRST_MESSAGE' | translate }}</small>
           </div>
 
           <!-- Messages List -->
@@ -138,7 +138,7 @@
               <!-- ✅ Avatar for other user's messages -->
               <img *ngIf="!isOwnMessage(message)"
                    [src]="getMessageSenderAvatar(message)"
-                   alt="avatar"
+                   [alt]="'MESSAGES_MODAL.AVATAR' | translate"
                    class="message-avatar"
                    (error)="onAvatarError($event)">
               
@@ -161,7 +161,7 @@
                       [(ngModel)]="newMessage"
                       (ngModelChange)="onMessageInput()"
                       (keypress)="onKeyPress($event)"
-                      placeholder="შეტყობინების დაწერა..."
+                      [placeholder]="'MESSAGES_MODAL.MESSAGE_PLACEHOLDER' | translate"
                       rows="2"
                       [disabled]="isSending"></textarea>
           </mat-form-field>
@@ -171,7 +171,7 @@
                   (click)="sendMessage()"
                   [disabled]="!newMessage.trim() || isSending"
                   class="send-button"
-                  matTooltip="გაგზავნა">
+                  [matTooltip]="'MESSAGES_MODAL.SEND' | translate">
             <mat-icon *ngIf="!isSending">send</mat-icon>
             <mat-spinner *ngIf="isSending" diameter="24"></mat-spinner>
           </button>

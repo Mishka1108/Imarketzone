@@ -1,27 +1,28 @@
+<!-- rules.component.html -->
 <div class="rules-container">
   <div class="rules-header">
-    <h1>წესები და პირობები</h1>
-    <p class="subtitle">გთხოვთ, ყურადღებით გაეცნოთ ჩვენი პლატფორმის გამოყენების წესებს</p>
+    <h1>{{ 'RULES.HEADER.TITLE' | translate }}</h1>
+    <p class="subtitle">{{ 'RULES.HEADER.SUBTITLE' | translate }}</p>
   </div>
 
   <section class="rules-section">
     <div class="section-icon">🔒</div>
-    <h2>უსაფრთხოების წესები</h2>
+    <h2>{{ 'RULES.SECURITY.TITLE' | translate }}</h2>
     <div class="content-card">
-      <h3>თქვენი ბარათის მონაცემების დაცვა</h3>
-      <p class="warning-text">⚠️ <strong>მნიშვნელოვანია:</strong> არასოდეს გაუზიაროთ თქვენი საბანკო ბარათის მონაცემები!</p>
+      <h3>{{ 'RULES.SECURITY.CARD_PROTECTION' | translate }}</h3>
+      <p class="warning-text">⚠️ <strong>{{ 'RULES.SECURITY.IMPORTANT' | translate }}:</strong> {{ 'RULES.SECURITY.WARNING' | translate }}</p>
       
       <div class="info-list">
         <div class="info-item">
           <span class="icon">❌</span>
           <div>
-            <strong>არასდროს გაუზიაროთ:</strong>
+            <strong>{{ 'RULES.SECURITY.NEVER_SHARE.TITLE' | translate }}:</strong>
             <ul>
-              <li>ბარათის ნომერი (16 ციფრი)</li>
-              <li>CVV/CVC კოდი (3 ციფრი ბარათის უკან)</li>
-              <li>ბარათის ვადის გასვლის თარიღი</li>
-              <li>SMS-ით მიღებული დადასტურების კოდები</li>
-              <li>პინ კოდი</li>
+              <li>{{ 'RULES.SECURITY.NEVER_SHARE.CARD_NUMBER' | translate }}</li>
+              <li>{{ 'RULES.SECURITY.NEVER_SHARE.CVV' | translate }}</li>
+              <li>{{ 'RULES.SECURITY.NEVER_SHARE.EXPIRY' | translate }}</li>
+              <li>{{ 'RULES.SECURITY.NEVER_SHARE.SMS_CODE' | translate }}</li>
+              <li>{{ 'RULES.SECURITY.NEVER_SHARE.PIN' | translate }}</li>
             </ul>
           </div>
         </div>
@@ -29,11 +30,11 @@
         <div class="info-item">
           <span class="icon">✅</span>
           <div>
-            <strong>უსაფრთხო გადახდა:</strong>
+            <strong>{{ 'RULES.SECURITY.SAFE_PAYMENT.TITLE' | translate }}:</strong>
             <ul>
-              <li>გამოიყენეთ მხოლოდ ოფიციალური გადახდის სისტემები</li>
-              <li>შეამოწმეთ ვებსაიტის https:// დაცვა</li>
-              <li>გადახდისას ყოველთვის შეამოწმეთ URL მისამართი</li>
+              <li>{{ 'RULES.SECURITY.SAFE_PAYMENT.OFFICIAL_SYSTEMS' | translate }}</li>
+              <li>{{ 'RULES.SECURITY.SAFE_PAYMENT.CHECK_HTTPS' | translate }}</li>
+              <li>{{ 'RULES.SECURITY.SAFE_PAYMENT.CHECK_URL' | translate }}</li>
             </ul>
           </div>
         </div>
@@ -43,81 +44,81 @@
 
   <section class="rules-section danger-section">
     <div class="section-icon">⚠️</div>
-    <h2>რა არის ფიშინგი და როგორ დაიცვათ თავი</h2>
+    <h2>{{ 'RULES.PHISHING.TITLE' | translate }}</h2>
     <div class="content-card">
       <p class="intro-text">
-        ფიშინგი არის თაღლითური მეთოდი, როდესაც კიბერდამნაშავეები ცდილობენ მოიპოვონ თქვენი პირადი ინფორმაცია, საბანკო მონაცემები ან პაროლები.
+        {{ 'RULES.PHISHING.INTRO' | translate }}
       </p>
 
-      <h3>ფიშინგის ძირითადი სახეები:</h3>
+      <h3>{{ 'RULES.PHISHING.TYPES_TITLE' | translate }}</h3>
       
       <div class="phishing-type">
-        <h4>📧 ელფოსტის ფიშინგი</h4>
-        <p>ყალბი წერილები, რომლებიც ბანკის, კომპანიის ან სერვისის სახელით მოგდით.</p>
+        <h4>📧 {{ 'RULES.PHISHING.EMAIL.TITLE' | translate }}</h4>
+        <p>{{ 'RULES.PHISHING.EMAIL.DESCRIPTION' | translate }}</p>
         <div class="example-box">
-          <strong>მაგალითი:</strong> "თქვენი ანგარიში დაბლოკილია, გთხოვთ დაუყოვნებლივ შეიყვანოთ მონაცემები..."
+          <strong>{{ 'RULES.PHISHING.EXAMPLE' | translate }}:</strong> {{ 'RULES.PHISHING.EMAIL.EXAMPLE' | translate }}
         </div>
       </div>
 
       <div class="phishing-type">
-        <h4>💬 SMS ფიშინგი (სმიშინგი)</h4>
-        <p>თაღლითური SMS შეტყობინებები რომლებიც სთხოვენ თქვენს მონაცემებს.</p>
+        <h4>💬 {{ 'RULES.PHISHING.SMS.TITLE' | translate }}</h4>
+        <p>{{ 'RULES.PHISHING.SMS.DESCRIPTION' | translate }}</p>
         <div class="example-box">
-          <strong>მაგალითი:</strong> "მოიგეთ საჩუქარი! ბმულზე დაჭერით და შეიყვანეთ ბარათის მონაცემები..."
+          <strong>{{ 'RULES.PHISHING.EXAMPLE' | translate }}:</strong> {{ 'RULES.PHISHING.SMS.EXAMPLE' | translate }}
         </div>
       </div>
 
       <div class="phishing-type">
-        <h4>📱 ზარის ფიშინგი (ვიშინგი)</h4>
-        <p>თაღლითები დაგირეკავენ და ბანკის/კომპანიის თანამშრომლად წარმოდგებიან.</p>
+        <h4>📱 {{ 'RULES.PHISHING.CALL.TITLE' | translate }}</h4>
+        <p>{{ 'RULES.PHISHING.CALL.DESCRIPTION' | translate }}</p>
         <div class="example-box">
-          <strong>მაგალითი:</strong> "გამარჯობა, ბანკიდან გირეკავთ. უსაფრთხოების მიზნით გთხოვთ შეამოწმოთ ბარათის მონაცემები..."
+          <strong>{{ 'RULES.PHISHING.EXAMPLE' | translate }}:</strong> {{ 'RULES.PHISHING.CALL.EXAMPLE' | translate }}
         </div>
       </div>
 
       <div class="phishing-type">
-        <h4>🌐 ყალბი ვებსაიტები</h4>
-        <p>ორიგინალის მსგავსი საიტები, რომლებიც იპარავენ თქვენს მონაცემებს.</p>
+        <h4>🌐 {{ 'RULES.PHISHING.FAKE_WEBSITES.TITLE' | translate }}</h4>
+        <p>{{ 'RULES.PHISHING.FAKE_WEBSITES.DESCRIPTION' | translate }}</p>
         <div class="example-box">
-          <strong>მაგალითი:</strong> www.bank-ge.com-ის ნაცვლად www.bаnk-ge.com (ლათინური "a"-ს ნაცვლად კირილიცის "а")
+          <strong>{{ 'RULES.PHISHING.EXAMPLE' | translate }}:</strong> {{ 'RULES.PHISHING.FAKE_WEBSITES.EXAMPLE' | translate }}
         </div>
       </div>
 
-      <h3>როგორ დაიცვათ თავი:</h3>
+      <h3>{{ 'RULES.PHISHING.PROTECTION_TITLE' | translate }}</h3>
       <div class="protection-tips">
         <div class="tip-item">
           <span class="tip-number">1</span>
           <div>
-            <strong>ყოველთვის შეამოწმეთ გამომგზავნის ავთენტურობა</strong>
-            <p>არ ენდოთ უცნობ ბმულებს, ელფოსტებს ან SMS-ებს</p>
+            <strong>{{ 'RULES.PHISHING.TIPS.TIP1.TITLE' | translate }}</strong>
+            <p>{{ 'RULES.PHISHING.TIPS.TIP1.DESCRIPTION' | translate }}</p>
           </div>
         </div>
         <div class="tip-item">
           <span class="tip-number">2</span>
           <div>
-            <strong>არ შეიყვანოთ პირადი მონაცემები ბმულიდან</strong>
-            <p>პირდაპირ შედით ოფიციალურ საიტზე ან აპლიკაციაში</p>
+            <strong>{{ 'RULES.PHISHING.TIPS.TIP2.TITLE' | translate }}</strong>
+            <p>{{ 'RULES.PHISHING.TIPS.TIP2.DESCRIPTION' | translate }}</p>
           </div>
         </div>
         <div class="tip-item">
           <span class="tip-number">3</span>
           <div>
-            <strong>გამოიყენეთ ძლიერი პაროლები</strong>
-            <p>სხვადასხვა სერვისისთვის სხვადასხვა პაროლი</p>
+            <strong>{{ 'RULES.PHISHING.TIPS.TIP3.TITLE' | translate }}</strong>
+            <p>{{ 'RULES.PHISHING.TIPS.TIP3.DESCRIPTION' | translate }}</p>
           </div>
         </div>
         <div class="tip-item">
           <span class="tip-number">4</span>
           <div>
-            <strong>ჩართეთ ორფაქტორიანი ავთენტიფიკაცია</strong>
-            <p>დამატებითი დაცვის ფენა თქვენი ანგარიშისთვის</p>
+            <strong>{{ 'RULES.PHISHING.TIPS.TIP4.TITLE' | translate }}</strong>
+            <p>{{ 'RULES.PHISHING.TIPS.TIP4.DESCRIPTION' | translate }}</p>
           </div>
         </div>
         <div class="tip-item">
           <span class="tip-number">5</span>
           <div>
-            <strong>რეგულარულად შეამოწმეთ ბანკის ოპერაციები</strong>
-            <p>დაუყოვნებლივ შეატყობინეთ ბანკს საეჭვო ტრანზაქციებზე</p>
+            <strong>{{ 'RULES.PHISHING.TIPS.TIP5.TITLE' | translate }}</strong>
+            <p>{{ 'RULES.PHISHING.TIPS.TIP5.DESCRIPTION' | translate }}</p>
           </div>
         </div>
       </div>
@@ -126,31 +127,31 @@
 
   <section class="rules-section">
     <div class="section-icon">📋</div>
-    <h2>ადმინისტრაციის პასუხისმგებლობა</h2>
+    <h2>{{ 'RULES.ADMIN_RESPONSIBILITY.TITLE' | translate }}</h2>
     <div class="content-card">
       <div class="disclaimer">
-        <h3>მნიშვნელოვანი განცხადება</h3>
+        <h3>{{ 'RULES.ADMIN_RESPONSIBILITY.DISCLAIMER_TITLE' | translate }}</h3>
         <p>
-          საიტის ადმინისტრაცია <strong>არ აგებს პასუხს</strong> შემდეგ შემთხვევებში:
+          {{ 'RULES.ADMIN_RESPONSIBILITY.DISCLAIMER_INTRO' | translate }}
         </p>
         <ul class="disclaimer-list">
-          <li>მომხმარებლის მიერ თავისი ანგარიშის მონაცემების სხვა პირისთვის გაზიარება</li>
-          <li>მესამე მხარის სერვისების (საბანკო სისტემები, გადახდის სერვისები) ტექნიკური შეფერხებები</li>
-          <li>მომხმარებლის მოწყობილობის უსაფრთხოების დაბალი დონე (ვირუსები, მავნე პროგრამები)</li>
-          <li>ფიშინგის ან სხვა სოციალური ინჟინერიის მეთოდით მოპოვებული მონაცემების გამოყენება</li>
-          <li>ინტერნეტ კავშირის არასტაბილურობა მომხმარებლის მხრიდან</li>
-          <li>მომხმარებლის მიერ პლატფორმის წესების დარღვევით გამოწვეული ზარალი</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.NOT_RESPONSIBLE.ITEM1' | translate }}</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.NOT_RESPONSIBLE.ITEM2' | translate }}</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.NOT_RESPONSIBLE.ITEM3' | translate }}</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.NOT_RESPONSIBLE.ITEM4' | translate }}</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.NOT_RESPONSIBLE.ITEM5' | translate }}</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.NOT_RESPONSIBLE.ITEM6' | translate }}</li>
         </ul>
       </div>
 
       <div class="responsibility-box">
-        <h3>რისთვის ვართ პასუხისმგებელნი:</h3>
+        <h3>{{ 'RULES.ADMIN_RESPONSIBILITY.RESPONSIBLE_TITLE' | translate }}</h3>
         <ul class="positive-list">
-          <li>პლატფორმის უსაფრთხო ფუნქციონირება</li>
-          <li>მონაცემთა დაშიფვრა და უსაფრთხო შენახვა</li>
-          <li>ტექნიკური მხარდაჭერის უზრუნველყოფა</li>
-          <li>პერსონალური მონაცემების კონფიდენციალურობა</li>
-          <li>პლატფორმის რეგულარული განახლება და მოვლა</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.RESPONSIBLE.ITEM1' | translate }}</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.RESPONSIBLE.ITEM2' | translate }}</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.RESPONSIBLE.ITEM3' | translate }}</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.RESPONSIBLE.ITEM4' | translate }}</li>
+          <li>{{ 'RULES.ADMIN_RESPONSIBILITY.RESPONSIBLE.ITEM5' | translate }}</li>
         </ul>
       </div>
     </div>
@@ -158,32 +159,31 @@
 
   <section class="rules-section">
     <div class="section-icon">📞</div>
-    <h2>კონტაქტი და მხარდაჭერა</h2>
+    <h2>{{ 'RULES.CONTACT.TITLE' | translate }}</h2>
     <div class="content-card">
       <p class="contact-text">
-        თუ შეამჩნევთ საეჭვო აქტივობას ან გაქვთ კითხვები უსაფრთხოებასთან დაკავშირებით, 
-        დაუყოვნებლივ დაგვიკავშირდით:
+        {{ 'RULES.CONTACT.TEXT' | translate }}
       </p>
       <div class="contact-methods">
         <div class="contact-item">
           <span class="contact-icon">📧</span>
           <div>
-            <strong>ელფოსტა:</strong>
+            <strong>{{ 'RULES.CONTACT.EMAIL' | translate }}:</strong>
             <p>mr.mishka3003&#64;gmail.com</p>
           </div>
         </div>
         <div class="contact-item">
           <span class="contact-icon">📱</span>
           <div>
-            <strong>ტელეფონი:</strong>
+            <strong>{{ 'RULES.CONTACT.PHONE' | translate }}:</strong>
             <p>+995 555 64 94 76</p>
           </div>
         </div>
         <div class="contact-item">
           <span class="contact-icon">🕐</span>
           <div>
-            <strong>სამუშაო საათები:</strong>
-            <p>ორშ-კვრ: 09:00 - 18:00</p>
+            <strong>{{ 'RULES.CONTACT.WORKING_HOURS' | translate }}:</strong>
+            <p>{{ 'RULES.CONTACT.SCHEDULE' | translate }}</p>
           </div>
         </div>
       </div>
@@ -191,7 +191,7 @@
   </section>
 
   <div class="rules-footer">
-    <p>ბოლო განახლება: {{ currentDate }}</p>
-    <p class="footer-warning">გახსოვდეთ: თქვენი უსაფრთხოება ჩვენი პრიორიტეტია! 🔐</p>
+    <p>{{ 'RULES.FOOTER.LAST_UPDATE' | translate }}: {{ currentDate }}</p>
+    <p class="footer-warning">{{ 'RULES.FOOTER.WARNING' | translate }} 🔐</p>
   </div>
 </div>

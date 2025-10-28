@@ -1,4 +1,4 @@
-// navbar.component.ts - WITH LANGUAGE SWITCHER
+// navbar.component.ts - WITH TRANSLATION SUPPORT
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
@@ -10,11 +10,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { MatIcon } from '@angular/material/icon';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { trigger, state, style, transition, animate } from '@angular/animations';
-import { TranslationService, Language } from '../services/translation.service';
-import { TranslatePipe } from '../pipes/translate.pipe';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LanguageService } from '../services/language.service';
 
 @Component({
   selector: 'app-navbar',
@@ -24,12 +23,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     RouterLink, 
     RouterLinkActive, 
     CommonModule, 
-    MatTooltipModule,
     FormsModule, 
     RouterModule, 
     MatIcon,
     MatSnackBarModule,
-    TranslatePipe
+    TranslateModule // ✅ დაამატეთ TranslateModule
   ],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
@@ -57,6 +55,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   profileImageUrl: string = 'https://i.ibb.co/GvshXkLK/307ce493-b254-4b2d-8ba4-d12c080d6651.jpg';
   
   unreadMessagesCount: number = 0;
+  currentLang: string = 'ka'; // ✅ Current language
   
   showNotification: boolean = false;
   notificationData: {
@@ -64,9 +63,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     message: string;
     avatar?: string;
   } | null = null;
-  
-  // ✅ Language properties
-  currentLanguage: Language = 'ka';
   
   private subscriptions = new Subscription();
   private notificationTimeout: any;
@@ -77,22 +73,21 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private socketService: SocketService,
     private router: Router,
-    public translationService: TranslationService
+    private snackBar: MatSnackBar,
+    private translate: TranslateService, // ✅ დაამატეთ
+    private languageService: LanguageService // ✅ დაამატეთ
   ) {
     console.log('🔔 Navbar constructor called');
   }
 
   ngOnInit(): void {
     console.log('🔔 Navbar ngOnInit started');
-    console.log('🌐 Initial language:', this.translationService.getCurrentLanguage());
     
     // ✅ Subscribe to language changes
-    const langSub = this.translationService.currentLang$.subscribe(lang => {
-      this.currentLanguage = lang;
-      console.log('🌐 Language changed in subscription to:', lang);
-      console.log('🔍 Testing translation:', this.translationService.translate('nav.home'));
+    const langSub = this.languageService.currentLang$.subscribe(lang => {
+      this.currentLang = lang;
+      console.log('🌍 Language changed to:', lang);
     });
-    this.subscriptions.add(langSub);
     
     // Profile image subscription
     const profileSub = this.profileImageService.profileImage$.subscribe(
@@ -126,69 +121,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
       this.profileImageUrl = savedImage;
     }
 
+    this.subscriptions.add(langSub);
     this.subscriptions.add(profileSub);
     this.subscriptions.add(authSub);
     
     console.log('✅ Navbar initialization complete');
   }
 
-  // ✅ Set specific language
-  setLanguage(lang: Language): void {
-    console.log('🔘 Language button clicked! Switching to:', lang);
-    console.log('📍 Current language before switch:', this.currentLanguage);
-    
-    this.translationService.setLanguage(lang);
-    
-    console.log('✅ Language set to:', lang);
-    console.log('📍 Current language after switch:', this.currentLanguage);
-    console.log('💾 LocalStorage language:', localStorage.getItem('preferredLanguage'));
-  }
-
-  // 🔬 SUPER DETAILED TEST METHOD
-  testLanguageChange(lang: Language): void {
-    console.log('═══════════════════════════════════════════');
-    console.log('🧪 TEST LANGUAGE CHANGE STARTED');
-    console.log('═══════════════════════════════════════════');
-    console.log('🎯 Target language:', lang);
-    console.log('📍 Current this.currentLanguage:', this.currentLanguage);
-    console.log('📍 Service getCurrentLanguage():', this.translationService.getCurrentLanguage());
-    console.log('💾 localStorage before:', localStorage.getItem('preferredLanguage'));
-    
-    console.log('---');
-    console.log('🔄 Calling translationService.setLanguage(' + lang + ')...');
-    this.translationService.setLanguage(lang);
-    
-    console.log('---');
-    console.log('✅ After setLanguage call:');
-    console.log('📍 Current this.currentLanguage:', this.currentLanguage);
-    console.log('📍 Service getCurrentLanguage():', this.translationService.getCurrentLanguage());
-    console.log('💾 localStorage after:', localStorage.getItem('preferredLanguage'));
-    
-    console.log('---');
-    console.log('🔤 Testing translations:');
-    console.log('  nav.home =', this.translationService.translate('nav.home'));
-    console.log('  nav.products =', this.translationService.translate('nav.products'));
-    console.log('  nav.contact =', this.translationService.translate('nav.contact'));
-    
-    console.log('---');
-    console.log('🔍 Checking subscriptions:');
-    console.log('  Subscriptions count:', this.subscriptions.closed ? 'CLOSED' : 'ACTIVE');
-    
-    console.log('═══════════════════════════════════════════');
-    console.log('🧪 TEST LANGUAGE CHANGE COMPLETED');
-    console.log('═══════════════════════════════════════════');
-    
-    // Force change detection
-    setTimeout(() => {
-      console.log('⏰ After 100ms timeout:');
-      console.log('📍 this.currentLanguage:', this.currentLanguage);
-      console.log('🔤 nav.home =', this.translationService.translate('nav.home'));
-    }, 100);
-  }
-
-  // 🐛 Debug method for template
-  getStorageLang(): string {
-    return localStorage.getItem('preferredLanguage') || 'none';
+  // ✅ Change Language Method
+  changeLanguage(lang: 'ka' | 'en'): void {
+    this.languageService.setLanguage(lang);
   }
 
   private connectToSocket(userId: string): void {
@@ -265,7 +207,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
           
           const senderName = typeof msg.senderId === 'object' && msg.senderId.name 
             ? msg.senderId.name 
-            : this.translationService.translate('msg.unknown');
+            : this.translate.instant('NOTIFICATIONS.UNKNOWN_USER');
           
           const senderAvatar = typeof msg.senderId === 'object' && msg.senderId.avatar
             ? msg.senderId.avatar
@@ -282,6 +224,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   showMessageNotification(senderName: string, message: string, avatar?: string): void {
+    console.log('🔔 Showing notification:', { senderName, message });
+    
     if (this.notificationTimeout) {
       clearTimeout(this.notificationTimeout);
     }
@@ -364,5 +308,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this.notificationTimeout) {
       clearTimeout(this.notificationTimeout);
     }
+    console.log('✅ Navbar cleanup complete');
   }
+  
 }

@@ -4,11 +4,18 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslateModule, TranslateService } from '@ngx-translate/core'; // ✅ დამატება
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, MatButtonModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    RouterModule, 
+    MatButtonModule,
+    TranslateModule // ✅ დამატება
+  ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -21,7 +28,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private translate: TranslateService // ✅ დამატება
   ) {
     this.registerForm = this.fb.group({
       name: ['', [Validators.required]],
@@ -57,10 +65,8 @@ export class RegisterComponent {
     this.isSubmitting = true;
     this.errorMessage = '';
     
-    // ამოვიღოთ ყველა მონაცემი ფორმიდან
     const { name, email, password, secondName, phone, dateOfBirth, personalNumber } = this.registerForm.value;
     
-    // შეიცვალა: გადავცემთ ყველა საჭირო მონაცემს
     this.authService.register({ 
       name, 
       email, 
@@ -72,16 +78,28 @@ export class RegisterComponent {
     }).subscribe({
       next: (response) => {
         this.isSubmitting = false;
-        this.successMessage = 'რეგისტრაცია წარმატებით დასრულდა. გთხოვთ შეამოწმოთ თქვენი ელფოსტა ვერიფიკაციისთვის.(გთხოვთ შეამოწმოთ იმეილის სპამი )';
+        // ✅ განახლებული თარგმანით
+        this.translate.get('REGISTER.SUCCESS_MESSAGE').subscribe(msg => {
+          this.successMessage = msg;
+        });
         this.registerForm.reset();
       },
       error: (error) => {
         this.isSubmitting = false;
-        this.errorMessage = error.error?.message || 'რეგისტრაციის დროს მოხდა შეცდომა. გთხოვთ სცადოთ მოგვიანებით.';
+        // ✅ განახლებული თარგმანით
+        const errorMsg = error.error?.message;
+        if (errorMsg) {
+          this.errorMessage = errorMsg;
+        } else {
+          this.translate.get('REGISTER.ERROR_MESSAGE').subscribe(msg => {
+            this.errorMessage = msg;
+          });
+        }
       }
     });
   }
+  
   openGmail() {
-  window.open('https://mail.google.com/', '_blank');
-}
+    window.open('https://mail.google.com/', '_blank');
+  }
 }

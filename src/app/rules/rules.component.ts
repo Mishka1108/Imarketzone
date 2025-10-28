@@ -1,15 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core'; // ✅ დამატება
 
 @Component({
   selector: 'app-rules',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule], // ✅ დამატება
   templateUrl: './rules.component.html',
   styleUrl: './rules.component.scss'
 })
 export class RulesComponent implements OnInit {
   currentDate: string = '';
+
+  constructor(private translate: TranslateService) {} // ✅ დამატება
 
   ngOnInit(): void {
     this.setCurrentDate();
@@ -23,7 +26,9 @@ export class RulesComponent implements OnInit {
       day: 'numeric'
     };
     
-    // Format date in Georgian
-    this.currentDate = now.toLocaleDateString('ka-GE', options);
+    // ✅ განახლებული: ენის მიხედვით თარიღის ფორმატი
+    const currentLang = this.translate.currentLang || 'ka';
+    const locale = currentLang === 'ka' ? 'ka-GE' : 'en-US';
+    this.currentDate = now.toLocaleDateString(locale, options);
   }
 }

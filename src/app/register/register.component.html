@@ -1,12 +1,13 @@
 <!-- src/app/components/auth/register/register.component.html -->
 <div class="register-container">
   <div class="register-form-box">
-    <h2>რეგისტრაცია</h2>
+    <h2>{{ 'REGISTER.TITLE' | translate }}</h2>
     
     <div *ngIf="successMessage" class="alert alert-success">
       {{ successMessage }}
-      <button class="btnlink"  mat-flat-button (click)="openGmail()" >ლინკზე გადასვლა</button>
-
+      <button class="btnlink" mat-flat-button (click)="openGmail()">
+        {{ 'REGISTER.OPEN_EMAIL' | translate }}
+      </button>
     </div>
     
     <div *ngIf="errorMessage" class="alert alert-danger">
@@ -15,7 +16,7 @@
     
     <form [formGroup]="registerForm" class="ngform" (ngSubmit)="onSubmit()">
       <div class="form-group">
-        <label for="name">სახელი</label>
+        <label for="name">{{ 'REGISTER.FIELDS.NAME' | translate }}</label>
         <input 
           type="text" 
           id="name" 
@@ -24,12 +25,12 @@
           [ngClass]="{'is-invalid': registerForm.get('name')?.invalid && registerForm.get('name')?.touched}"
         >
         <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="invalid-feedback">
-          სახელის შეყვანა სავალდებულოა
+          {{ 'REGISTER.VALIDATION.NAME_REQUIRED' | translate }}
         </div>
       </div>
 
       <div class="form-group">
-        <label for="name">გვარი</label>
+        <label for="secondName">{{ 'REGISTER.FIELDS.SURNAME' | translate }}</label>
         <input 
           type="text" 
           id="secondName" 
@@ -38,12 +39,12 @@
           [ngClass]="{'is-invalid': registerForm.get('secondName')?.invalid && registerForm.get('secondName')?.touched}"
         >
         <div *ngIf="registerForm.get('secondName')?.invalid && registerForm.get('secondName')?.touched" class="invalid-feedback">
-          გვარის შეყვანა სავალდებულოა
+          {{ 'REGISTER.VALIDATION.SURNAME_REQUIRED' | translate }}
         </div>
       </div>
       
       <div class="form-group">
-        <label for="name">ტელეფონის ნომერი</label>
+        <label for="phone">{{ 'REGISTER.FIELDS.PHONE' | translate }}</label>
         <input 
           type="number" 
           id="phone" 
@@ -52,12 +53,12 @@
           [ngClass]="{'is-invalid': registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched}"
         >
         <div *ngIf="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched" class="invalid-feedback">
-          ნომრის  შეყვანა სავალდებულოა
+          {{ 'REGISTER.VALIDATION.PHONE_REQUIRED' | translate }}
         </div>
       </div>
 
       <div class="form-group">
-        <label for="email">ელფოსტა</label>
+        <label for="email">{{ 'REGISTER.FIELDS.EMAIL' | translate }}</label>
         <input 
           type="email" 
           id="email" 
@@ -66,13 +67,17 @@
           [ngClass]="{'is-invalid': registerForm.get('email')?.invalid && registerForm.get('email')?.touched}"
         >
         <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="invalid-feedback">
-          <div *ngIf="registerForm.get('email')?.errors?.['required']">ელფოსტის შეყვანა სავალდებულოა</div>
-          <div *ngIf="registerForm.get('email')?.errors?.['email']">გთხოვთ შეიყვანოთ სწორი ფორმატის ელფოსტა</div>
+          <div *ngIf="registerForm.get('email')?.errors?.['required']">
+            {{ 'REGISTER.VALIDATION.EMAIL_REQUIRED' | translate }}
+          </div>
+          <div *ngIf="registerForm.get('email')?.errors?.['email']">
+            {{ 'REGISTER.VALIDATION.EMAIL_INVALID' | translate }}
+          </div>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="email">დაბადების დრო</label>
+        <label for="dateOfBirth">{{ 'REGISTER.FIELDS.DATE_OF_BIRTH' | translate }}</label>
         <input 
           type="date" 
           id="dateOfBirth" 
@@ -81,30 +86,36 @@
           [ngClass]="{'is-invalid': registerForm.get('dateOfBirth')?.invalid && registerForm.get('dateOfBirth')?.touched}"
         >
         <div *ngIf="registerForm.get('dateOfBirth')?.invalid && registerForm.get('dateOfBirth')?.touched" class="invalid-feedback">
-          <div *ngIf="registerForm.get('dateOfBirth')?.errors?.['required']">დაბადების დროის  შეყვანა სავალდებულოა</div>
-          <div *ngIf="registerForm.get('dateOfBirth')?.errors?.['dateOfBirth']">გთხოვთ შეიყვანოთ სწორი ფორმატის დაბადების დრო</div>
+          <div *ngIf="registerForm.get('dateOfBirth')?.errors?.['required']">
+            {{ 'REGISTER.VALIDATION.DATE_OF_BIRTH_REQUIRED' | translate }}
+          </div>
+          <div *ngIf="registerForm.get('dateOfBirth')?.errors?.['dateOfBirth']">
+            {{ 'REGISTER.VALIDATION.DATE_OF_BIRTH_INVALID' | translate }}
+          </div>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="personalNumber">პირადი ნომერი</label>
+        <label for="personalNumber">{{ 'REGISTER.FIELDS.PERSONAL_NUMBER' | translate }}</label>
         <input 
-  type="text" 
-  id="personalNumber" 
-  formControlName="personalNumber" 
-  class="form-control"
-  [ngClass]="{'is-invalid': registerForm.get('personalNumber')?.invalid && registerForm.get('personalNumber')?.touched}"
->
-
-        
+          type="text" 
+          id="personalNumber" 
+          formControlName="personalNumber" 
+          class="form-control"
+          [ngClass]="{'is-invalid': registerForm.get('personalNumber')?.invalid && registerForm.get('personalNumber')?.touched}"
+        >
         <div *ngIf="registerForm.get('personalNumber')?.invalid && registerForm.get('personalNumber')?.touched" class="invalid-feedback">
-          <div *ngIf="registerForm.get('personalNumber')?.errors?.['required']">პირადი ნომრის შეყვანა სავალდებულოა</div>
-          <div *ngIf="registerForm.get('personalNumber')?.errors?.['pattern']">გთხოვთ შეიყვანოთ სწორი ფორმატის პირადი ნომდერი</div>
+          <div *ngIf="registerForm.get('personalNumber')?.errors?.['required']">
+            {{ 'REGISTER.VALIDATION.PERSONAL_NUMBER_REQUIRED' | translate }}
+          </div>
+          <div *ngIf="registerForm.get('personalNumber')?.errors?.['pattern']">
+            {{ 'REGISTER.VALIDATION.PERSONAL_NUMBER_INVALID' | translate }}
+          </div>
         </div>
       </div>
       
       <div class="form-group">
-        <label for="password">პაროლი</label>
+        <label for="password">{{ 'REGISTER.FIELDS.PASSWORD' | translate }}</label>
         <input 
           type="password" 
           id="password" 
@@ -113,13 +124,17 @@
           [ngClass]="{'is-invalid': registerForm.get('password')?.invalid && registerForm.get('password')?.touched}"
         >
         <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="invalid-feedback">
-          <div *ngIf="registerForm.get('password')?.errors?.['required']">პაროლის შეყვანა სავალდებულოა</div>
-          <div *ngIf="registerForm.get('password')?.errors?.['minlength']">პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს</div>
+          <div *ngIf="registerForm.get('password')?.errors?.['required']">
+            {{ 'REGISTER.VALIDATION.PASSWORD_REQUIRED' | translate }}
+          </div>
+          <div *ngIf="registerForm.get('password')?.errors?.['minlength']">
+            {{ 'REGISTER.VALIDATION.PASSWORD_MIN_LENGTH' | translate }}
+          </div>
         </div>
       </div>
       
       <div class="form-group">
-        <label for="confirmPassword">გაიმეორეთ პაროლი</label>
+        <label for="confirmPassword">{{ 'REGISTER.FIELDS.CONFIRM_PASSWORD' | translate }}</label>
         <input 
           type="password" 
           id="confirmPassword" 
@@ -128,8 +143,12 @@
           [ngClass]="{'is-invalid': registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched}"
         >
         <div *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched" class="invalid-feedback">
-          <div *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">პაროლის გამეორება სავალდებულოა</div>
-          <div *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">პაროლები არ ემთხვევა</div>
+          <div *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">
+            {{ 'REGISTER.VALIDATION.CONFIRM_PASSWORD_REQUIRED' | translate }}
+          </div>
+          <div *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">
+            {{ 'REGISTER.VALIDATION.PASSWORD_MISMATCH' | translate }}
+          </div>
         </div>
       </div>
       
@@ -139,13 +158,14 @@
           class="btn btn-primary" 
           [disabled]="registerForm.invalid || isSubmitting"
         >
-          <span *ngIf="isSubmitting">მიმდინარეობს რეგისტრაცია...</span>
-          <span *ngIf="!isSubmitting">რეგისტრაცია</span>
+          <span *ngIf="isSubmitting">{{ 'REGISTER.SUBMITTING' | translate }}</span>
+          <span *ngIf="!isSubmitting">{{ 'REGISTER.SUBMIT_BUTTON' | translate }}</span>
         </button>
       </div>
       
       <div class="form-footer">
-        უკვე გაქვთ ანგარიში? <a routerLink="/auth/login">შესვლა</a>
+        {{ 'REGISTER.ALREADY_HAVE_ACCOUNT' | translate }} 
+        <a routerLink="/auth/login">{{ 'REGISTER.LOGIN_LINK' | translate }}</a>
       </div>
     </form>
   </div>

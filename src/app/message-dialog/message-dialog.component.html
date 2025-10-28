@@ -3,7 +3,7 @@
   <div class="dialog-header">
     <div class="user-info">
       <img [src]="getReceiverAvatar()" 
-           alt="avatar" 
+           [alt]="'MESSAGE_DIALOG.AVATAR' | translate" 
            class="avatar"
            (error)="onAvatarError($event)">
            
@@ -19,7 +19,7 @@
             <span></span>
             <span></span>
           </span>
-          იწერს...
+          {{ 'MESSAGE_DIALOG.TYPING' | translate }}
         </p>
       </div>
     </div>
@@ -32,13 +32,13 @@
   <div class="messages-container" [class.loading]="isLoading">
     <div *ngIf="isLoading" class="loading-spinner">
       <mat-spinner diameter="40"></mat-spinner>
-      <p>იტვირთება...</p>
+      <p>{{ 'MESSAGE_DIALOG.LOADING' | translate }}</p>
     </div>
 
     <div *ngIf="!isLoading && messages.length === 0" class="no-messages">
       <mat-icon>chat_bubble_outline</mat-icon>
-      <p>ჯერ არ გაქვთ შეტყობინებები</p>
-      <small>დაწერეთ პირველი შეტყობინება</small>
+      <p>{{ 'MESSAGE_DIALOG.NO_MESSAGES' | translate }}</p>
+      <small>{{ 'MESSAGE_DIALOG.WRITE_FIRST_MESSAGE' | translate }}</small>
     </div>
 
     <div *ngIf="!isLoading && messages.length > 0" class="messages-list">
@@ -65,7 +65,7 @@
                 [(ngModel)]="newMessage"
                 (ngModelChange)="onMessageInput()"
                 (keypress)="onKeyPress($event)"
-                placeholder="შეტყობინების დაწერა..."
+                [placeholder]="'MESSAGE_DIALOG.PLACEHOLDER' | translate"
                 rows="1"
                 [disabled]="isSending"></textarea>
     </mat-form-field>

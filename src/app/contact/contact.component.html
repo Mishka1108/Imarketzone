@@ -1,11 +1,11 @@
 <div class="contact">
   <div class="contactinfo">
-      <h1>Contact Us</h1>
+      <h1>{{ 'CONTACT.TITLE' | translate }}</h1>
       
       <!-- წარმატების შეტყობინება -->
       <div *ngIf="formSubmitted" class="success-message">
           <mat-icon>check_circle</mat-icon>
-          <p>თქვენი შეტყობინება წარმატებით გაიგზავნა!</p>
+          <p>{{ 'CONTACT.SUCCESS.TITLE' | translate }}</p>
       </div>
       
       <!-- შეცდომის შეტყობინება -->
@@ -16,29 +16,29 @@
       
       <form class="example-form" (ngSubmit)="onSubmit()">
           <mat-form-field class="example-full-width">
-              <mat-label>სახელი გვარი</mat-label>
+              <mat-label>{{ 'CONTACT.FORM.NAME_LABEL' | translate }}</mat-label>
               <input matInput placeholder="" [(ngModel)]="contactForm.name" name="name" required>
           </mat-form-field>
 
           <mat-form-field class="example-full-width">
-              <mat-label>ელექტრონული ფოსტა</mat-label>
+              <mat-label>{{ 'CONTACT.FORM.EMAIL_LABEL' | translate }}</mat-label>
               <input matInput placeholder="" [(ngModel)]="contactForm.email" name="email" required type="email">
           </mat-form-field>
         
           <mat-form-field class="example-full-width">
-              <mat-label>დაგვიტოვე კომენტარი</mat-label>
-              <textarea matInput placeholder="თქვენი შეტყობინება..." [(ngModel)]="contactForm.message" name="message" required></textarea>
+              <mat-label>{{ 'CONTACT.FORM.MESSAGE_LABEL' | translate }}</mat-label>
+              <textarea matInput [placeholder]="'CONTACT.FORM.MESSAGE_PLACEHOLDER' | translate" [(ngModel)]="contactForm.message" name="message" required></textarea>
           </mat-form-field>
           
-          <button mat-raised-button color="primary" type="submit" [disabled]="loading" class="btn" >
-              <span *ngIf="!loading">გაგზავნა</span>
-              <span *ngIf="loading">იგზავნება...</span>
+          <button mat-raised-button color="primary" type="submit" [disabled]="loading" class="btn">
+              <span *ngIf="!loading">{{ 'CONTACT.FORM.SUBMIT_BUTTON' | translate }}</span>
+              <span *ngIf="loading">{{ 'CONTACT.FORM.SUBMITTING' | translate }}</span>
           </button>
       </form>
   </div>
   
   <div class="contactadress">
-      <p><mat-icon>phone</mat-icon>+995555649476</p>
-      <p><mat-icon>email</mat-icon>mr.mishka3003&#64;gmail.com</p>
+      <p><mat-icon>phone</mat-icon>{{ 'CONTACT.INFO.PHONE' | translate }}</p>
+      <p><mat-icon>email</mat-icon>{{ 'CONTACT.INFO.EMAIL' | translate }}</p>
   </div>
 </div>

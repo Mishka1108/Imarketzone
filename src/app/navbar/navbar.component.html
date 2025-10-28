@@ -1,4 +1,4 @@
-<!-- navbar.component.html - BEAUTIFUL CIRCULAR PROFILE WITH BADGE -->
+<!-- navbar.component.html - WITH TRANSLATION -->
 
 <div class="nav">
   <div class="navmenu">
@@ -20,55 +20,48 @@
             routerLinkActive="active" 
             (click)="closeMenu()" 
             routerLink="home">
-      {{ 'nav.home' | translate }}
+      {{ 'NAV.HOME' | translate }}
     </button>
     <button mat-raised-button 
             class="btn" 
             routerLinkActive="active" 
             (click)="closeMenu()" 
             routerLink="public-products">
-      {{ 'nav.products' | translate }}
+      {{ 'NAV.PRODUCTS' | translate }}
     </button>
     <button mat-raised-button 
             class="btn" 
             routerLinkActive="active" 
             (click)="closeMenu()" 
             routerLink="contact">
-      {{ 'nav.contact' | translate }}
+      {{ 'NAV.CONTACT' | translate }}
     </button>
     <button mat-raised-button 
             class="btn" 
             routerLinkActive="active" 
             (click)="closeMenu()" 
             routerLink="rules">
-      {{ 'nav.rules' | translate }}
+      {{ 'NAV.RULES' | translate }}
     </button>
   </div>
 
-  <!-- ✅ LANGUAGE SELECTOR BUTTONS -->
-  <div class="language-selector">
+  <!-- ✨ BEAUTIFUL LANGUAGE TRANSLATOR -->
+  <div class="translator">
     <button 
-      (click)="testLanguageChange('en')" 
-      [class.active]="currentLanguage === 'en'"
-      [style.background]="currentLanguage === 'en' ? 'green' : 'gray'"
-      [style.color]="'white'"
-      [style.padding]="'10px'"
-      type="button">
-      Eng [{{currentLanguage === 'en' ? '✓' : '✗'}}]
+      [class.active]="currentLang === 'ka'"
+      (click)="changeLanguage('ka')"
+      [attr.aria-label]="'Switch to Georgian'">
+      ქარ
     </button>
     <button 
-      (click)="testLanguageChange('ka')" 
-      [class.active]="currentLanguage === 'ka'"
-      [style.background]="currentLanguage === 'ka' ? 'green' : 'gray'"
-      [style.color]="'white'"
-      [style.padding]="'10px'"
-      type="button">
-      Geo [{{currentLanguage === 'ka' ? '✓' : '✗'}}]
+      [class.active]="currentLang === 'en'"
+      (click)="changeLanguage('en')"
+      [attr.aria-label]="'Switch to English'">
+      Eng
     </button>
   </div>
 
-
-  <!-- ✨ PERFECT CIRCULAR PROFILE IMAGE WITH BEAUTIFUL BADGE -->
+  <!-- ✨ PROFILE WITH BADGE -->
   <div class="profile-container">
     <div class="profile-wrapper">
       <img 
@@ -76,9 +69,10 @@
         class="profileimg" 
         (click)="closeMenu(); onProfileImageClick()" 
         alt="Profile"
-        [title]="unreadMessagesCount > 0 ? unreadMessagesCount + ' ' + ('msg.unread' | translate) : ('profile.profile' | translate)">
+        [title]="unreadMessagesCount > 0 
+          ? unreadMessagesCount + ' ' + ('NAV.UNREAD_MESSAGES' | translate) 
+          : ('NAV.PROFILE' | translate)">
       
-      <!-- Custom Beautiful Badge -->
       <div class="custom-badge" *ngIf="unreadMessagesCount > 0">
         {{ unreadMessagesCount > 99 ? '99+' : unreadMessagesCount }}
       </div>
@@ -94,40 +88,36 @@
   (click)="onNotificationClick()">
   
   <div class="notification-content">
-    <!-- Close Button -->
     <button 
       class="close-btn" 
       (click)="hideNotification(); $event.stopPropagation()" 
-      [attr.aria-label]="'common.close' | translate"
-      [title]="'common.close' | translate">
+      [attr.aria-label]="'NOTIFICATIONS.CLOSE' | translate"
+      [title]="'NOTIFICATIONS.CLOSE' | translate">
       <mat-icon>close</mat-icon>
     </button>
     
-    <!-- Notification Header -->
     <div class="notification-header">
       <img 
         [src]="notificationData.avatar" 
-        [alt]="'profile.avatar' | translate" 
+        [alt]="'User avatar'" 
         class="notification-avatar"
         (error)="onImageError($event)">
       
       <div class="notification-info">
         <div class="notification-title">
           <mat-icon class="message-icon">mail</mat-icon>
-          <span>{{ 'msg.newMessage' | translate }}</span>
+          <span>{{ 'NOTIFICATIONS.NEW_MESSAGE' | translate }}</span>
         </div>
         <div class="sender-name">{{ notificationData.senderName }}</div>
       </div>
     </div>
     
-    <!-- Message Content -->
     <div class="notification-message">
       {{ notificationData.message }}
     </div>
     
-    <!-- Action Hint -->
     <div class="notification-action">
-      <small>{{ 'msg.clickToReply' | translate }}</small>
+      <small>{{ 'NOTIFICATIONS.CLICK_TO_REPLY' | translate }}</small>
     </div>
   </div>
 </div>

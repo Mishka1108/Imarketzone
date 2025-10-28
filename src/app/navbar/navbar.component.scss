@@ -1,13 +1,114 @@
-// 🚀 ULTRA PREMIUM NAVBAR - NEXT LEVEL DESIGN 🚀
+.translator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  flex-wrap: wrap;
 
-// ===========================
-// 💎 LUXURY NAVBAR WITH 3D EFFECTS
-// ===========================
-.language-selector button.active {
-  background-color: #007bff;
-  color: white;
-  font-weight: bold;
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  button {
+    flex: 1 1 auto;
+    min-width: 55px;
+    padding: 7px 14px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.75);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-1px);
+
+      &::before {
+        width: 120px;
+        height: 120px;
+      }
+    }
+
+    &.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+      transform: scale(1.05);
+
+      &:hover {
+        transform: scale(1.08);
+        box-shadow: 0 6px 18px rgba(102, 126, 234, 0.5);
+      }
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &:focus-visible {
+      outline: 2px solid rgba(102, 126, 234, 0.6);
+      outline-offset: 2px;
+    }
+  }
 }
+
+/* 📱 Tablet */
+@media (max-width: 768px) {
+  .translator {
+    padding: 4px;
+    gap: 4px;
+    border-radius: 10px;
+  }
+
+  .translator button {
+    font-size: 13px;
+    padding: 6px 10px;
+    min-width: 50px;
+  }
+}
+
+/* 📱 Mobile */
+@media (max-width: 480px) {
+  .translator {
+    padding: 3px;
+    gap: 3px;
+  }
+
+  .translator button {
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    min-width: 45px;
+    font-weight: 500;
+  }
+}
+
 .nav {
   position: fixed;
   top: 0;

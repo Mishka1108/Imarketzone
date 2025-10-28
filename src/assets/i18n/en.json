@@ -1,0 +1,537 @@
+{
+  "NAV": {
+    "HOME": "Home",
+    "PRODUCTS": "Products",
+    "CONTACT": "Contact",
+    "RULES": "Rules",
+    "PROFILE": "Profile",
+    "UNREAD_MESSAGES": "Unread Messages"
+  },
+  "NOTIFICATIONS": {
+    "NEW_MESSAGE": "New Message",
+    "CLICK_TO_REPLY": "Click to reply",
+    "CLOSE": "Close",
+    "UNKNOWN_USER": "Unknown User"
+  },
+  
+  "HOME": {
+    "HERO": {
+      "BUY_SELL": "Buy and Sell",
+      "EASILY": "Easily!",
+      "DESCRIPTION": "The best online marketplace where you can buy and sell any products",
+      "START_NOW": "Start Now"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "What are you looking for?",
+      "LOADING": "Loading...",
+      "BY_CATEGORY": "Search by category",
+      "FOUND_PRODUCTS": "Found Products",
+      "NO_RESULTS": "No products found",
+      "DETAILS": "Details"
+    },
+    "POPULAR_PRODUCTS": {
+      "TITLE": "Popular Products",
+      "VIEWS": "views",
+      "VIEW_PRODUCT": "View Product",
+      "LARI": "GEL"
+    },
+    "CATEGORIES": {
+      "TITLE": "Popular Categories",
+      "PHONES": { "NAME": "Phones", "DESC": "iPhone, Samsung, Xiaomi and more" },
+      "TECH": { "NAME": "Electronics", "DESC": "Laptops, TVs, Audio" },
+      "CARS": { "NAME": "Cars", "DESC": "New and used vehicles" },
+      "CLOTHING": { "NAME": "Clothing", "DESC": "Fashion for everyone" },
+      "TOYS": { "NAME": "Toys", "DESC": "For kids and adults" },
+      "COMPUTERS": { "NAME": "Computers", "DESC": "PC, Mac, accessories" }
+    },
+    "SELL_SECTION": {
+      "FREE": "🚀 Sell Easily — For Free!",
+      "FEATURE_1": "🔹Post your first 5 products completely free",
+      "FEATURE_2": "🔹Quick registration",
+      "FEATURE_3": "🔹Upload photos, description and start selling in seconds",
+      "FEATURE_4": "🔹Electronics, toys, clothing, cars and more!",
+      "START_TODAY": "🔹Start Today!"
+    },
+    "WHY_US": {
+      "TITLE": "🌟 Why Us?",
+      "FREE_REG": "✅ Free registration",
+      "EASY_FIND": "✅ Find buyers or sellers easily",
+      "USER_ORIENTED": "✅ User-oriented service",
+      "MODERN": "✅ Modern design and fast performance"
+    }
+  },
+  "SEO": {
+    "PAGE_TITLE": "iMarketZone - Buy & Sell in Georgia",
+    "PAGE_DESCRIPTION": "Georgia's #1 online marketplace",
+    "KEYWORDS": "buy sell, online shop, marketplace"
+  },
+  "CONTACT": {
+    "TITLE": "Contact Us",
+    "FORM": {
+      "NAME_LABEL": "Full Name",
+      "EMAIL_LABEL": "Email Address",
+      "MESSAGE_LABEL": "Leave us a message",
+      "MESSAGE_PLACEHOLDER": "Your message...",
+      "SUBMIT_BUTTON": "Send",
+      "SUBMITTING": "Sending..."
+    },
+    "SUCCESS": {
+      "TITLE": "Your message has been sent successfully!",
+      "MESSAGE": "Message sent successfully!"
+    },
+    "ERROR": {
+      "REQUIRED_FIELDS": "Please fill in all required fields",
+      "SEND_FAILED": "Error sending message. Please try again later."
+    },
+    "INFO": {
+      "PHONE": "+995555649476",
+      "EMAIL": "mr.mishka3003@gmail.com"
+    }
+  },
+  "FOOTER": {
+    "ABOUT": {
+      "TITLE": "About Us 🌟",
+      "DESCRIPTION": "Our platform offers a simple and secure way for buying and selling. Discover thousands of products and find exactly what you need."
+    },
+    "LINKS": {
+      "TITLE": "Quick Links 🚀",
+      "HOME": "🏠 Home",
+      "PRODUCTS": "📦 Products",
+      "CONTACT": "📞 Contact"
+    },
+    "CONTACT": {
+      "TITLE": "Contact 📱",
+      "PHONE": "+995 555 649 476",
+      "EMAIL": "mr.mishka3003@gmail.com"
+    },
+    "BOTTOM": {
+      "COPYRIGHT": "© {{year}} All rights reserved ✨",
+      "CREATED_BY": "Created with ❤️ by Mishiko Chochia"
+    }
+  },
+   "FORGOT_PASSWORD": {
+    "TITLE": "Password Recovery",
+    "SUBTITLE": "Enter your email to recover your password",
+    "FORM": {
+      "EMAIL_LABEL": "Email",
+      "EMAIL_PLACEHOLDER": "e.g: user@example.com",
+      "SUBMIT_BUTTON": "Send Recovery Link",
+      "SUBMITTING": "Sending...",
+      "BACK_TO_LOGIN": "← Back to Login"
+    },
+    "VALIDATION": {
+      "EMAIL_REQUIRED": "Email is required",
+      "EMAIL_INVALID": "Please enter a valid email",
+      "EMAIL_EMPTY": "Please enter your email"
+    },
+    "MESSAGES": {
+      "ERROR_OCCURRED": "An error occurred. Please try again"
+    }
+  },
+   "LOGIN": {
+    "TITLE": "Authorization",
+    "FORM": {
+      "EMAIL_LABEL": "Email",
+      "PASSWORD_LABEL": "Password",
+      "SUBMIT_BUTTON": "Sign In",
+      "SUBMITTING": "Signing in...",
+      "FORGOT_PASSWORD": "Forgot password?",
+      "NO_ACCOUNT": "Don't have an account?",
+      "REGISTER_LINK": "Register"
+    },
+    "VALIDATION": {
+      "EMAIL_REQUIRED": "Email is required",
+      "EMAIL_INVALID": "Please enter a valid email format",
+      "PASSWORD_REQUIRED": "Password is required"
+    },
+    "ERRORS": {
+      "LOGIN_FAILED": "An error occurred during authorization"
+    }
+  },
+    "PRODUCT_DETAILS": {
+    "PAGE_TITLE": "Product Details",
+    "LOADING": "Loading product details...",
+    "LOADING_SHORT": "Loading...",
+    "IMAGE": "Image",
+    
+    "ERROR": {
+      "TITLE": "Error"
+    },
+    
+    "ACTIONS": {
+      "GO_BACK": "Go Back",
+      "CALL": "Call",
+      "EMAIL": "Email",
+      "SHARE": "Share"
+    },
+    
+    "SEND_MESSAGE": "Send Message",
+    
+    "BASIC_INFO_TITLE": "Basic Information",
+    "DESCRIPTION_TITLE": "Description",
+    "SELLER_INFO_TITLE": "Seller Information",
+    
+    "SELLER_NAME": "Name",
+    "SELLER_PHONE": "Phone",
+    "SELLER_EMAIL": "Email",
+    
+    "VIEWS": {
+      "LABEL": "views",
+      "TODAY": "Today",
+      "WEEK": "This Week",
+      "MONTH": "This Month"
+    },
+    
+    "INFO": {
+      "NOT_SPECIFIED": "Not specified"
+    },
+    
+    "NOTIFICATIONS": {
+      "EMAIL_NOT_AVAILABLE": "Email is not available",
+      "EMAIL_OPENED": "Email client opened",
+      "EMAIL_ERROR": "Failed to send email",
+      "PHONE_NOT_AVAILABLE": "Phone number is not available",
+      "PHONE_OPENED": "Phone application opened",
+      "PHONE_ERROR": "Failed to make call",
+      "SHARED": "Product shared successfully",
+      "LINK_COPIED": "Link copied to clipboard",
+      "FACEBOOK_OPENED": "Facebook share opened",
+      "LOGIN_REQUIRED": "Please log in to send a message",
+      "OWN_PRODUCT": "You cannot message your own product",
+      "SELLER_INFO_NOT_AVAILABLE": "Seller information is not available",
+      "CLOSE": "Close"
+    },
+    
+    "EMAIL_TEMPLATE": {
+      "SUBJECT": "Interest in product: {{title}}",
+      "BODY": "Hello,\n\nI am interested in your product:\n{{title}}\nPrice: {{price}}\n\nPlease contact me for more information.\n\nThank you!"
+    },
+    
+    "SHARE_TEXT": "Check out this product: {{title}}{{views}}"
+  },
+    "PUBLIC_PRODUCTS": {
+    "TITLE": "All Products",
+    "LOADING": "Loading products...",
+    "NO_PRODUCTS": "No products found or none added",
+    "VIEWS": "views",
+    "CLOSE": "Close",
+    "VIEW_SUFFIX_THOUSAND": "K",
+    "VIEW_SUFFIX_MILLION": "M",
+    
+    "FILTERS": {
+      "SEARCH": "Search",
+      "CLEAR": "Clear",
+      "CATEGORY": "Category",
+      "ALL_CATEGORIES": "All Categories",
+      "CITY": "City",
+      "ALL_CITIES": "All Cities",
+      "MIN_PRICE": "Price (Min)",
+      "MAX_PRICE": "Price (Max)"
+    },
+    
+    "ACTIONS": {
+      "SEARCH": "Search",
+      "RESET": "Reset"
+    },
+    
+    "ERRORS": {
+      "LOAD_FAILED": "Failed to load products",
+      "PRODUCT_ID_NOT_FOUND": "Product ID not found"
+    }
+  },
+   "REGISTER": {
+    "TITLE": "Registration",
+    "OPEN_EMAIL": "Open Email",
+    
+    "FIELDS": {
+      "NAME": "First Name",
+      "SURNAME": "Last Name",
+      "PHONE": "Phone Number",
+      "EMAIL": "Email",
+      "DATE_OF_BIRTH": "Date of Birth",
+      "PERSONAL_NUMBER": "Personal Number",
+      "PASSWORD": "Password",
+      "CONFIRM_PASSWORD": "Confirm Password"
+    },
+    
+    "VALIDATION": {
+      "NAME_REQUIRED": "First name is required",
+      "SURNAME_REQUIRED": "Last name is required",
+      "PHONE_REQUIRED": "Phone number is required",
+      "EMAIL_REQUIRED": "Email is required",
+      "EMAIL_INVALID": "Please enter a valid email address",
+      "DATE_OF_BIRTH_REQUIRED": "Date of birth is required",
+      "DATE_OF_BIRTH_INVALID": "Please enter a valid date of birth",
+      "PERSONAL_NUMBER_REQUIRED": "Personal number is required",
+      "PERSONAL_NUMBER_INVALID": "Please enter a valid personal number",
+      "PASSWORD_REQUIRED": "Password is required",
+      "PASSWORD_MIN_LENGTH": "Password must contain at least 6 characters",
+      "CONFIRM_PASSWORD_REQUIRED": "Password confirmation is required",
+      "PASSWORD_MISMATCH": "Passwords do not match"
+    },
+    
+    "SUBMITTING": "Registration in progress...",
+    "SUBMIT_BUTTON": "Register",
+    "ALREADY_HAVE_ACCOUNT": "Already have an account?",
+    "LOGIN_LINK": "Sign In",
+    
+    "SUCCESS_MESSAGE": "Registration successful. Please check your email for verification. (Please check your spam folder)",
+    "ERROR_MESSAGE": "An error occurred during registration. Please try again later."
+  },
+    "RESET_PASSWORD": {
+    "TITLE": "Set New Password",
+    "SUBTITLE": "Enter a new secure password",
+    
+    "FIELDS": {
+      "NEW_PASSWORD": "New Password",
+      "CONFIRM_PASSWORD": "Confirm Password"
+    },
+    
+    "PLACEHOLDERS": {
+      "MIN_6_CHARS": "Minimum 6 characters",
+      "REPEAT_PASSWORD": "Repeat password"
+    },
+    
+    "VALIDATION": {
+      "PASSWORD_MIN_LENGTH": "Password must contain at least 6 characters",
+      "PASSWORD_MISMATCH": "Passwords do not match"
+    },
+    
+    "SAVING": "Saving...",
+    "SAVE_PASSWORD": "Save Password",
+    "BACK_TO_LOGIN": "Back to Login",
+    
+    "ERRORS": {
+      "INVALID_LINK": "Invalid link",
+      "GENERAL_ERROR": "An error occurred. Please try again"
+    }
+  },
+  "RULES": {
+    "HEADER": {
+      "TITLE": "Terms and Conditions",
+      "SUBTITLE": "Please carefully read the terms of use of our platform"
+    },
+    
+    "SECURITY": {
+      "TITLE": "Security Rules",
+      "CARD_PROTECTION": "Protecting Your Card Information",
+      "IMPORTANT": "Important",
+      "WARNING": "Never share your bank card information!",
+      
+      "NEVER_SHARE": {
+        "TITLE": "Never share",
+        "CARD_NUMBER": "Card number (16 digits)",
+        "CVV": "CVV/CVC code (3 digits on the back of the card)",
+        "EXPIRY": "Card expiration date",
+        "SMS_CODE": "Verification codes received via SMS",
+        "PIN": "PIN code"
+      },
+      
+      "SAFE_PAYMENT": {
+        "TITLE": "Safe Payment",
+        "OFFICIAL_SYSTEMS": "Use only official payment systems",
+        "CHECK_HTTPS": "Check for https:// website security",
+        "CHECK_URL": "Always verify the URL address when making payments"
+      }
+    },
+    
+    "PHISHING": {
+      "TITLE": "What is Phishing and How to Protect Yourself",
+      "INTRO": "Phishing is a fraudulent method where cybercriminals attempt to obtain your personal information, banking details, or passwords.",
+      "TYPES_TITLE": "Main Types of Phishing:",
+      "EXAMPLE": "Example",
+      
+      "EMAIL": {
+        "TITLE": "Email Phishing",
+        "DESCRIPTION": "Fake emails sent on behalf of banks, companies, or services.",
+        "EXAMPLE": "Your account has been blocked, please enter your information immediately..."
+      },
+      
+      "SMS": {
+        "TITLE": "SMS Phishing (Smishing)",
+        "DESCRIPTION": "Fraudulent SMS messages requesting your information.",
+        "EXAMPLE": "You've won a prize! Click the link and enter your card details..."
+      },
+      
+      "CALL": {
+        "TITLE": "Phone Phishing (Vishing)",
+        "DESCRIPTION": "Fraudsters call you pretending to be bank/company employees.",
+        "EXAMPLE": "Hello, this is your bank calling. For security purposes, please verify your card information..."
+      },
+      
+      "FAKE_WEBSITES": {
+        "TITLE": "Fake Websites",
+        "DESCRIPTION": "Sites resembling originals that steal your information.",
+        "EXAMPLE": "www.bаnk-ge.com instead of www.bank-ge.com (Cyrillic 'а' instead of Latin 'a')"
+      },
+      
+      "PROTECTION_TITLE": "How to Protect Yourself:",
+      
+      "TIPS": {
+        "TIP1": {
+          "TITLE": "Always verify sender authenticity",
+          "DESCRIPTION": "Don't trust unknown links, emails, or SMS messages"
+        },
+        "TIP2": {
+          "TITLE": "Don't enter personal information from links",
+          "DESCRIPTION": "Go directly to the official website or app"
+        },
+        "TIP3": {
+          "TITLE": "Use strong passwords",
+          "DESCRIPTION": "Different passwords for different services"
+        },
+        "TIP4": {
+          "TITLE": "Enable two-factor authentication",
+          "DESCRIPTION": "An additional layer of protection for your account"
+        },
+        "TIP5": {
+          "TITLE": "Regularly check bank transactions",
+          "DESCRIPTION": "Immediately report suspicious transactions to your bank"
+        }
+      }
+    },
+    
+    "ADMIN_RESPONSIBILITY": {
+      "TITLE": "Administration Responsibility",
+      "DISCLAIMER_TITLE": "Important Notice",
+      "DISCLAIMER_INTRO": "Site administration is not responsible in the following cases:",
+      
+      "NOT_RESPONSIBLE": {
+        "ITEM1": "User sharing their account information with other persons",
+        "ITEM2": "Technical disruptions of third-party services (banking systems, payment services)",
+        "ITEM3": "Low security level of user's device (viruses, malware)",
+        "ITEM4": "Use of information obtained through phishing or other social engineering methods",
+        "ITEM5": "Internet connection instability on the user's side",
+        "ITEM6": "Damage caused by user's violation of platform rules"
+      },
+      
+      "RESPONSIBLE_TITLE": "What we are responsible for:",
+      
+      "RESPONSIBLE": {
+        "ITEM1": "Safe operation of the platform",
+        "ITEM2": "Data encryption and secure storage",
+        "ITEM3": "Providing technical support",
+        "ITEM4": "Confidentiality of personal data",
+        "ITEM5": "Regular platform updates and maintenance"
+      }
+    },
+    
+    "CONTACT": {
+      "TITLE": "Contact and Support",
+      "TEXT": "If you notice suspicious activity or have questions about security, please contact us immediately:",
+      "EMAIL": "Email",
+      "PHONE": "Phone",
+      "WORKING_HOURS": "Working Hours",
+      "SCHEDULE": "Mon-Fri: 09:00 - 18:00"
+    },
+    
+    "FOOTER": {
+      "LAST_UPDATE": "Last updated",
+      "WARNING": "Remember: Your security is our priority!"
+    }
+  },
+    "MESSAGE_DIALOG": {
+    "AVATAR": "avatar",
+    "TYPING": "typing...",
+    "LOADING": "Loading...",
+    "NO_MESSAGES": "No messages yet",
+    "WRITE_FIRST_MESSAGE": "Write the first message",
+    "PLACEHOLDER": "Write a message..."
+  },
+   "MESSAGES_MODAL": {
+    "TITLE": "Messages",
+    "CONVERSATIONS": "Conversations",
+    "LOADING": "Loading...",
+    "NO_CONVERSATIONS": "No conversations",
+    "SEND_FROM_PRODUCT": "Send a new message from the product page",
+    "AVATAR": "avatar",
+    "UNKNOWN_USER": "Unknown User",
+    "DELETE_CONVERSATION": "Delete conversation",
+    "SELECT_CONVERSATION": "Select a conversation to view messages",
+    "TYPING": "typing...",
+    "LOADING_MESSAGES": "Loading messages...",
+    "NO_MESSAGES": "No messages",
+    "SEND_FIRST_MESSAGE": "Send the first message",
+    "MESSAGE_PLACEHOLDER": "Write a message...",
+    "SEND": "Send"
+  },
+    "PROFILE": {
+    "PAGE_TITLE": "Profile",
+    "USER_INFO": "User Information",
+    "PHONE": "Phone",
+    "EMAIL": "Email",
+    "PERSONAL_NUMBER": "Personal Number",
+    "MESSAGES": "Messages",
+    "LOGOUT": "Logout",
+    "PRODUCT_QUANTITY": "Your Product Quantity",
+    "LIMIT_REACHED": "Maximum limit reached ({{max}})",
+    "LIMIT_REACHED_SHORT": "Limit reached",
+    "LIMIT_NEAR": "Only {{remaining}} slots remaining!",
+    "CAN_ADD_MORE": "You can add {{remaining}} more products",
+    "CHECKING_QUANTITY": "Checking product quantity...",
+    "LOADING": "Loading",
+    "CLOSE_FORM": "Close Form",
+    "ADD_PRODUCT": "Add Product",
+    "UPLOADING": "Uploading",
+    "ALTERNATIVE_PHOTO": "Choose Photo (Android)"
+  },
+  "PRODUCT_FORM": {
+    "TITLE": "Add Product",
+    "REMAINING_SLOTS": "Remaining Slots: {{remaining}}",
+    "PRODUCT_NAME": "Product Name",
+    "NAME_REQUIRED": "Product name is required",
+    "CATEGORY": "Category",
+    "CATEGORY_REQUIRED": "Category is required",
+    "YEAR": "Year",
+    "YEAR_REQUIRED": "Year is required",
+    "YEAR_INVALID": "Enter a valid year",
+    "PRICE": "Price",
+    "PRICE_REQUIRED": "Price is required",
+    "PRICE_POSITIVE": "Price must be positive",
+    "PHONE_NUMBER": "Phone Number",
+    "PHONE_REQUIRED": "Phone number is required",
+    "PHONE_INVALID": "Invalid phone number",
+    "EMAIL_LABEL": "Email",
+    "EMAIL_REQUIRED": "Email is required",
+    "EMAIL_INVALID": "Invalid email format",
+    "DESCRIPTION": "Description",
+    "DESCRIPTION_REQUIRED": "Description is required",
+    "CITY": "City",
+    "CITY_REQUIRED": "City is required",
+    "PRODUCT_IMAGES": "Product Images",
+    "IMAGE": "Image",
+    "ALT_IMAGE": "Choose Image (Android)",
+    "CLICK_TO_SELECT_IMAGE": "Click to select image #{{number}}",
+    "UPLOADED_IMAGES": "Uploaded Images",
+    "MIN_ONE_IMAGE": "At least one image is required",
+    "IMAGES_UPLOADED": "Images uploaded successfully",
+    "COMPRESSING": "Compressing Images",
+    "UPLOADING_PRODUCT": "Uploading Product",
+    "ADD_PRODUCT_BTN": "Add Product ({{remaining}} left)",
+    "CANCEL": "Cancel",
+    "LIMIT_REACHED_TITLE": "Limit Reached!",
+    "LIMIT_REACHED_MESSAGE": "You can add up to {{max}} products only.",
+    "UNDERSTOOD": "Understood"
+  },
+  "PRODUCTS": {
+    "MY_PRODUCTS": "My Products",
+    "PRODUCT": "Product",
+    "LOADING_PRODUCTS": "Loading your products...",
+    "IMAGE": "Image",
+    "DEFAULT_IMAGE": "Default Image",
+    "IMAGES": "Images",
+    "YEAR": "Year",
+    "ADDED": "Added",
+    "DELETE": "Delete",
+    "NO_PRODUCTS_TITLE": "No Products Found",
+    "NO_PRODUCTS_MESSAGE": "You can add up to {{max}} products.",
+    "ADD_FIRST_PRODUCT": "Add Your First Product"
+  },
+  "LOADING": {
+    "COMPRESSING_IMAGES": "Compressing images",
+    "UPLOADING_PRODUCT": "Uploading product",
+    "PROCESSING_IMAGES": "Processing images",
+    "SENDING_DATA": "Sending data"
+  }
+}
+
