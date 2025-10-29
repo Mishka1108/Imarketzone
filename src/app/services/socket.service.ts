@@ -20,19 +20,16 @@ export class SocketService {
   private typingStop$ = new BehaviorSubject<any>(null);
 
   constructor() {
-    console.log('🔌 SocketService initialized');
   }
 
   // Connect to Socket.IO server
   connect(userId: string): void {
     if (this.socket?.connected) {
-      console.log('✅ Already connected to socket');
       return;
     }
 
     // გამოიყენეთ socketUrl environment-იდან
     const socketUrl = environment.socketUrl || environment.apiUrl.replace('/api', '');
-    console.log('🔄 Connecting to Socket.IO server:', socketUrl);
     
     this.socket = io(socketUrl, {
       path: '/socket.io',  // default path
@@ -47,19 +44,15 @@ export class SocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('✅ Connected to Socket.IO:', this.socket?.id);
-      console.log('✅ Transport:', this.socket?.io.engine.transport.name);
       this.connected$.next(true);
       
       // Join with userId
       if (userId) {
         this.socket?.emit('user:join', userId);
-        console.log('👤 Joined as user:', userId);
       }
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.log('❌ Disconnected from Socket.IO:', reason);
       this.connected$.next(false);
     });
 
@@ -72,49 +65,41 @@ export class SocketService {
 
     // Listen for new messages
     this.socket.on('message:new', (data) => {
-      console.log('📩 New message received:', data);
       this.newMessage$.next(data);
     });
 
     // Listen for sent message confirmation
     this.socket.on('message:sent', (data) => {
-      console.log('✅ Message sent confirmation:', data);
       this.messageSent$.next(data);
     });
 
     // Listen for conversation updates
     this.socket.on('conversation:update', (data) => {
-      console.log('🔄 Conversation update:', data);
       this.conversationUpdate$.next(data);
     });
 
     // Listen for messages read notification
     this.socket.on('messages:read', (data) => {
-      console.log('📖 Messages read:', data);
       this.messagesRead$.next(data);
     });
 
     // Listen for typing indicators
     this.socket.on('typing:start', (data) => {
-      console.log('✍️ User typing:', data);
       this.typingStart$.next(data);
     });
 
     this.socket.on('typing:stop', (data) => {
-      console.log('✋ User stopped typing:', data);
       this.typingStop$.next(data);
     });
 
     // Reconnection handlers
     this.socket.on('reconnect', (attemptNumber) => {
-      console.log('🔄 Reconnected after', attemptNumber, 'attempts');
       if (userId) {
         this.socket?.emit('user:join', userId);
       }
     });
 
     this.socket.on('reconnect_attempt', (attemptNumber) => {
-      console.log('🔄 Reconnection attempt:', attemptNumber);
     });
 
     this.socket.on('reconnect_failed', () => {
@@ -125,7 +110,6 @@ export class SocketService {
   // Disconnect from Socket.IO
   disconnect(): void {
     if (this.socket) {
-      console.log('🔌 Disconnecting from Socket.IO...');
       this.socket.disconnect();
       this.socket = null;
       this.connected$.next(false);

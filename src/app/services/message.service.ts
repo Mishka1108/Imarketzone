@@ -39,7 +39,6 @@ export class MessageService {
       productId: data.productId
     };
 
-    console.log('📤 Sending message:', messageData);
 
     return this.http.post<MessageResponse>(
       `${this.apiUrl}/send`,
@@ -48,7 +47,6 @@ export class MessageService {
     ).pipe(
       tap(response => {
         if (response.success) {
-          console.log('✅ Message sent successfully:', response.data);
         }
       }),
       catchError(error => {
@@ -86,14 +84,12 @@ export class MessageService {
   }
 
   getConversationMessages(userId: string, otherId: string): Observable<Message[]> {
-    console.log(`📥 Loading messages between ${userId} and ${otherId}`);
     
     return this.http.get<any>(
       `${this.apiUrl}/conversation/${userId}/${otherId}`,
       { headers: this.getHeaders() }
     ).pipe(
       map(response => {
-        console.log('Messages response:', response);
         return response.success ? (response.data || []) : [];
       }),
       catchError(error => {
@@ -110,7 +106,6 @@ export class MessageService {
       { headers: this.getHeaders() }
     ).pipe(
       tap(() => {
-        console.log('✅ Messages marked as read');
         this.loadUnreadCount();
       }),
       catchError(error => {

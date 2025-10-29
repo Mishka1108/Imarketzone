@@ -146,135 +146,86 @@ export class TranslationService {
   };
 
   constructor(private http: HttpClient) {
-    console.log('🌐 TranslationService constructor called');
     this.loadLanguage();
   }
 
   // ✅ Load saved language from localStorage and backend
   private loadLanguage(): void {
-    console.log('📂 Loading language from localStorage...');
     const savedLang = localStorage.getItem('preferredLanguage') as Language;
-    console.log('💾 Found in localStorage:', savedLang);
     
     if (savedLang && (savedLang === 'ka' || savedLang === 'en')) {
-      console.log('✅ Valid language found, setting to:', savedLang);
       this.currentLangSubject.next(savedLang);
     } else {
-      console.log('⚠️ No valid language in localStorage, using default: ka');
     }
 
     // If user is logged in, sync with backend
     const userId = localStorage.getItem('userId');
     if (userId) {
-      console.log('👤 User logged in, fetching language from backend...');
       this.http.get<{ language: Language }>(`${this.apiUrl}/users/${userId}/language`)
         .subscribe({
           next: (response) => {
-            console.log('📥 Backend response:', response);
             if (response.language) {
-              console.log('✅ Setting language from backend:', response.language);
               this.setLanguage(response.language);
             }
           },
           error: (err) => {
-            console.log('❌ Could not load language from backend:', err);
           }
         });
     } else {
-      console.log('👤 No user logged in, skipping backend sync');
     }
   }
 
   // ✅ Get current language
   getCurrentLanguage(): Language {
     const lang = this.currentLangSubject.value;
-    console.log('🔍 getCurrentLanguage() called, returning:', lang);
-    console.log('   BehaviorSubject.value:', this.currentLangSubject.value);
     return lang;
   }
 
   // ✅ Set language
   setLanguage(lang: Language): void {
-    console.log('═══════════════════════════════════════════');
-    console.log('🔄 TranslationService.setLanguage() CALLED');
-    console.log('═══════════════════════════════════════════');
-    console.log('🎯 Input parameter lang:', lang);
-    console.log('📍 Current BehaviorSubject value BEFORE:', this.currentLangSubject.value);
-    
-    console.log('---');
-    console.log('🔄 Calling this.currentLangSubject.next(' + lang + ')...');
     this.currentLangSubject.next(lang);
-    console.log('✅ BehaviorSubject.next() completed');
     
-    console.log('---');
-    console.log('📍 Current BehaviorSubject value AFTER:', this.currentLangSubject.value);
-    console.log('📊 BehaviorSubject observers count:', (this.currentLangSubject as any).observers?.length || 0);
-    
-    console.log('---');
-    console.log('💾 Saving to localStorage...');
     localStorage.setItem('preferredLanguage', lang);
-    console.log('✅ localStorage saved:', localStorage.getItem('preferredLanguage'));
     
-    console.log('---');
-    console.log('🔤 Quick translation test:');
-    console.log('  nav.home in ' + lang + ':', this.translations['nav.home'][lang]);
 
     // Save to backend if user is logged in
     const userId = localStorage.getItem('userId');
     if (userId) {
-      console.log('📤 Saving language to backend for user:', userId);
       this.http.put(`${this.apiUrl}/users/${userId}/language`, { language: lang })
         .subscribe({
-          next: () => console.log('✅ Language saved to backend'),
           error: (err) => console.error('❌ Could not save language to backend:', err)
         });
     } else {
-      console.log('👤 No user logged in, skipping backend save');
     }
     
-    console.log('═══════════════════════════════════════════');
-    console.log('✅ TranslationService.setLanguage() COMPLETED');
-    console.log('═══════════════════════════════════════════');
   }
 
   // ✅ Toggle between Georgian and English
   toggleLanguage(): void {
     const currentLang = this.getCurrentLanguage();
     const newLang: Language = currentLang === 'ka' ? 'en' : 'ka';
-    console.log('🔄 Toggling language from', currentLang, 'to', newLang);
     this.setLanguage(newLang);
   }
 
   // ✅ Translate a key
   translate(key: string): string {
-    console.log('═══════════════════════════════════════════');
-    console.log('🔤 TranslationService.translate() CALLED');
-    console.log('  Key:', key);
     
     const currentLang = this.getCurrentLanguage();
-    console.log('  Current Language:', currentLang);
     
     const translation = this.translations[key];
-    console.log('  Translation object:', translation);
     
     if (!translation) {
       console.warn(`⚠️ Translation not found for key: ${key}`);
-      console.log('  Returning key itself:', key);
-      console.log('═══════════════════════════════════════════');
       return key;
     }
 
     const result = translation[currentLang];
-    console.log('  Translation for', currentLang + ':', result);
     
     if (!result) {
       console.warn(`⚠️ No translation for language ${currentLang}, returning key`);
-      console.log('═══════════════════════════════════════════');
       return key;
     }
     
-    console.log(`✅ Returning: "${result}"`);
-    console.log('═══════════════════════════════════════════');
     return result;
   }
 
@@ -288,13 +239,11 @@ export class TranslationService {
     const currentLang = this.getCurrentLanguage();
     const result: { [key: string]: string } = {};
     
-    console.log('📚 Getting all translations for language:', currentLang);
     
     Object.keys(this.translations).forEach(key => {
       result[key] = this.translations[key][currentLang];
     });
 
-    console.log('✅ Total translations:', Object.keys(result).length);
     return result;
   }
 }

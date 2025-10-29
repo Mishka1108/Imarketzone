@@ -35,7 +35,6 @@ export class ImageCompressionService {
 
     try {
       const compressedFile = await this.performCompression(file, config);
-      console.log(`ორიგინალი: ${(file.size / 1024 / 1024).toFixed(2)}MB -> კომპრესია: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
       return compressedFile;
     } catch (error) {
       console.error('სურათის კომპრესიის შეცდომა:', error);
@@ -109,7 +108,6 @@ export class ImageCompressionService {
    * აგრესიული კომპრესია დიდი ფაილებისთვის
    */
   private async performAggressiveCompression(file: File, options: CompressionOptions): Promise<File> {
-    console.log('აგრესიული კომპრესიის გამოყენება...');
     
     const aggressiveOptions = {
       ...options,
@@ -171,7 +169,6 @@ export class ImageCompressionService {
     while (currentFile.size > (targetSizeInMB * 1024 * 1024) && attempts < maxAttempts) {
       const options = compressionSteps[attempts] || compressionSteps[compressionSteps.length - 1];
       
-      console.log(`კომპრესიის ეტაპი ${attempts + 1}: ${(currentFile.size / 1024 / 1024).toFixed(2)}MB`);
       
       try {
         currentFile = await this.performCompression(currentFile, options);

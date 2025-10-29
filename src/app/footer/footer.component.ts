@@ -21,13 +21,11 @@ export class FooterComponent {
   constructor() {}
   
   onNavigate(route: string) {
-    console.log('ნავიგაცია:', route);
     // Router navigation logic here
     // this.router.navigate([route]);
   }
   
   onSocialClick(platform: string) {
-    console.log('სოციალური პლატფორმა:', platform);
   }
   
   onClick() {

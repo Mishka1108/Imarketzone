@@ -1,4 +1,3 @@
-// src/app/components/message-dialog/message-dialog.component.ts - WITH REAL-TIME
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -59,23 +58,20 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
     private socketService: SocketService,
     private snackBar: MatSnackBar,
     private profileImageService: ProfileImageService
-  ) {
-    console.log('💬 Message Dialog Data:', this.data);
-  }
+  ) {}
 
   ngOnInit(): void {
     if (!this.data.senderId) {
       const userId = localStorage.getItem('userId');
       if (userId) {
         this.data.senderId = userId;
-        console.log('✅ Set senderId from localStorage:', userId);
       } else {
-        console.error('❌ No senderId available!');
         this.showSnackBar('ავტორიზაცია საჭიროა შეტყობინების გასაგზავნად');
         this.dialogRef.close();
         return;
       }
     }
+
 
     this.setupSocketConnection();
     this.listenToSocketEvents();
@@ -90,58 +86,65 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
 
   private setupSocketConnection(): void {
     if (!this.socketService.isConnected()) {
-      console.log('🔌 Connecting to Socket.IO...');
       this.socketService.connect(this.data.senderId);
-    } else {
-      console.log('✅ Already connected to Socket.IO');
     }
   }
 
+  // ✅ HELPER: Extract ID from user object or string
+  private extractUserId(sender: any): string {
+    if (!sender) return '';
+    
+    // If it's already a string, return it
+    if (typeof sender === 'string') {
+      return sender;
+    }
+    
+    // If it's an object, get _id or id
+    if (typeof sender === 'object') {
+      return sender._id || sender.id || '';
+    }
+    
+    return '';
+  }
+
   private listenToSocketEvents(): void {
-    // ✅ Listen for new incoming messages
     this.socketService.onNewMessage()
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
-        if (data && data.message && data.message.senderId === this.data.receiverId) {
-          console.log('📩 Real-time message received:', data);
-          this.messages.push(data.message);
-          setTimeout(() => this.scrollToBottom(), 100);
-          
-          // Mark as read automatically
-          this.markMessagesAsRead();
+        if (data && data.message) {
+          const messageSenderId = this.extractUserId(data.message.senderId);
+          if (messageSenderId === this.data.receiverId) {
+            this.messages.push(data.message);
+            setTimeout(() => this.scrollToBottom(), 100);
+            this.markMessagesAsRead();
+          }
         }
       });
 
-    // ✅ Listen for sent message confirmation
     this.socketService.onMessageSent()
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         if (data && data.message) {
-          console.log('✅ Message sent confirmation:', data);
         }
       });
 
-    // ✅ Listen for messages read notifications
     this.socketService.onMessagesRead()
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         if (data && data.userId === this.data.receiverId) {
-          console.log('📖 Receiver read the messages');
-          // Update read status
           this.messages.forEach(msg => {
-            if (msg.senderId === this.data.senderId) {
+            const msgSenderId = this.extractUserId(msg.senderId);
+            if (msgSenderId === this.data.senderId) {
               msg.read = true;
             }
           });
         }
       });
 
-    // ✅ Listen for typing indicators
     this.socketService.onTypingStart()
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         if (data && data.userId === this.data.receiverId) {
-          console.log('✍️ Receiver is typing');
           this.isTyping = true;
         }
       });
@@ -150,7 +153,6 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         if (data && data.userId === this.data.receiverId) {
-          console.log('✋ Receiver stopped typing');
           this.isTyping = false;
         }
       });
@@ -173,7 +175,6 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
 
   loadMessages(): void {
     if (!this.data.senderId || !this.data.receiverId) {
-      console.error('❌ Missing sender or receiver ID');
       return;
     }
 
@@ -184,15 +185,19 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (messages: Message[]) => {
-          console.log('✅ Loaded messages:', messages);
           this.messages = messages;
           this.isLoading = false;
-          setTimeout(() => this.scrollToBottom(), 100);
           
+          // 🐛 DEBUG: Log first 5 messages to verify
+          messages.slice(0, 5).forEach((msg, idx) => {
+            const senderId = this.extractUserId(msg.senderId);
+            const isOwn = senderId === this.data.senderId;
+          });
+          
+          setTimeout(() => this.scrollToBottom(), 100);
           this.markMessagesAsRead();
         },
         error: (error: any) => {
-          console.error('❌ Failed to load messages:', error);
           this.isLoading = false;
           this.showSnackBar('შეტყობინებების ჩატვირთვა ვერ მოხერხდა');
         }
@@ -206,8 +211,6 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
       .markAsRead(this.data.senderId, this.data.receiverId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => console.log('✅ Messages marked as read'),
-        error: (err) => console.error('❌ Failed to mark as read:', err)
       });
   }
 
@@ -233,25 +236,23 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
       productId: this.data.productId
     };
 
-    console.log('📤 Sending message:', messageData);
-
     this.messageService
       .sendMessage(messageData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✅ Message sent successfully:', response);
-          
           if (response.success && response.data) {
             this.messages.push(response.data);
             this.newMessage = '';
+            
+            // 🐛 DEBUG
+            const senderId = this.extractUserId(response.data.senderId);
+            
             setTimeout(() => this.scrollToBottom(), 100);
           }
-          
           this.isSending = false;
         },
         error: (error: any) => {
-          console.error('❌ Failed to send message:', error);
           this.isSending = false;
           
           if (error.status === 401) {
@@ -276,15 +277,12 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
   onMessageInput(): void {
     if (!this.data.receiverId) return;
     
-    // Emit typing start
     this.socketService.emitTypingStart(this.data.senderId, this.data.receiverId);
     
-    // Clear previous timeout
     if (this.typingTimeout) {
       clearTimeout(this.typingTimeout);
     }
     
-    // Set new timeout to stop typing after 2 seconds
     this.typingTimeout = setTimeout(() => {
       this.stopTyping();
     }, 2000);
@@ -308,7 +306,6 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
         container.scrollTop = container.scrollHeight;
       }
     } catch (err) {
-      console.error('Error scrolling to bottom:', err);
     }
   }
 
@@ -333,8 +330,11 @@ export class MessageDialogComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ✅ FIXED: Handle both object and string senderId
   isOwnMessage(message: Message): boolean {
-    return message.senderId === this.data.senderId;
+    const messageSenderId = this.extractUserId(message.senderId);
+    const isOwn = messageSenderId === this.data.senderId;
+    return isOwn;
   }
 
   close(): void {

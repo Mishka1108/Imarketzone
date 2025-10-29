@@ -54,8 +54,6 @@ export class LoginComponent {
       },
       error: (error) => {
         this.isSubmitting = false;
-        console.log('Login error:', error);
-        
         // შეცდომის შეტყობინება - თარგმნილი
         const backendMessage = error.error?.message;
         

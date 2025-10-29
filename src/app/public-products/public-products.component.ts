@@ -89,11 +89,9 @@ export class PublicProductsComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['category']) {
         this.selectedCategory = params['category'];
-        console.log(`კატეგორია მიღებულია: ${this.selectedCategory}`);
       }
       if (params['city']) {
         this.selectedCity = params['city'];
-        console.log(`ქალაქი მიღებულია: ${this.selectedCity}`);
       }
       this.loadProducts();
     });
@@ -112,11 +110,9 @@ export class PublicProductsComponent implements OnInit {
     if (this.maxPrice) filters.maxPrice = this.maxPrice;
     if (this.searchTerm) filters.search = this.searchTerm;
 
-    console.log('📡 Sending filters:', filters);
 
     this.productService.getAllProducts(filters).subscribe({
       next: (response) => {
-        console.log('📥 API Full Response:', response);
 
         let productsArray: Product[] = [];
 
@@ -133,11 +129,9 @@ export class PublicProductsComponent implements OnInit {
           productsArray = response;
         }
 
-        console.log('📦 Processed Products Array:', productsArray);
 
         if (!productsArray || productsArray.length === 0) {
           this.products = [];
-          console.log('❌ No products found');
           this.isLoading = false;
           return;
         }
@@ -152,11 +146,9 @@ export class PublicProductsComponent implements OnInit {
         }));
 
         this.products = productsArray;
-        console.log('✅ Final Products with Views:', this.products);
         
         // 🔸 Debug: რამდენ პროდუქტს აქვს ნახვები
         const productsWithViews = this.products.filter(p => this.getViewCount(p) > 0);
-        console.log(`📊 ${productsWithViews.length}/${this.products.length} products have views`);
 
         this.isLoading = false;
       },
@@ -214,8 +206,6 @@ export class PublicProductsComponent implements OnInit {
       return;
     }
 
-    console.log(`👁️ Opening product ${productId}, recording view...`);
-
     const slug = this.generateSlug(product.title);
     
     // 🔹 ნავიგაცია პირველ რიგში
@@ -224,14 +214,12 @@ export class PublicProductsComponent implements OnInit {
     // 🔹 ნახვის რეგისტრაცია background-ში
     this.productService.recordView(productId).subscribe({
       next: (response) => {
-        console.log('✅ View recorded successfully:', response);
         // 🔸 ლოკალურად ვაუცდიზრებთ ნახვების რაოდენობას
         const productIndex = this.products.findIndex(p => this.getProductId(p) === productId);
         if (productIndex !== -1) {
           const currentViews = this.getViewCount(this.products[productIndex]);
           this.products[productIndex].viewCount = currentViews + 1;
           this.products[productIndex].views = currentViews + 1;
-          console.log(`📊 Updated local view count: ${currentViews + 1}`);
         }
       },
       error: (error) => {
@@ -325,7 +313,6 @@ export class PublicProductsComponent implements OnInit {
     
     // 🔸 Debug logging
     if (viewCount > 0) {
-      console.log(`📊 Product "${product.title}" has ${viewCount} views`);
     }
     
     return viewCount;

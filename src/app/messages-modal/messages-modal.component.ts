@@ -75,7 +75,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
     private profileImageService: ProfileImageService,
     private cdr: ChangeDetectorRef // ✅ დაემატა ChangeDetectorRef
   ) {
-    console.log('💬 Messages Modal Data:', this.data);
   }
 
   ngOnInit(): void {
@@ -83,7 +82,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
       const userId = localStorage.getItem('userId');
       if (userId) {
         this.data.userId = userId;
-        console.log('✅ Set userId from localStorage:', userId);
       } else {
         console.error('❌ No userId available!');
         this.showSnackBar('ავტორიზაცია საჭიროა', 'error');
@@ -117,21 +115,17 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
 
   private setupSocketConnection(): void {
     if (!this.socketService.isConnected()) {
-      console.log('🔌 Connecting to Socket.IO...');
       this.socketService.connect(this.data.userId);
     } else {
-      console.log('✅ Already connected to Socket.IO');
     }
   }
 
   private listenToSocketEvents(): void {
-    console.log('👂 Setting up socket event listeners...');
 
     // ✅ 1. ახალი შეტყობინების მოსმენა
     this.socketService.onNewMessage()
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
-        console.log('📩 Raw socket data received:', data);
         
         if (!data || !data.message) {
           console.warn('⚠️ Invalid message data received');
@@ -141,13 +135,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
         const msg = data.message;
         const senderId = this.extractUserId(msg.senderId);
         const receiverId = this.extractUserId(msg.receiverId);
-        
-        console.log('📩 Processing message:', {
-          content: msg.content,
-          from: senderId,
-          to: receiverId,
-          isMyMessage: senderId === this.data.userId
-        });
 
         // ✅ თუ არჩეული საუბარია ღია
         if (this.selectedConversation) {
@@ -159,7 +146,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
             (receiverId === otherUserId && senderId === this.data.userId);
           
           if (isInCurrentConversation) {
-            console.log('✅ Message belongs to current conversation');
             
             // შევამოწმოთ არსებობს თუ არა უკვე
             const messageId = msg._id || msg.id;
@@ -168,7 +154,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
             );
             
             if (!exists) {
-              console.log('➕ Adding new message to UI:', msg.content);
               this.messages.push(msg);
               
               // ✅ CRITICAL: ვაფორსებთ UI განახლებას
@@ -182,10 +167,8 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
                 }, 500);
               }
             } else {
-              console.log('ℹ️ Message already exists in UI');
             }
           } else {
-            console.log('ℹ️ Message is from another conversation');
           }
         }
         
@@ -198,7 +181,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         if (data && data.message) {
-          console.log('✅ Message sent confirmation:', data.message.content);
         }
       });
 
@@ -206,7 +188,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
     this.socketService.onConversationUpdate()
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
-        console.log('🔄 Conversation update received');
         this.loadConversations(true);
       });
 
@@ -215,7 +196,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
       .pipe(takeUntil(this.destroy$))
       .subscribe((data) => {
         if (data) {
-          console.log('📖 Messages were read');
           
           this.messages.forEach(msg => {
             const msgSenderId = this.extractUserId(msg.senderId);
@@ -236,7 +216,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
           const otherUserId = this.extractUserId(this.selectedConversation.otherUser);
           
           if (data.userId === otherUserId) {
-            console.log('✍️ User is typing:', data.userId);
             this.isTyping = true;
             this.typingUserId = data.userId;
             this.cdr.detectChanges();
@@ -251,7 +230,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
           const otherUserId = this.extractUserId(this.selectedConversation.otherUser);
           
           if (data.userId === otherUserId) {
-            console.log('✋ User stopped typing');
             this.isTyping = false;
             this.typingUserId = null;
             this.cdr.detectChanges();
@@ -263,9 +241,7 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
     this.socketService.getConnectionStatus()
       .pipe(takeUntil(this.destroy$))
       .subscribe((connected) => {
-        console.log('🔌 Socket connection status:', connected);
         if (!connected) {
-          console.log('⚠️ Socket disconnected, attempting to reconnect...');
         }
       });
   }
@@ -279,7 +255,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
 
   // ✅ განახლებული მეთოდი საუბრების სიის განახლებისთვის
   private updateConversationInList(message: Message, senderId: string, receiverId: string): void {
-    console.log('🔄 Updating conversations list');
     
     // განვსაზღვროთ "მეორე მომხმარებელი"
     const otherUserId = (senderId === this.data.userId) ? receiverId : senderId;
@@ -311,10 +286,8 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
       this.conversations.splice(conversationIndex, 1);
       this.conversations.unshift(conversation);
       
-      console.log('✅ Conversation updated and moved to top');
     } else {
       // ახალი საუბარი - ჩავტვირთოთ თავიდან
-      console.log('🆕 New conversation, reloading list');
       this.loadConversations(true);
     }
     
@@ -357,7 +330,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
 
   loadConversations(silent: boolean = false): void {
     if (!silent) {
-      console.log('📥 Loading conversations...');
       this.isLoadingConversations = true;
     }
     
@@ -366,7 +338,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
       .subscribe({
         next: (conversations) => {
           if (!silent) {
-            console.log('✅ Loaded conversations:', conversations.length);
           }
           
           const oldSelectedId = this.selectedConversation?._id || this.selectedConversation?.id;
@@ -399,7 +370,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   selectConversation(conversation: Conversation): void {
-    console.log('🔍 Selected conversation:', conversation.otherUser?.name);
     this.selectedConversation = conversation;
     this.messages = []; // ✅ გავასუფთავოთ ძველი შეტყობინებები
     this.loadMessages(conversation);
@@ -422,7 +392,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (messages) => {
-          console.log('✅ Loaded', messages.length, 'messages');
           
           this.messages = messages;
           this.isLoadingMessages = false;
@@ -456,7 +425,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log('✅ Messages marked as read');
           if (this.selectedConversation) {
             this.selectedConversation.unreadCount = 0;
           }
@@ -499,14 +467,12 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
       content: messageContent
     };
 
-    console.log('📤 Sending message:', messageData);
 
     this.messageService
       .sendMessage(messageData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✅ Message sent successfully:', response);
           
           if (response.success && response.data) {
             const newMsg = response.data;
@@ -518,7 +484,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
             );
             
             if (!exists) {
-              console.log('➕ Adding sent message to UI');
               this.messages.push(newMsg);
               
               // ✅ Force UI update
@@ -578,7 +543,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
       const container = document.querySelector('.messages-list-container');
       if (container) {
         container.scrollTop = container.scrollHeight;
-        console.log('📜 Scrolled to bottom');
       }
     } catch (err) {
       console.error('❌ Scroll error:', err);
@@ -635,7 +599,6 @@ export class MessagesModalComponent implements OnInit, OnDestroy, AfterViewCheck
 
     this.messageService.deleteConversation(conversationId).subscribe({
       next: () => {
-        console.log('✅ Conversation deleted');
         this.showSnackBar('საუბარი წაშლილია', 'success');
         
         this.conversations = this.conversations.filter(c => 

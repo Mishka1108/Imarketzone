@@ -86,9 +86,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('=== PRODUCT DETAILS DEBUG START ===');
     const rawSlug = this.route.snapshot.paramMap.get('slug');
-    console.log('Raw Product Slug from route:', rawSlug);
     
     if (!rawSlug || rawSlug.trim() === '') {
       console.error('❌ პროდუქტის Slug არ არის მოძიებული');
@@ -101,7 +99,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   private tryLoadProduct(rawSlug: string): void {
-    console.log('🔄 პირველი მცდელობა - URL decode-ით');
     const decodedSlug = decodeURIComponent(rawSlug);
     
     this.loadProductBySlug(decodedSlug).then(success => {
@@ -121,14 +118,14 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   }
 
   private async loadProductBySlug(slug: string): Promise<boolean> {
-    console.log('ვცდილობთ პროდუქტის ჩატვირთვას Slug-ით:', slug);
     
     return new Promise((resolve) => {
       this.productService.getProductBySlug(slug)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
-            console.log('✅ პროდუქტი მოიძებნა:', response);
+
+
             this.product = response.product || response;
             
             if (this.product) {
@@ -759,7 +756,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       productTitle: this.product?.title
     };
 
-    console.log('💬 Opening message dialog with data:', dialogData);
 
     const dialogRef = this.dialog.open(MessageDialogComponent, {
       width: '600px',
@@ -773,7 +769,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('Dialog closed:', result);
     });
   }
 }

@@ -53,7 +53,6 @@ export class AuthService {
     
     if (userJson && token) {
       if (this.isTokenExpired(token)) {
-        console.log('Token expired, clearing storage');
         this.clearAuthData();
         return;
       }
@@ -64,14 +63,12 @@ export class AuthService {
         
         // Update profile image service on load
         if (user && user.profileImage) {
-          console.log('Loading profile image from storage:', user.profileImage);
           this.profileImageService.updateProfileImage(user.profileImage);
         }
         
         this.refreshUserData().subscribe({
           next: (refreshedUser) => {
             if (refreshedUser) {
-              console.log('User data refreshed successfully');
             }
           },
           error: (error) => {
@@ -104,7 +101,6 @@ export class AuthService {
     const token = this.getToken();
     
     if (!token || this.isTokenExpired(token)) {
-      console.log('No valid token available for refresh');
       this.clearAuthData();
       return of(null);
     }
@@ -130,7 +126,6 @@ export class AuthService {
           
           // Update profile image service on refresh
           if (user.profileImage) {
-            console.log('Refreshing profile image:', user.profileImage);
             this.profileImageService.updateProfileImage(user.profileImage);
           }
         }
@@ -139,7 +134,6 @@ export class AuthService {
         console.error('Error refreshing user data', error);
         
         if (error.status === 401) {
-          console.log('Unauthorized - clearing auth data');
           this.clearAuthData();
         }
         
@@ -171,7 +165,6 @@ export class AuthService {
             
             // Update profile image service on login
             if (response.user.profileImage) {
-              console.log('Login: Setting profile image:', response.user.profileImage);
               this.profileImageService.updateProfileImage(response.user.profileImage);
             }
           }
@@ -307,13 +300,11 @@ export class AuthService {
     }).pipe(
       tap((response: any) => {
         if (response?.user && this.isBrowser()) {
-          console.log('Profile image updated on server:', response.user);
           localStorage.setItem('currentUser', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
           
           // Update profile image service after upload
           if (response.user.profileImage) {
-            console.log('Upload success: Updating profile image service:', response.user.profileImage);
             this.profileImageService.updateProfileImage(response.user.profileImage);
           }
         }

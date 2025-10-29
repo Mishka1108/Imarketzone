@@ -16,29 +16,24 @@ export class ProductService {
   public cachedProducts = this.cachedProducts$.asObservable();
 
   constructor(private http: HttpClient) { 
-    console.log('ProductService initialized with baseUrl:', this.baseUrl);
   }
 
   // ✅ Cache Management Methods
   setCachedProducts(products: any[]): void {
-    console.log(`💾 Caching ${products.length} products`);
     this.cachedProducts$.next(products);
   }
 
   getCachedProducts(): any[] {
     const cached = this.cachedProducts$.value;
-    console.log(`📦 Retrieved ${cached.length} cached products`);
     return cached;
   }
 
   hasCachedProducts(): boolean {
     const hasCached = this.cachedProducts$.value.length > 0;
-    console.log(`🔍 Cache check: ${hasCached ? 'YES' : 'NO'} (${this.cachedProducts$.value.length} products)`);
     return hasCached;
   }
 
   clearCache(): void {
-    console.log('🗑️ Clearing product cache');
     this.cachedProducts$.next([]);
   }
 
@@ -111,7 +106,6 @@ export class ProductService {
     
     // ✅ თუ არ არის ფილტრები და cache არსებობს, დავაბრუნოთ cache
     if (!filters && this.hasCachedProducts()) {
-      console.log('⚡ Using cached products (no filters applied)');
       return of({ 
         success: true, 
         products: this.getCachedProducts(),
@@ -129,11 +123,7 @@ export class ProductService {
       if (filters.search) params = params.append('search', filters.search);
     }
     
-    console.log('📡 Making getAllProducts API request:', {
-      url: `${this.baseUrl}/products`,
-      params: params.toString(),
-      hasFilters: !!filters
-    });
+   
     
     return this.http.get(`${this.baseUrl}/products`, { 
       params,
@@ -142,7 +132,6 @@ export class ProductService {
       timeout(10000),
       retry(1),
       tap(response => {
-        console.log('✅ getAllProducts API response received');
         
         // ✅ თუ ფილტრები არ არის, cache-ში შევინახოთ
         if (!filters) {
@@ -161,17 +150,14 @@ export class ProductService {
 
   // ✅ 🔥 FIXED: Enhanced getProductBySlug with automatic fallback
   getProductBySlug(slug: string): Observable<any> {
-    console.log(`🔍 Looking for product with slug: "${slug}"`);
     
     const url = `${this.baseUrl}/products/by-slug/${encodeURIComponent(slug)}`;
-    console.log(`📡 Trying primary endpoint: ${url}`);
     
     return this.http.get<any>(url, { 
       headers: this.getHeaders() 
     }).pipe(
       timeout(8000),
       tap(response => {
-        console.log('✅ Primary endpoint success:', response);
       }),
       map((response: any) => {
         if (response.success && response.data) {
@@ -190,16 +176,13 @@ export class ProductService {
 
   // ✅ 🔥 IMPROVED: Fallback search with multiple strategies
   private fallbackSearchProduct(searchTerm: string): Observable<any> {
-    console.log('🔄 FALLBACK SEARCH START');
-    console.log('Search term:', searchTerm);
-    
+
     // Strategy 1: Try exact title match via search
     return this.getAllProducts({ search: searchTerm }).pipe(
       timeout(8000),
       map((response: any) => {
         const products = response.products || response.data || response || [];
         
-        console.log(`📦 Fallback found ${products.length} products`);
         
         if (!Array.isArray(products) || products.length === 0) {
           throw new Error('No products found in fallback search');
@@ -213,7 +196,6 @@ export class ProductService {
         });
         
         if (product) {
-          console.log('✅ Found by exact slug match:', product.title);
           return { product };
         }
         
@@ -223,7 +205,6 @@ export class ProductService {
         );
         
         if (product) {
-          console.log('✅ Found by exact title match:', product.title);
           return { product };
         }
         
@@ -233,7 +214,6 @@ export class ProductService {
         );
         
         if (product) {
-          console.log('✅ Found by partial title match:', product.title);
           return { product };
         }
         
@@ -247,7 +227,6 @@ export class ProductService {
         });
         
         if (product) {
-          console.log('✅ Found by normalized similarity:', product.title);
           return { product };
         }
         
@@ -280,8 +259,7 @@ export class ProductService {
   // ====================================
 
   recordViewAndGetStats(productId: string): Observable<any> {
-    console.log('🔍 RECORD VIEW AND GET STATS - START');
-    console.log('Product ID:', productId);
+
     
     if (!productId || productId.trim() === '') {
       console.error('❌ Invalid product ID');
@@ -297,7 +275,6 @@ export class ProductService {
     // ✅ Combined endpoint for recording view and getting stats
     return this.recordView(productId).pipe(
       switchMap(recordResponse => {
-        console.log('📊 View recorded, now fetching stats...');
         
         // If recording includes stats, return them
         if (recordResponse.views !== undefined || recordResponse.totalViews !== undefined) {
@@ -308,7 +285,6 @@ export class ProductService {
         return this.getProductViewStats(productId);
       }),
       map(stats => {
-        console.log('✅ Final view stats:', stats);
         return {
           success: true,
           totalViews: stats.totalViews || stats.views || stats.viewCount || 0,
@@ -332,7 +308,6 @@ export class ProductService {
   }
 
   recordView(productId: string): Observable<any> {
-    console.log('📝 Recording view for product:', productId);
     
     if (!productId || productId.trim() === '') {
       return of({ success: false, message: 'Invalid product ID' });
@@ -352,7 +327,6 @@ export class ProductService {
     }).pipe(
       timeout(8000),
       tap(response => {
-        console.log('✅ View recorded:', response);
       }),
       catchError((error: HttpErrorResponse) => {
         console.warn('⚠️ View recording failed:', error.message);
@@ -366,7 +340,6 @@ export class ProductService {
   }
 
   getProductViewStats(productId: string): Observable<any> {
-    console.log('📊 Fetching view stats for:', productId);
     
     if (!productId || productId.trim() === '') {
       return of({ views: 0, success: false });
@@ -379,7 +352,6 @@ export class ProductService {
     }).pipe(
       timeout(8000),
       tap(response => {
-        console.log('✅ View stats received:', response);
       }),
       catchError((error: HttpErrorResponse) => {
         console.warn('⚠️ Stats fetch failed:', error.message);
@@ -394,7 +366,6 @@ export class ProductService {
 
   // Rest of existing methods...
   addProduct(productData: FormData): Observable<any> {
-    console.log('პროდუქტის დამატება იწყება...');
     
     return this.http.post(`${this.baseUrl}/products`, productData, {
       headers: this.getFormDataHeaders()
@@ -402,7 +373,6 @@ export class ProductService {
       timeout(30000),
       retry(1),
       tap((response: any) => {
-        console.log('პროდუქტი წარმატებით დაემატა:', response);
         this.clearCache();
       }),
       catchError(this.handleError)
@@ -410,7 +380,6 @@ export class ProductService {
   }
 
   getUserProducts(): Observable<any> {
-    console.log('მომხმარებლის პროდუქტების მიღება...');
     return this.http.get(`${this.baseUrl}/products/user`, {
       headers: this.getHeaders()
     }).pipe(
@@ -434,7 +403,6 @@ export class ProductService {
   }
 
   checkConnection(): Observable<any> {
-    console.log('კონექციის შემოწმება:', `${this.baseUrl}/health`);
     return this.http.get(`${this.baseUrl}/health`, {
       headers: new HttpHeaders({
         'Accept': 'application/json',
@@ -450,7 +418,6 @@ export class ProductService {
   }
 
   getProductById(productId: string): Observable<any> {
-    console.log(`მოითხოვება პროდუქტი ID-ით: ${productId}`);
     return this.http.get(`${this.baseUrl}/products/${productId}`, {
       headers: this.getHeaders()
     }).pipe(
@@ -458,7 +425,6 @@ export class ProductService {
       retry(1),
       catchError(this.handleError),
       tap((response: any) => {
-        console.log('API-დან მიღებული პასუხი:', response);
       }),
       map((response: any) => {
         let product = response.product || response;

@@ -85,8 +85,6 @@ export class ContactComponent {
         },
         error: (error) => {
           this.loading = false;
-          console.error('შეცდომა გაგზავნისას:', error);
-          
           // შეცდომის შეტყობინება - თარგმნილი
           this.translate.get('CONTACT.ERROR.SEND_FAILED').subscribe(message => {
             this.errorMessage = error.error?.error || message;

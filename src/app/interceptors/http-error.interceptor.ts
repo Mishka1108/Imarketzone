@@ -20,7 +20,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
     // 1️⃣ შევამოწმოთ cache
     const cached = getFromCache(cacheKey);
     if (cached) {
-      console.log('✅ Cache hit:', cacheKey);
       // ✅ გამოსწორება: ვაბრუნებთ HttpResponse-ს
       return of(new HttpResponse({ 
         body: cached, 
@@ -32,7 +31,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
     // 2️⃣ თუ იგივე request უკვე მიმდინარეობს
     if (pendingRequests.has(cacheKey)) {
-      console.log('✅ Sharing pending request:', cacheKey);
       return pendingRequests.get(cacheKey);
     }
 
@@ -41,7 +39,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       tap(event => {
         // ✅ შევინახოთ მხოლოდ HttpResponse body
         if (event instanceof HttpResponse) {
-          console.log('💾 Saving to cache:', cacheKey, event.body);
           saveToCache(cacheKey, event.body);
         }
       }),
@@ -52,7 +49,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
                  (error.status === 429 || error.status === 0)) && 
                 index < MAX_RETRIES) {
               const delay = RETRY_DELAYS[index] || 4000;
-              console.log(`⏳ Retry ${index + 1}/${MAX_RETRIES} after ${delay}ms`, req.url);
               return timer(delay);
             }
             return throwError(() => error);
@@ -61,7 +57,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       ),
       catchError(error => handleError(error, req.url)),
       finalize(() => {
-        console.log('🧹 Cleaning up pending request:', cacheKey);
         pendingRequests.delete(cacheKey);
       }),
       share() // ✅ დავამატოთ share() multicast-ისთვის
@@ -80,7 +75,6 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
               error.status === 429 && 
               index < MAX_RETRIES) {
             const delay = RETRY_DELAYS[index] || 4000;
-            console.log(`⏳ Retry ${index + 1}/${MAX_RETRIES} after ${delay}ms`);
             return timer(delay);
           }
           return throwError(() => error);
@@ -95,12 +89,10 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 function getFromCache(key: string): any {
   const cached = requestCache.get(key);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-    console.log('📦 Cache valid, age:', (Date.now() - cached.timestamp) / 1000, 'seconds');
     return cached.response;
   }
   
   if (cached) {
-    console.log('⏰ Cache expired, age:', (Date.now() - cached.timestamp) / 1000, 'seconds');
   }
   
   requestCache.delete(key);
@@ -108,14 +100,12 @@ function getFromCache(key: string): any {
 }
 
 function saveToCache(key: string, response: any): void {
-  console.log('💾 Caching response for:', key);
   requestCache.set(key, { response, timestamp: Date.now() });
   
   // გავასუფთავოთ ძველი cache (მაქს 50 ჩანაწერი)
   if (requestCache.size > 50) {
     const oldestKey = requestCache.keys().next().value;
     if (typeof oldestKey === 'string') {
-      console.log('🗑️ Removing oldest cache entry:', oldestKey);
       requestCache.delete(oldestKey);
     }
   }

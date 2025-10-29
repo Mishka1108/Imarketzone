@@ -77,16 +77,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private translate: TranslateService, // ✅ დაამატეთ
     private languageService: LanguageService // ✅ დაამატეთ
   ) {
-    console.log('🔔 Navbar constructor called');
   }
 
   ngOnInit(): void {
-    console.log('🔔 Navbar ngOnInit started');
     
     // ✅ Subscribe to language changes
     const langSub = this.languageService.currentLang$.subscribe(lang => {
       this.currentLang = lang;
-      console.log('🌍 Language changed to:', lang);
     });
     
     // Profile image subscription
@@ -99,18 +96,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
     // Auth subscription
     const authSub = this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
-      console.log('🔔 User login status:', this.isLoggedIn);
       
       if (user) {
         const userId = localStorage.getItem('userId');
         if (userId) {
-          console.log('✅ User logged in, starting socket connection...');
           this.connectToSocket(userId);
           this.startUnreadCountMonitoring();
           this.listenForNewMessages();
         }
       } else {
-        console.log('❌ User logged out, disconnecting socket...');
         this.unreadMessagesCount = 0;
         this.socketService.disconnect();
       }
@@ -125,7 +119,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.subscriptions.add(profileSub);
     this.subscriptions.add(authSub);
     
-    console.log('✅ Navbar initialization complete');
   }
 
   // ✅ Change Language Method
@@ -134,12 +127,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private connectToSocket(userId: string): void {
-    console.log('🔌 Connecting to socket with userId:', userId);
     this.socketService.connect(userId);
     
     setTimeout(() => {
       if (this.socketService.isConnected()) {
-        console.log('✅ Socket connection verified');
       } else {
         console.warn('⚠️ Socket not connected, retrying...');
         this.socketService.connect(userId);
@@ -148,12 +139,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
     const connectionSub = this.socketService.getConnectionStatus().subscribe({
       next: (connected) => {
-        console.log('🔌 Socket connection status changed:', connected);
         if (!connected) {
           console.warn('⚠️ Socket disconnected, attempting to reconnect in 2s...');
           setTimeout(() => {
             if (!this.socketService.isConnected() && this.isLoggedIn) {
-              console.log('🔄 Reconnecting socket...');
               this.socketService.connect(userId);
             }
           }, 2000);
@@ -165,25 +154,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private startUnreadCountMonitoring(): void {
-    console.log('🔔 Starting unread count monitoring');
     
     this.messageService.getUnreadCount().subscribe({
       next: (count) => {
-        console.log('📊 Initial unread count:', count);
         this.unreadMessagesCount = count;
       },
       error: (err) => {
-        console.error('❌ Error loading initial unread count:', err);
       }
     });
 
     const unreadSub = this.messageService.unreadCount$.subscribe({
       next: (count) => {
-        console.log('🔔 Navbar received unread count update:', count);
         this.unreadMessagesCount = count;
       },
       error: (err) => {
-        console.error('❌ Error in navbar unread subscription:', err);
         this.unreadMessagesCount = 0;
       }
     });
@@ -192,10 +176,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private listenForNewMessages(): void {
-    console.log('👂 Navbar listening for new messages');
     
     const messageSub = this.socketService.onNewMessage().subscribe((data) => {
-      console.log('📩 NEW MESSAGE EVENT RECEIVED IN NAVBAR:', data);
       
       if (data && data.message) {
         const msg = data.message;
@@ -203,7 +185,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
         const userId = localStorage.getItem('userId');
         
         if (senderId !== userId) {
-          console.log('✅ Message is from another user, showing notification!');
           
           const senderName = typeof msg.senderId === 'object' && msg.senderId.name 
             ? msg.senderId.name 
@@ -224,7 +205,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   showMessageNotification(senderName: string, message: string, avatar?: string): void {
-    console.log('🔔 Showing notification:', { senderName, message });
     
     if (this.notificationTimeout) {
       clearTimeout(this.notificationTimeout);
@@ -262,10 +242,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
       const audio = new Audio('assets/sounds/notification.mp3');
       audio.volume = 0.3;
       audio.play().catch(err => {
-        console.log('⚠️ Could not play notification sound:', err);
       });
     } catch (err) {
-      console.log('ℹ️ Notification sound not available:', err);
     }
   }
 
@@ -303,12 +281,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
   
   ngOnDestroy(): void {
-    console.log('🔴 Navbar destroying, cleaning up...');
     this.subscriptions.unsubscribe();
     if (this.notificationTimeout) {
       clearTimeout(this.notificationTimeout);
     }
-    console.log('✅ Navbar cleanup complete');
   }
   
 }

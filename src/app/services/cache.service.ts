@@ -9,7 +9,6 @@ export class CacheService {
   clearAll(): void {
     requestCache.clear();
     pendingRequests.clear();
-    console.log('🗑️ Cache cleared');
   }
 
   clearUrl(url: string): void {
@@ -18,7 +17,6 @@ export class CacheService {
         requestCache.delete(key);
       }
     }
-    console.log('🗑️ Cache cleared for:', url);
   }
 
   getCacheSize(): number {
