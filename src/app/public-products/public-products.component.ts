@@ -1,4 +1,4 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,8 +16,7 @@ import { User } from '../models/user.model';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CityTranslatePipe } from '../pipes/city-translate.pipe';
-
-
+import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-public-products',
@@ -35,18 +34,24 @@ import { CityTranslatePipe } from '../pipes/city-translate.pipe';
     MatSnackBarModule,
     MatAutocompleteModule,
     TranslateModule,
-    CityTranslatePipe
-   
-
-],
+    CityTranslatePipe,
+    MatPaginatorModule
+  ],
   templateUrl: './public-products.component.html',
   styleUrls: ['./public-products.component.scss'],
-  schemas:[CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PublicProductsComponent implements OnInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  
   products: Product[] = [];
   isLoading: boolean = true;
   pibliccurrentUser: User | null = null;
+  
+  // Pagination პარამეტრები
+  pageSize: number = 10;
+  pageIndex: number = 0;
+  totalProducts: number = 0;
   
   // ფილტრების პარამეტრები  
   searchTerm: string = '';
@@ -82,7 +87,7 @@ export class PublicProductsComponent implements OnInit {
     private router: Router,
     private snackBar: MatSnackBar,
     private route: ActivatedRoute,
-    private translate: TranslateService // ✅ დამატება
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -98,11 +103,23 @@ export class PublicProductsComponent implements OnInit {
     this.filterCities();
   }
 
-  // 🔸 გამასწორებული loadProducts ფუნქცია
+  // Pagination ივენთის დამუშავება
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadProducts();
+    // გვერდის ზემოთ სქროლი
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // განახლებული loadProducts ფუნქცია pagination-ით
   loadProducts(): void {
     this.isLoading = true;
 
-    const filters: any = {};
+    const filters: any = {
+      page: this.pageIndex,
+      limit: this.pageSize
+    };
 
     if (this.selectedCategory) filters.category = this.selectedCategory;
     if (this.selectedCity) filters.city = this.selectedCity;
@@ -110,54 +127,57 @@ export class PublicProductsComponent implements OnInit {
     if (this.maxPrice) filters.maxPrice = this.maxPrice;
     if (this.searchTerm) filters.search = this.searchTerm;
 
-
     this.productService.getAllProducts(filters).subscribe({
       next: (response) => {
-
         let productsArray: Product[] = [];
 
-        // 🔸 უკეთესი response handling
+        // Response handling
         if (response?.success && Array.isArray(response.data)) {
           productsArray = response.data;
+          this.totalProducts = response.total || response.count || productsArray.length;
         } else if (Array.isArray(response?.products)) {
           productsArray = response.products;
+          this.totalProducts = response.total || response.count || productsArray.length;
         } else if (Array.isArray(response?.data)) {
           productsArray = response.data;
+          this.totalProducts = response.total || response.count || productsArray.length;
         } else if (Array.isArray(response?.items)) {
           productsArray = response.items;
+          this.totalProducts = response.total || response.count || productsArray.length;
         } else if (Array.isArray(response)) {
           productsArray = response;
+          this.totalProducts = productsArray.length;
         }
-
 
         if (!productsArray || productsArray.length === 0) {
           this.products = [];
+          this.totalProducts = 0;
           this.isLoading = false;
           return;
         }
 
-        // 🔸 ID normalization
+        // ID normalization
         productsArray = productsArray.map(product => ({
           ...product,
           id: product.id || product._id || product.productId || product.product_id || '',
-          // 🔹 ნახვების normalization
           viewCount: product.viewCount || product.views || 0,
           views: product.views || product.viewCount || 0
         }));
 
         this.products = productsArray;
         
-        // 🔸 Debug: რამდენ პროდუქტს აქვს ნახვები
         const productsWithViews = this.products.filter(p => this.getViewCount(p) > 0);
+
 
         this.isLoading = false;
       },
       error: (error) => {
         console.error('❌ Load Products Error:', error);
-        // ✅ განახლებული თარგმანით
         this.translate.get('PUBLIC_PRODUCTS.ERRORS.LOAD_FAILED').subscribe(msg => {
           this.showSnackBar(msg);
         });
+        this.products = [];
+        this.totalProducts = 0;
         this.isLoading = false;
       }
     });
@@ -165,6 +185,10 @@ export class PublicProductsComponent implements OnInit {
 
   // ფილტრების გამოყენება
   applyFilters(): void {
+    this.pageIndex = 0; // ფილტრის შემდეგ პირველ გვერდზე დაბრუნება
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
     this.loadProducts();
     this.filterCities();
   }
@@ -189,17 +213,20 @@ export class PublicProductsComponent implements OnInit {
     this.selectedCity = '';
     this.minPrice = null;
     this.maxPrice = null;
+    this.pageIndex = 0;
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
     this.loadProducts();
   }
 
-  // 🔸 გამასწორებული პროდუქტის დეტალების გახსნა
+  // პროდუქტის დეტალების გახსნა
   openProductDetails(product: Product): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const productId = this.getProductId(product);
     
     if (!productId) {
       console.error('❌ Product ID not found');
-      // ✅ განახლებული თარგმანით
       this.translate.get('PUBLIC_PRODUCTS.ERRORS.PRODUCT_ID_NOT_FOUND').subscribe(msg => {
         this.showSnackBar(msg);
       });
@@ -208,13 +235,10 @@ export class PublicProductsComponent implements OnInit {
 
     const slug = this.generateSlug(product.title);
     
-    // 🔹 ნავიგაცია პირველ რიგში
     this.router.navigate(['/product-details', productId, slug]);
     
-    // 🔹 ნახვის რეგისტრაცია background-ში
     this.productService.recordView(productId).subscribe({
       next: (response) => {
-        // 🔸 ლოკალურად ვაუცდიზრებთ ნახვების რაოდენობას
         const productIndex = this.products.findIndex(p => this.getProductId(p) === productId);
         if (productIndex !== -1) {
           const currentViews = this.getViewCount(this.products[productIndex]);
@@ -224,17 +248,14 @@ export class PublicProductsComponent implements OnInit {
       },
       error: (error) => {
         console.warn('⚠️ View recording failed:', error);
-        // ნახვის რეგისტრაცია არ უნდა შეაფერხოს ნავიგაციას
       }
     });
   }
 
-  // პროდუქტის ID-ის მიღება
   getProductId(product: Product): string {
     return product.id || product._id || product.productId || product.product_id || '';
   }
 
-  // ✅ განახლებული შეტყობინება
   showSnackBar(message: string): void {
     this.translate.get('PUBLIC_PRODUCTS.CLOSE').subscribe(closeText => {
       this.snackBar.open(message, closeText, {
@@ -245,7 +266,6 @@ export class PublicProductsComponent implements OnInit {
     });
   }
 
-  // სლუგის გენერაცია
   generateSlug(title: string): string {
     return title
       .toLowerCase()
@@ -255,28 +275,23 @@ export class PublicProductsComponent implements OnInit {
       .replace(/^-+|-+$/g, '');
   }
 
-  // მთავარი სურათი
   getMainImage(product: Product): string {
     const images = this.getAllProductImages(product);
     return images[0];
   }
 
-  // დანარჩენი სურათები
   getAdditionalImages(product: Product): string[] {
     const images = this.getAllProductImages(product);
     return images.slice(1, 4);
   }
  
-  // 🔸 გამასწორებული getAllProductImages
   getAllProductImages(product: Product): string[] {
     const images: string[] = [];
     
-    // პირველ რიგში ძირითადი სურათი
     if (product.image) {
       images.push(product.image);
     }
     
-    // შემდეგ images array-დან
     if (product.images && Array.isArray(product.images)) {
       product.images.forEach(image => {
         if (image && !images.includes(image)) {
@@ -285,7 +300,6 @@ export class PublicProductsComponent implements OnInit {
       });
     }
     
-    // ძველი ველების მხარდაჭერა
     [product.productImage1, product.productImage2, product.productImage3].forEach(image => {
       if (image && !images.includes(image)) {
         images.push(image);
@@ -294,7 +308,6 @@ export class PublicProductsComponent implements OnInit {
     
     const limitedImages = images.slice(0, 3);
     
-    // Placeholder თუ სურათები არ არის
     if (limitedImages.length === 0) {
       limitedImages.push('assets/images/placeholder.jpg');
     }
@@ -302,7 +315,6 @@ export class PublicProductsComponent implements OnInit {
     return limitedImages;
   }
 
-  // 🔸 გამასწორებული ნახვების რაოდენობის მიღება
   getViewCount(product: Product): number {
     if (!product) {
       console.warn('⚠️ Product is null/undefined');
@@ -311,25 +323,22 @@ export class PublicProductsComponent implements OnInit {
 
     const viewCount = product.viewCount || product.views || 0;
     
-    // 🔸 Debug logging
     if (viewCount > 0) {
+    
     }
     
     return viewCount;
   }
 
-  // ✅ განახლებული ნახვების ფორმატირება თარგმანით
   formatViewCount(count: number): string {
     if (!count || count === 0) return '0';
     
     if (count < 1000) {
       return count.toString();
     } else if (count < 1000000) {
-      // ✅ 'ათ' ან 'K' თარგმანის მიხედვით
       const suffix = this.translate.instant('PUBLIC_PRODUCTS.VIEW_SUFFIX_THOUSAND');
       return (count / 1000).toFixed(1) + suffix;
     } else {
-      // ✅ 'მ' ან 'M' თარგმანის მიხედვით
       const suffix = this.translate.instant('PUBLIC_PRODUCTS.VIEW_SUFFIX_MILLION');
       return (count / 1000000).toFixed(1) + suffix;
     }

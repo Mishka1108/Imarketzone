@@ -16,6 +16,7 @@ export class ProductService {
   public cachedProducts = this.cachedProducts$.asObservable();
 
   constructor(private http: HttpClient) { 
+  
   }
 
   // ✅ Cache Management Methods
@@ -24,13 +25,11 @@ export class ProductService {
   }
 
   getCachedProducts(): any[] {
-    const cached = this.cachedProducts$.value;
-    return cached;
+    return this.cachedProducts$.value;
   }
 
   hasCachedProducts(): boolean {
-    const hasCached = this.cachedProducts$.value.length > 0;
-    return hasCached;
+    return this.cachedProducts$.value.length > 0;
   }
 
   clearCache(): void {
@@ -68,7 +67,7 @@ export class ProductService {
 
   // Enhanced Error handling method
   private handleError(error: HttpErrorResponse): Observable<never> {
-    console.error('HTTP Error Details:', {
+    console.error('❌ HTTP Error Details:', {
       status: error.status,
       statusText: error.statusText,
       url: error.url,
@@ -95,35 +94,45 @@ export class ProductService {
     return throwError(() => new Error(errorMessage));
   }
 
-  // ✅ განახლებული getAllProducts - Cache-ის გამოყენებით
+  // ====================================
+  // 🔥 UPDATED: getAllProducts with PAGINATION
+  // ====================================
   getAllProducts(filters?: {
+    page?: number,
+    limit?: number,
     category?: string,
     minPrice?: number,
     maxPrice?: number,
-    search?: string
-    city?: string
+    search?: string,
+    city?: string,
+    sortBy?: string
   }): Observable<any> {
     
-    // ✅ თუ არ არის ფილტრები და cache არსებობს, დავაბრუნოთ cache
-    if (!filters && this.hasCachedProducts()) {
-      return of({ 
-        success: true, 
-        products: this.getCachedProducts(),
-        source: 'cache'
-      });
-    }
+   
     
     let params = new HttpParams();
     
+    // 🔥 Pagination parameters (0-indexed)
+    const page = filters?.page !== undefined ? filters.page : 0;
+    const limit = filters?.limit !== undefined ? filters.limit : 10;
+    
+    params = params.set('page', page.toString());
+    params = params.set('limit', limit.toString());
+    
+  
+    
+    // Other filters
     if (filters) {
-      if (filters.category) params = params.append('category', filters.category);
-      if (filters.minPrice) params = params.append('minPrice', filters.minPrice.toString());
-      if (filters.maxPrice) params = params.append('maxPrice', filters.maxPrice.toString());
-      if (filters.city) params = params.append('city', filters.city);
-      if (filters.search) params = params.append('search', filters.search);
+      if (filters.category) params = params.set('category', filters.category);
+      if (filters.minPrice) params = params.set('minPrice', filters.minPrice.toString());
+      if (filters.maxPrice) params = params.set('maxPrice', filters.maxPrice.toString());
+      if (filters.city) params = params.set('city', filters.city);
+      if (filters.search) params = params.set('search', filters.search);
+      if (filters.sortBy) params = params.set('sortBy', filters.sortBy);
     }
     
-   
+    const fullUrl = `${this.baseUrl}/products?${params.toString()}`;
+    
     
     return this.http.get(`${this.baseUrl}/products`, { 
       params,
@@ -133,31 +142,30 @@ export class ProductService {
       retry(1),
       tap(response => {
         
-        // ✅ თუ ფილტრები არ არის, cache-ში შევინახოთ
-        if (!filters) {
-          const products = (response as any).products || 
-                          (response as any).data || 
-                          response || [];
-          
-          if (products.length > 0) {
-            this.setCachedProducts(products);
-          }
-        }
+        
+        const data = (response as any);
+      
       }),
-      catchError(this.handleError)
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ getAllProducts Error:', error);
+        return this.handleError(error);
+      })
     );
   }
 
   // ✅ 🔥 FIXED: Enhanced getProductBySlug with automatic fallback
   getProductBySlug(slug: string): Observable<any> {
+   
     
     const url = `${this.baseUrl}/products/by-slug/${encodeURIComponent(slug)}`;
+    
     
     return this.http.get<any>(url, { 
       headers: this.getHeaders() 
     }).pipe(
       timeout(8000),
       tap(response => {
+        
       }),
       map((response: any) => {
         if (response.success && response.data) {
@@ -176,12 +184,14 @@ export class ProductService {
 
   // ✅ 🔥 IMPROVED: Fallback search with multiple strategies
   private fallbackSearchProduct(searchTerm: string): Observable<any> {
+   
 
     // Strategy 1: Try exact title match via search
     return this.getAllProducts({ search: searchTerm }).pipe(
       timeout(8000),
       map((response: any) => {
         const products = response.products || response.data || response || [];
+        
         
         
         if (!Array.isArray(products) || products.length === 0) {
@@ -196,6 +206,7 @@ export class ProductService {
         });
         
         if (product) {
+       
           return { product };
         }
         
@@ -205,6 +216,7 @@ export class ProductService {
         );
         
         if (product) {
+          
           return { product };
         }
         
@@ -214,6 +226,7 @@ export class ProductService {
         );
         
         if (product) {
+     
           return { product };
         }
         
@@ -227,6 +240,7 @@ export class ProductService {
         });
         
         if (product) {
+         
           return { product };
         }
         
@@ -259,7 +273,7 @@ export class ProductService {
   // ====================================
 
   recordViewAndGetStats(productId: string): Observable<any> {
-
+    console.log('👁️ Recording view and fetching stats for:', productId);
     
     if (!productId || productId.trim() === '') {
       console.error('❌ Invalid product ID');
@@ -275,6 +289,7 @@ export class ProductService {
     // ✅ Combined endpoint for recording view and getting stats
     return this.recordView(productId).pipe(
       switchMap(recordResponse => {
+        console.log('✅ View recorded:', recordResponse);
         
         // If recording includes stats, return them
         if (recordResponse.views !== undefined || recordResponse.totalViews !== undefined) {
@@ -308,6 +323,7 @@ export class ProductService {
   }
 
   recordView(productId: string): Observable<any> {
+    console.log('📝 Recording view for product:', productId);
     
     if (!productId || productId.trim() === '') {
       return of({ success: false, message: 'Invalid product ID' });
@@ -327,6 +343,7 @@ export class ProductService {
     }).pipe(
       timeout(8000),
       tap(response => {
+        console.log('✅ View recorded successfully:', response);
       }),
       catchError((error: HttpErrorResponse) => {
         console.warn('⚠️ View recording failed:', error.message);
@@ -340,6 +357,7 @@ export class ProductService {
   }
 
   getProductViewStats(productId: string): Observable<any> {
+    console.log('📊 Fetching view stats for:', productId);
     
     if (!productId || productId.trim() === '') {
       return of({ views: 0, success: false });
@@ -352,6 +370,7 @@ export class ProductService {
     }).pipe(
       timeout(8000),
       tap(response => {
+        console.log('✅ View stats fetched:', response);
       }),
       catchError((error: HttpErrorResponse) => {
         console.warn('⚠️ Stats fetch failed:', error.message);
@@ -366,6 +385,7 @@ export class ProductService {
 
   // Rest of existing methods...
   addProduct(productData: FormData): Observable<any> {
+    console.log('➕ Adding new product');
     
     return this.http.post(`${this.baseUrl}/products`, productData, {
       headers: this.getFormDataHeaders()
@@ -373,6 +393,7 @@ export class ProductService {
       timeout(30000),
       retry(1),
       tap((response: any) => {
+        console.log('✅ Product added successfully:', response);
         this.clearCache();
       }),
       catchError(this.handleError)
@@ -380,22 +401,30 @@ export class ProductService {
   }
 
   getUserProducts(): Observable<any> {
+    console.log('👤 Fetching user products');
+    
     return this.http.get(`${this.baseUrl}/products/user`, {
       headers: this.getHeaders()
     }).pipe(
       timeout(10000),
       retry(1),
+      tap(response => {
+        console.log('✅ User products fetched:', response);
+      }),
       catchError(this.handleError)
     );
   }
 
   deleteProduct(productId: string): Observable<any> {
+    console.log('🗑️ Deleting product:', productId);
+    
     return this.http.delete(`${this.baseUrl}/products/${productId}`, {
       headers: this.getHeaders()
     }).pipe(
       timeout(10000),
       retry(1),
       tap(() => {
+        console.log('✅ Product deleted successfully');
         this.clearCache();
       }),
       catchError(this.handleError)
@@ -403,6 +432,8 @@ export class ProductService {
   }
 
   checkConnection(): Observable<any> {
+    console.log('🔌 Checking API connection...');
+    
     return this.http.get(`${this.baseUrl}/health`, {
       headers: new HttpHeaders({
         'Accept': 'application/json',
@@ -410,21 +441,26 @@ export class ProductService {
       })
     }).pipe(
       timeout(5000),
+      tap(() => {
+        console.log('✅ API connection OK');
+      }),
       catchError((error) => {
-        console.error('კონექციის შეცდომა:', error);
+        console.error('❌ Connection check failed:', error);
         return this.handleError(error);
       })
     );
   }
 
   getProductById(productId: string): Observable<any> {
+    console.log('🔍 Fetching product by ID:', productId);
+    
     return this.http.get(`${this.baseUrl}/products/${productId}`, {
       headers: this.getHeaders()
     }).pipe(
       timeout(10000),
       retry(1),
-      catchError(this.handleError),
       tap((response: any) => {
+        console.log('✅ Product fetched by ID:', response);
       }),
       map((response: any) => {
         let product = response.product || response;
@@ -472,7 +508,8 @@ export class ProductService {
         product.userName = finalContact.name || 'არ არის მითითებული';
         
         return response.product ? { product } : product;
-      })
+      }),
+      catchError(this.handleError)
     );
   }
 
