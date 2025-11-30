@@ -793,53 +793,96 @@ export class DashboardComponent implements OnInit {
   }
 
   private async processSelectedFile(file: File, type: 'profile' | 'product', imageIndex?: number): Promise<void> {
+  console.log('📁 Processing file:', file.name, file.type, file.size);
   
-    
-    if (!file.type.startsWith('image/')) {
-      this.showSnackBar('გთხოვთ აირჩიოთ მხოლოდ სურათი');
-      return;
-    }
-    
-    if (file.size === 0) {
-      this.showSnackBar('არჩეული ფაილი ცარიელია');
-      return;
-    }
-    
-    const maxOriginalSize = 20 * 1024 * 1024;
-    if (file.size > maxOriginalSize) {
-      this.showSnackBar('სურათის ზომა არ უნდა აღემატებოდეს 20MB-ს');
-      return;
-    }
+  // ✅ შეამოწმე ფაილის ტიპი (ყველა image/* ტიპის მხარდაჭერა)
+  if (!file.type.startsWith('image/')) {
+    this.showSnackBar('გთხოვთ აირჩიოთ მხოლოდ სურათი');
+    return;
+  }
+  
+  if (file.size === 0) {
+    this.showSnackBar('არჩეული ფაილი ცარიელია');
+    return;
+  }
+  
+  const maxOriginalSize = 20 * 1024 * 1024; // 20MB
+  if (file.size > maxOriginalSize) {
+    this.showSnackBar('სურათის ზომა არ უნდა აღემატებოდეს 20MB-ს');
+    return;
+  }
 
-    try {
-      this.isCompressing = true;
-      this.showSnackBar('სურათი მუშავდება...');
+  try {
+    this.isCompressing = true;
+    this.showSnackBar('სურათი მუშავდება...');
+    
+    // ✅ WEBP-ის გადაყვანა JPEG-ში
+    let fileToCompress = file;
+    
+    if (file.type === 'image/webp') {
+      console.log('🔄 Converting WEBP to JPEG...');
+      this.showSnackBar('WEBP სურათი გარდაიქმნება JPEG-ში...');
       
-      const compressionOptions = {
-        maxWidth: type === 'profile' ? 512 : 1920,
-        maxHeight: type === 'profile' ? 512 : 1080,
-        quality: 0.8,
-        maxSizeInMB: type === 'profile' ? 1 : 3,
-        format: 'jpeg' as const
-      };
-
-
-      const compressedFile = await this.imageCompressionService.compressImage(file, compressionOptions);
-      
+      try {
+        fileToCompress = await this.convertWebpToJpeg(file);
+        console.log('✅ WEBP converted to JPEG:', fileToCompress.name, fileToCompress.size);
+      } catch (conversionError) {
+        console.error('❌ WEBP conversion failed:', conversionError);
+        this.showSnackBar('WEBP-ის გარდაქმნა ვერ მოხერხდა, მაგრამ ვცდილობ ატვირთვას...');
+        // თუ conversion ვერ მოხერხდა, გააგრძელე ორიგინალით
+        fileToCompress = file;
+      }
+    }
     
+    // ✅ კომპრესიის პარამეტრები
+    const compressionOptions = {
+      maxWidth: type === 'profile' ? 512 : 1920,
+      maxHeight: type === 'profile' ? 512 : 1080,
+      quality: 0.8,
+      maxSizeInMB: type === 'profile' ? 1 : 3,
+      format: 'jpeg' as const // ✅ ყოველთვის JPEG-ში გარდაიქმნება
+    };
+
+    console.log('🔄 Compressing image with options:', compressionOptions);
+
+    const compressedFile = await this.imageCompressionService.compressImage(fileToCompress, compressionOptions);
+    
+    console.log('✅ Compression complete:', compressedFile.name, compressedFile.size, compressedFile.type);
+    
+    // ✅ შეამოწმე დაკომპრესილი ფაილი
+    if (compressedFile.type !== 'image/jpeg' && compressedFile.type !== 'image/jpg') {
+      console.warn('⚠️ Compressed file is not JPEG, attempting final conversion...');
+      try {
+        const finalJpegFile = await this.convertWebpToJpeg(compressedFile);
+        if (type === 'profile') {
+          await this.handleProfileImageSelection(finalJpegFile);
+        } else if (type === 'product' && imageIndex !== undefined) {
+          await this.handleProductImageSelection(finalJpegFile, imageIndex);
+        }
+      } catch (finalError) {
+        console.error('❌ Final conversion failed, using compressed file as-is');
+        if (type === 'profile') {
+          await this.handleProfileImageSelection(compressedFile);
+        } else if (type === 'product' && imageIndex !== undefined) {
+          await this.handleProductImageSelection(compressedFile, imageIndex);
+        }
+      }
+    } else {
+      // ✅ JPEG ფაილის გამოყენება
       if (type === 'profile') {
         await this.handleProfileImageSelection(compressedFile);
       } else if (type === 'product' && imageIndex !== undefined) {
         await this.handleProductImageSelection(compressedFile, imageIndex);
       }
-      
-    } catch (error) {
-      console.error('Image compression error:', error);
-      this.showSnackBar('სურათის დამუშავებისას დაფიქსირდა შეცდომა');
-    } finally {
-      this.isCompressing = false;
     }
+    
+  } catch (error) {
+    console.error('❌ Image processing error:', error);
+    this.showSnackBar('სურათის დამუშავებისას დაფიქსირდა შეცდომა');
+  } finally {
+    this.isCompressing = false;
   }
+}
   
 private async handleProfileImageSelection(file: File): Promise<void> {
   this.isUploading = true;
@@ -1106,6 +1149,77 @@ generateSlug(title: any): string {
     });
 }
 
+private async convertWebpToJpeg(file: File): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+    
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      if (!e.target?.result) {
+        reject(new Error('Failed to read file'));
+        return;
+      }
+      
+      img.onload = () => {
+        try {
+          // ✅ Canvas-ში სურათის დახატვა
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+          
+          // ✅ თეთრი ფონი (JPEG-ისთვის transparency-ს მოსაშორებლად)
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          // ✅ სურათის დახატვა
+          ctx.drawImage(img, 0, 0);
+          
+          // ✅ Canvas-ის JPEG-ში გადაყვანა
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Failed to convert canvas to blob'));
+                return;
+              }
+              
+              // ✅ Blob-ის File ობიექტში გადაყვანა
+              const originalName = file.name.replace(/\.webp$/i, '');
+              const jpegFile = new File(
+                [blob], 
+                `${originalName}.jpg`, 
+                { type: 'image/jpeg' }
+              );
+              
+              console.log('✅ WEBP converted to JPEG:', jpegFile.name, jpegFile.size);
+              resolve(jpegFile);
+            },
+            'image/jpeg',
+            0.92 // JPEG quality
+          );
+          
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      img.onerror = (error) => {
+        reject(new Error('Failed to load image'));
+      };
+      
+      img.src = e.target.result as string;
+    };
+    
+    reader.onerror = (error) => {
+      reject(new Error('Failed to read file'));
+    };
+    
+    reader.readAsDataURL(file);
+  });
 
-
-}
+}}
