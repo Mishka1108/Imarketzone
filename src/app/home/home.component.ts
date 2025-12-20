@@ -49,15 +49,48 @@ export class HomeComponent implements OnInit, OnDestroy {
   products: any[] = [];
   loading = true;
   error: string | null = null;
+ private touchStartX: number = 0;
+  private touchStartY: number = 0;
+  private carouselElement: HTMLElement | null = null;
+
   ngAfterViewInit() {
-  // Carousel-ის touch events-ის გამორთვა
-  const carouselElement = document.querySelector('.custom-carousel');
-  if (carouselElement) {
-    carouselElement.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: false });
-    carouselElement.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: false });
-    carouselElement.addEventListener('touchend', (e) => e.stopPropagation(), { passive: false });
+    // დაველოდოთ DOM-ს რენდერს
+    setTimeout(() => {
+      this.blockCarouselSwipe();
+    }, 500);
   }
-}
+
+  blockCarouselSwipe() {
+    this.carouselElement = document.querySelector('.custom-carousel .p-carousel-items-content');
+    
+    if (this.carouselElement) {
+      // touchstart
+      this.carouselElement.addEventListener('touchstart', (e: TouchEvent) => {
+        this.touchStartX = e.touches[0].clientX;
+        this.touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      // touchmove - ვამოწმებთ არის თუ არა ვერტიკალური სქროლი
+      this.carouselElement.addEventListener('touchmove', (e: TouchEvent) => {
+        const touchEndX = e.touches[0].clientX;
+        const touchEndY = e.touches[0].clientY;
+        
+        const diffX = Math.abs(touchEndX - this.touchStartX);
+        const diffY = Math.abs(touchEndY - this.touchStartY);
+        
+        // თუ ჰორიზონტალური მოძრაობაა უფრო მეტი - ვბლოკავთ
+        if (diffX > diffY && diffX > 10) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, { passive: false });
+
+      // touchend
+      this.carouselElement.addEventListener('touchend', (e: TouchEvent) => {
+        e.stopPropagation();
+      }, { passive: true });
+    }
+  }
   
   categories: string[] = [
     'ტელეფონები', 'ტექნიკა', 'ავტომობილები', 'ტანსაცმელი', 
