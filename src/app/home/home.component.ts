@@ -49,6 +49,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   products: any[] = [];
   loading = true;
   error: string | null = null;
+  ngAfterViewInit() {
+  // Carousel-ის touch events-ის გამორთვა
+  const carouselElement = document.querySelector('.custom-carousel');
+  if (carouselElement) {
+    carouselElement.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: false });
+    carouselElement.addEventListener('touchmove', (e) => e.stopPropagation(), { passive: false });
+    carouselElement.addEventListener('touchend', (e) => e.stopPropagation(), { passive: false });
+  }
+}
   
   categories: string[] = [
     'ტელეფონები', 'ტექნიკა', 'ავტომობილები', 'ტანსაცმელი', 
