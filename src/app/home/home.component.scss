@@ -792,7 +792,6 @@ body {
     display: flex;
     flex-direction: column;
     width: 300px;
-    touch-action: pan-y !important;
     pointer-events: auto !important;
 }
 
@@ -808,8 +807,6 @@ body {
     position: relative;
     background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     border-bottom: 2px solid rgba(0, 123, 255, 0.1);
-    touch-action: pan-y !important;
-    pointer-events: auto !important;
 }
 
 .product-img {
@@ -951,7 +948,7 @@ body {
     box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4) !important;
 }
 
-/* PrimeNG Carousel-ის კასტომიზაცია - გამოსწორებული ვერსია */
+/* PrimeNG Carousel-ის კასტომიზაცია - სვაიპის გარეშე */
 ::ng-deep .custom-carousel {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
@@ -960,7 +957,12 @@ body {
     width: 100%;
     max-width: 100%;
     position: relative;
+}
+
+::ng-deep .custom-carousel * {
     touch-action: pan-y !important;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 ::ng-deep .custom-carousel .p-carousel-content {
@@ -968,8 +970,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    touch-action: pan-y !important;
-    pointer-events: none;
 }
 
 ::ng-deep .custom-carousel .p-carousel-container {
@@ -977,32 +977,35 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
-    touch-action: pan-y !important;
-    pointer-events: none;
+    pointer-events: none !important;
 }
 
 ::ng-deep .custom-carousel .p-carousel-items-content {
     display: flex;
     justify-content: center;
     align-items: center;
-    touch-action: pan-y !important;
-    pointer-events: none;
+    pointer-events: none !important;
+}
+
+::ng-deep .custom-carousel .p-carousel-items-container {
+    pointer-events: none !important;
 }
 
 ::ng-deep .custom-carousel .p-carousel-item {
     display: flex;
     justify-content: center;
     align-items: center;
-    touch-action: pan-y !important;
-    pointer-events: none;
+    pointer-events: none !important;
 }
 
-/* ღილაკებს და კონტენტს დავუბრუნოთ pointer-events */
+/* დავუშვათ pointer-events მხოლოდ საჭირო ელემენტებზე */
 ::ng-deep .custom-carousel .p-carousel-prev,
 ::ng-deep .custom-carousel .p-carousel-next,
-::ng-deep .custom-carousel .p-carousel-indicators,
-::ng-deep .custom-carousel .product-card,
-::ng-deep .custom-carousel button {
+::ng-deep .custom-carousel .p-carousel-indicators {
+    pointer-events: auto !important;
+}
+
+::ng-deep .custom-carousel .product-card * {
     pointer-events: auto !important;
 }
 
