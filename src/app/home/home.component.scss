@@ -948,7 +948,7 @@ body {
     box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4) !important;
 }
 
-/* PrimeNG Carousel-ის კასტომიზაცია - სვაიპის გარეშე */
+/* PrimeNG Carousel-ის კასტომიზაცია - სვაიპის სრულად გამორთვა */
 ::ng-deep .custom-carousel {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 15px;
@@ -957,12 +957,7 @@ body {
     width: 100%;
     max-width: 100%;
     position: relative;
-}
-
-::ng-deep .custom-carousel * {
-    touch-action: pan-y !important;
-    user-select: none;
-    -webkit-user-drag: none;
+    overflow: visible !important;
 }
 
 ::ng-deep .custom-carousel .p-carousel-content {
@@ -970,6 +965,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: visible !important;
 }
 
 ::ng-deep .custom-carousel .p-carousel-container {
@@ -977,18 +973,25 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
-    pointer-events: none !important;
+    overflow: visible !important;
 }
 
+/* სვაიპის სრულად დაბლოკვა */
 ::ng-deep .custom-carousel .p-carousel-items-content {
     display: flex;
     justify-content: center;
     align-items: center;
     pointer-events: none !important;
+    touch-action: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
 }
 
 ::ng-deep .custom-carousel .p-carousel-items-container {
     pointer-events: none !important;
+    touch-action: none !important;
 }
 
 ::ng-deep .custom-carousel .p-carousel-item {
@@ -996,17 +999,36 @@ body {
     justify-content: center;
     align-items: center;
     pointer-events: none !important;
+    touch-action: none !important;
 }
 
-/* დავუშვათ pointer-events მხოლოდ საჭირო ელემენტებზე */
-::ng-deep .custom-carousel .p-carousel-prev,
-::ng-deep .custom-carousel .p-carousel-next,
-::ng-deep .custom-carousel .p-carousel-indicators {
+/* product card-ს და მის შვილებს დავუბრუნოთ ინტერაქცია */
+::ng-deep .custom-carousel .product-card {
     pointer-events: auto !important;
+    touch-action: pan-y !important;
 }
 
 ::ng-deep .custom-carousel .product-card * {
     pointer-events: auto !important;
+    touch-action: pan-y !important;
+}
+
+/* Navigation ღილაკები */
+::ng-deep .custom-carousel .p-carousel-prev,
+::ng-deep .custom-carousel .p-carousel-next {
+    pointer-events: auto !important;
+    touch-action: auto !important;
+}
+
+/* Indicators */
+::ng-deep .custom-carousel .p-carousel-indicators {
+    pointer-events: auto !important;
+    touch-action: auto !important;
+}
+
+::ng-deep .custom-carousel .p-carousel-indicator {
+    pointer-events: auto !important;
+    touch-action: auto !important;
 }
 
 /* Navigation ღილაკების გამოსწორებული სტილები */
