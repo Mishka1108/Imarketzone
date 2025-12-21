@@ -1,4 +1,4 @@
-// home.component.ts - SEO-ოპტიმიზებული ვერსია (Fixed TranslateModule)
+// home.component.ts - Custom Carousel Version (No PrimeNG)
 
 import { Component, OnInit, HostListener, OnDestroy, Inject, PLATFORM_ID, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { MatButton } from '@angular/material/button';
@@ -9,30 +9,21 @@ import { SeoService } from '../../seo.service';
 import { ProductService } from '../services/product.service';
 import { Meta, Title } from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { forkJoin, of, Observable } from 'rxjs';
-import { map, catchError, tap, delay } from 'rxjs/operators';
-import { CarouselModule } from 'primeng/carousel';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CategoryTranslatePipe } from "../pipes/category-translate.pipe";
 
 @Component({
   selector: 'app-home',
-  standalone: true, // დარწმუნდით რომ standalone: true არის
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     RouterLink,
     MatButtonModule,
-    CarouselModule,
-    ButtonModule,
-    TagModule,
-    TranslateModule // ეს არის გასაღები - TranslateModule უნდა იყოს imports-ში
-    ,
+    TranslateModule,
     CategoryTranslatePipe
-],
+  ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -45,52 +36,24 @@ export class HomeComponent implements OnInit, OnDestroy {
   allProducts: any[] = []; 
   isLoadingProducts: boolean = false;
   isLoadingViews: boolean = false;
-  responsiveOptions: any[] | undefined;
   products: any[] = [];
   loading = true;
   error: string | null = null;
- private touchStartX: number = 0;
+
+  // ==================== CAROUSEL PROPERTIES ====================
+  currentIndex: number = 0;
+  slideWidth: number = 33.333; // Default for 3 items
+  itemsPerView: number = 3;
+  autoplayInterval: any;
+  circular: boolean = true;
+  showNavigators: boolean = true;
+  showIndicators: boolean = true;
+  autoplayDelay: number = 5000;
+  
+  // Touch Events
+  private touchStartX: number = 0;
   private touchStartY: number = 0;
-  private carouselElement: HTMLElement | null = null;
-
-  ngAfterViewInit() {
-    // დაველოდოთ DOM-ს რენდერს
-    setTimeout(() => {
-      this.blockCarouselSwipe();
-    }, 500);
-  }
-
-  blockCarouselSwipe() {
-    this.carouselElement = document.querySelector('.custom-carousel .p-carousel-items-content');
-    
-    if (this.carouselElement) {
-      // touchstart
-      this.carouselElement.addEventListener('touchstart', (e: TouchEvent) => {
-        this.touchStartX = e.touches[0].clientX;
-        this.touchStartY = e.touches[0].clientY;
-      }, { passive: true });
-
-      // touchmove - ვამოწმებთ არის თუ არა ვერტიკალური სქროლი
-      this.carouselElement.addEventListener('touchmove', (e: TouchEvent) => {
-        const touchEndX = e.touches[0].clientX;
-        const touchEndY = e.touches[0].clientY;
-        
-        const diffX = Math.abs(touchEndX - this.touchStartX);
-        const diffY = Math.abs(touchEndY - this.touchStartY);
-        
-        // თუ ჰორიზონტალური მოძრაობაა უფრო მეტი - ვბლოკავთ
-        if (diffX > diffY && diffX > 10) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-      }, { passive: false });
-
-      // touchend
-      this.carouselElement.addEventListener('touchend', (e: TouchEvent) => {
-        e.stopPropagation();
-      }, { passive: true });
-    }
-  }
+  private touchEndX: number = 0;
   
   categories: string[] = [
     'ტელეფონები', 'ტექნიკა', 'ავტომობილები', 'ტანსაცმელი', 
@@ -112,35 +75,144 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadProductsWithRealViews();
     this.setupComprehensiveSEO();
     this.loadAllProducts();
+    this.updateCarouselSettings();
+    this.startAutoplay();
     
     if (isPlatformBrowser(this.platformId)) {
       this.addEnhancedStructuredData();
       this.addBreadcrumbSchema();
       this.addOrganizationSchema();
+      window.addEventListener('resize', () => this.updateCarouselSettings());
     }
-    
-    setTimeout(() => {
-    }, 100);
-    
-    this.responsiveOptions = [
-      { breakpoint: '1920px', numVisible: 4, numScroll: 1 },
-      { breakpoint: '1400px', numVisible: 3, numScroll: 1 },
-      { breakpoint: '1024px', numVisible: 3, numScroll: 1 },
-      { breakpoint: '962px', numVisible: 2, numScroll: 1 },
-      { breakpoint: '768px', numVisible: 2, numScroll: 1 },
-      { breakpoint: '480px', numVisible: 1, numScroll: 1 }
-    ];
   }
 
   ngOnDestroy() {
-    // cleanup if needed
+    this.stopAutoplay();
+    if (isPlatformBrowser(this.platformId)) {
+      window.removeEventListener('resize', () => this.updateCarouselSettings());
+    }
   }
+
+  // ==================== CAROUSEL METHODS ====================
+  
+  updateCarouselSettings() {
+    if (!isPlatformBrowser(this.platformId)) return;
+    
+    const width = window.innerWidth;
+    if (width < 480) {
+      this.itemsPerView = 1;
+      this.slideWidth = 100;
+    } else if (width < 768) {
+      this.itemsPerView = 2;
+      this.slideWidth = 50;
+    } else if (width < 1024) {
+      this.itemsPerView = 2;
+      this.slideWidth = 50;
+    } else if (width < 1400) {
+      this.itemsPerView = 3;
+      this.slideWidth = 33.333;
+    } else {
+      this.itemsPerView = 4;
+      this.slideWidth = 25;
+    }
+  }
+
+  get maxIndex(): number {
+    const products = this.getProductsWithHighViews();
+    return Math.max(0, Math.ceil(products.length / this.itemsPerView) - 1);
+  }
+
+  nextSlide() {
+    const products = this.getProductsWithHighViews();
+    if (this.currentIndex < this.maxIndex) {
+      this.currentIndex++;
+    } else if (this.circular) {
+      this.currentIndex = 0;
+    }
+    this.resetAutoplay();
+  }
+
+  prevSlide() {
+    if (this.currentIndex > 0) {
+      this.currentIndex--;
+    } else if (this.circular) {
+      this.currentIndex = this.maxIndex;
+    }
+    this.resetAutoplay();
+  }
+
+  goToSlide(index: number) {
+    this.currentIndex = index;
+    this.resetAutoplay();
+  }
+
+  getIndicators(): any[] {
+    return Array(this.maxIndex + 1).fill(0);
+  }
+
+  // Autoplay Methods
+  startAutoplay() {
+    if (!isPlatformBrowser(this.platformId) || this.autoplayDelay <= 0) return;
+    
+    this.autoplayInterval = setInterval(() => {
+      this.nextSlide();
+    }, this.autoplayDelay);
+  }
+
+  stopAutoplay() {
+    if (this.autoplayInterval) {
+      clearInterval(this.autoplayInterval);
+      this.autoplayInterval = null;
+    }
+  }
+
+  resetAutoplay() {
+    this.stopAutoplay();
+    this.startAutoplay();
+  }
+
+  // Touch Events for Mobile Swipe
+  onTouchStart(event: TouchEvent) {
+    this.touchStartX = event.touches[0].clientX;
+    this.touchStartY = event.touches[0].clientY;
+    this.stopAutoplay();
+  }
+
+  onTouchMove(event: TouchEvent) {
+    const touchEndX = event.touches[0].clientX;
+    const touchEndY = event.touches[0].clientY;
+    
+    const diffX = Math.abs(touchEndX - this.touchStartX);
+    const diffY = Math.abs(touchEndY - this.touchStartY);
+    
+    // Prevent vertical scroll if horizontal swipe
+    if (diffX > diffY && diffX > 10) {
+      event.preventDefault();
+    }
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    this.touchEndX = event.changedTouches[0].clientX;
+    const diff = this.touchStartX - this.touchEndX;
+    
+    // Minimum swipe distance: 50px
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        this.nextSlide();
+      } else {
+        this.prevSlide();
+      }
+    } else {
+      this.startAutoplay();
+    }
+  }
+
+  // ==================== PRODUCT METHODS ====================
 
   getProductsWithHighViews(): any[] {
     if (!this.products || this.products.length === 0) {
       return [];
     }
-
 
     const highViewProducts = this.products.filter(product => {
       const viewCount = product.viewCount || product.views || product.totalViews || 0;
@@ -150,7 +222,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (highViewProducts.length === 0) {
       return [];
     }
-
 
     const sortedProducts = highViewProducts.sort((a, b) => {
       const viewsA = a.viewCount || a.views || a.totalViews || 0;
@@ -162,8 +233,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   hasPopularProducts(): boolean {
-    const hasProducts = this.getProductsWithHighViews().length > 0;
-    return hasProducts;
+    return this.getProductsWithHighViews().length > 0;
   }
 
   getPopularProductsCount(): number {
@@ -198,7 +268,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             allProducts = [response];
           }
         }
-
         
         if (allProducts.length > 0) {
           this.processProductsWithRealViews(allProducts);
@@ -219,7 +288,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private processProductsWithRealViews(allProducts: any[]) {
-    
     const productsWithViewData = allProducts.map(product => {
       const viewCount = product.viewCount || product.views || product.totalViews || 0;
       return {
@@ -239,8 +307,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.products = sortedProducts.slice(0, 12);
     }
 
-    const highViewCount = this.products.filter(p => (p.viewCount || 0) >= 100).length;
-    
     this.loading = false;
     this.isLoadingViews = false;
   }
@@ -255,7 +321,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   viewProduct(productId: string) {
-    
     if (!productId) {
       console.error('❌ არასწორი პროდუქტის ID');
       this.showSnackBar('პროდუქტის გახსნისას წარმოიშვა შეცდომა');
@@ -299,6 +364,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.warn(message);
     }
   }
+
+  // ==================== SEO METHODS ====================
 
   private setupComprehensiveSEO(): void {
     this.translate.get('SEO.PAGE_TITLE').subscribe(title => {
@@ -446,6 +513,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       .replace(/^-+|-+$/g, '');
     return `/product-details/${encodeURIComponent(slug)}`;
   }
+
+  // ==================== SEARCH & NAVIGATION ====================
 
   onSearch(): void {
     if (this.searchQuery.trim()) {
