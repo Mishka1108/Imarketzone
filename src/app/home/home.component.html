@@ -107,7 +107,7 @@
 
 
 
-
+<div class="caroussel">
 <div *ngIf="getProductsWithHighViews().length > 0" class="popular-products-carousel">
   <h1 class="popular-products-title">{{ 'HOME.POPULAR_PRODUCTS.TITLE' | translate }}</h1>
 
@@ -200,13 +200,14 @@
     </button>
   </div>
 </div>
+</div>
 
 
 
 
 
 <div class="categorymain">
-        <h1>{{ 'HOME.CATEGORIES.TITLE' | translate }}</h1>
+        <h1 class="popular-category">{{ 'HOME.CATEGORIES.TITLE' | translate }}</h1>
         <div class="category-list">
             <div class="category" (click)="onCategoryClick('ტელეფონები')">
                 <div class="icon-container">
