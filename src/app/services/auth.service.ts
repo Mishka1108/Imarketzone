@@ -61,7 +61,6 @@ export class AuthService {
         const user = JSON.parse(userJson);
         this.currentUserSubject.next(user);
         
-        // Update profile image service on load
         if (user && user.profileImage) {
           this.profileImageService.updateProfileImage(user.profileImage);
         }
@@ -69,6 +68,7 @@ export class AuthService {
         this.refreshUserData().subscribe({
           next: (refreshedUser) => {
             if (refreshedUser) {
+              // User data refreshed successfully
             }
           },
           error: (error) => {
@@ -86,12 +86,11 @@ export class AuthService {
     if (this.isBrowser()) {
       localStorage.removeItem('currentUser');
       localStorage.removeItem('token');
-      localStorage.removeItem('userId'); // ✅ დამატებული
-      localStorage.removeItem('username'); // ✅ დამატებული
+      localStorage.removeItem('userId');
+      localStorage.removeItem('username');
     }
     this.currentUserSubject.next(null);
     
-    // Reset profile image to default
     this.profileImageService.updateProfileImage(
       'https://i.ibb.co/GvshXkLK/307ce493-b254-4b2d-8ba4-d12c080d6651.jpg'
     );
@@ -116,7 +115,6 @@ export class AuthService {
           localStorage.setItem('currentUser', JSON.stringify(user));
           this.currentUserSubject.next(user);
           
-          // ✅ განახლდეს userId და username localStorage-ში
           if (user._id || user.id) {
             localStorage.setItem('userId', user._id || user.id);
           }
@@ -124,7 +122,6 @@ export class AuthService {
             localStorage.setItem('username', user.name || user.username);
           }
           
-          // Update profile image service on refresh
           if (user.profileImage) {
             this.profileImageService.updateProfileImage(user.profileImage);
           }
@@ -151,22 +148,7 @@ export class AuthService {
       .pipe(
         tap((response: any) => {
           if (response && response.token && response.user && this.isBrowser()) {
-            localStorage.setItem('token', response.token);
-            localStorage.setItem('currentUser', JSON.stringify(response.user));
-            this.currentUserSubject.next(response.user);
-            
-            // ✅ შეინახოს userId და username
-            if (response.user._id || response.user.id) {
-              localStorage.setItem('userId', response.user._id || response.user.id);
-            }
-            if (response.user.name || response.user.username) {
-              localStorage.setItem('username', response.user.name || response.user.username);
-            }
-            
-            // Update profile image service on login
-            if (response.user.profileImage) {
-              this.profileImageService.updateProfileImage(response.user.profileImage);
-            }
+            this.saveAuthData(response.token, response.user);
           }
         }),
         catchError((error: HttpErrorResponse) => {
@@ -174,6 +156,81 @@ export class AuthService {
           return throwError(() => error);
         })
       );
+  }
+
+  /**
+   * ✅ Google OAuth Login
+   * @param credential - Google ID Token (JWT credential)
+   */
+  loginWithGoogle(credential: string): Observable<any> {
+    console.log('📤 Sending Google credential to backend...');
+    
+    return this.http.post(`${this.apiUrl}/auth/google`, { 
+      credential: credential // Backend expects { credential: string }
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).pipe(
+      tap((response: any) => {
+        console.log('✅ Backend response:', response);
+        
+        if (response && response.token && response.user && this.isBrowser()) {
+          this.saveAuthData(response.token, response.user);
+          console.log('✅ Auth data saved successfully');
+        }
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Google login error:', error);
+        console.error('Error details:', {
+          status: error.status,
+          message: error.message,
+          error: error.error
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * ✅ Google OAuth Registration
+   * @param credential - Google ID Token
+   */
+  registerWithGoogle(credential: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/google/register`, { credential })
+      .pipe(
+        tap((response: any) => {
+          if (response && response.token && response.user && this.isBrowser()) {
+            this.saveAuthData(response.token, response.user);
+          }
+        }),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Google registration error:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
+   * ✅ Auth Data-ს შენახვა (DRY principle)
+   */
+  private saveAuthData(token: string, user: any): void {
+    if (!this.isBrowser()) return;
+
+    localStorage.setItem('token', token);
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+    
+    if (user._id || user.id) {
+      localStorage.setItem('userId', user._id || user.id);
+    }
+    if (user.name || user.username) {
+      localStorage.setItem('username', user.name || user.username);
+    }
+    
+    if (user.profileImage) {
+      this.profileImageService.updateProfileImage(user.profileImage);
+    }
   }
 
   verifyEmail(token: string): Observable<any> {
@@ -184,17 +241,14 @@ export class AuthService {
     this.clearAuthData();
   }
 
-  // ✅ განახლებული getCurrentUser მეთოდი - უფრო დეტალური
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
 
-  // ✅ ახალი მეთოდი - უფრო მარტივი ფორმატით message dialog-ისთვის
   getCurrentUserSimple(): { id: string; name: string; avatar?: string } | null {
     const user = this.currentUserSubject.value;
     
     if (!user) {
-      // Fallback - შევამოწმოთ localStorage
       if (this.isBrowser()) {
         const userId = localStorage.getItem('userId');
         const username = localStorage.getItem('username');
@@ -216,7 +270,6 @@ export class AuthService {
     };
   }
 
-  // ✅ ახალი - userId-ის პირდაპირი მიღება
   getUserId(): string | null {
     const user = this.currentUserSubject.value;
     
@@ -224,7 +277,6 @@ export class AuthService {
       return user._id || user.id || null;
     }
     
-    // Fallback - localStorage-დან
     if (this.isBrowser()) {
       return localStorage.getItem('userId');
     }
@@ -232,7 +284,6 @@ export class AuthService {
     return null;
   }
 
-  // ✅ ახალი - username-ის პირდაპირი მიღება
   getUsername(): string | null {
     const user = this.currentUserSubject.value;
     
@@ -240,7 +291,6 @@ export class AuthService {
       return user.name || user.username || null;
     }
     
-    // Fallback - localStorage-დან
     if (this.isBrowser()) {
       return localStorage.getItem('username');
     }
@@ -248,7 +298,6 @@ export class AuthService {
     return null;
   }
 
-  // ✅ ახალი - user avatar-ის მიღება
   getUserAvatar(): string | null {
     const user = this.currentUserSubject.value;
     
@@ -269,13 +318,11 @@ export class AuthService {
     return token ? !this.isTokenExpired(token) : false;
   }
 
-  // ✅ ახალი - user-ის როლის შემოწმება (თუ საჭიროა)
   hasRole(role: string): boolean {
     const user = this.currentUserSubject.value;
     return user?.role === role || false;
   }
 
-  // ✅ ახალი - შეამოწმოს არის თუ არა მოცემული პროდუქტი მომხმარებლის საკუთარი
   isOwner(userId: string): boolean {
     const currentUserId = this.getUserId();
     return currentUserId === userId;
@@ -303,7 +350,6 @@ export class AuthService {
           localStorage.setItem('currentUser', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
           
-          // Update profile image service after upload
           if (response.user.profileImage) {
             this.profileImageService.updateProfileImage(response.user.profileImage);
           }
@@ -343,7 +389,6 @@ export class AuthService {
     );
   }
 
-  // ✅ ახალი - password-ის შეცვლა
   changePassword(oldPassword: string, newPassword: string): Observable<any> {
     const token = this.getToken();
     
@@ -370,7 +415,6 @@ export class AuthService {
     );
   }
 
-  // ✅ ახალი - პროფილის განახლება
   updateProfile(profileData: Partial<User>): Observable<any> {
     const token = this.getToken();
     
@@ -390,7 +434,6 @@ export class AuthService {
           localStorage.setItem('currentUser', JSON.stringify(response.user));
           this.currentUserSubject.next(response.user);
           
-          // განახლდეს localStorage-ში username
           if (response.user.name || response.user.username) {
             localStorage.setItem('username', response.user.name || response.user.username);
           }

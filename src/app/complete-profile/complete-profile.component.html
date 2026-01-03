@@ -1,0 +1,146 @@
+<div class="profile-container">
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="google-logo">
+  <span class="logo-letter logo-g">G</span>
+  <span class="logo-letter logo-o1">o</span>
+  <span class="logo-letter logo-o2">o</span>
+  <span class="logo-letter logo-g2">g</span>
+  <span class="logo-letter logo-l">l</span>
+  <span class="logo-letter logo-e">e</span>
+  <span style="color: #5f6368; margin-left: 8px;">Account</span>
+</div>
+      <h2>{{ 'PROFILE.COMPLETE_TITLE' | translate }}</h2>
+      <p class="subtitle">{{ 'PROFILE.COMPLETE_SUBTITLE' | translate }}</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+
+    <!-- User Info Display -->
+    <div *ngIf="currentUser" class="user-info">
+      <div class="user-avatar">
+        <img [src]="currentUser.profileImage || 'assets/images/default-avatar.png'" 
+             [alt]="currentUser.name">
+      </div>
+      <div class="user-details">
+        <h3>{{ currentUser.name }} {{ currentUser.secondName }}</h3>
+        <p>{{ currentUser.email }}</p>
+      </div>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <!-- Phone Number -->
+      <div class="form-group">
+        <label for="phone">
+          <i class="fas fa-phone"></i>
+          {{ 'PROFILE.PHONE_LABEL' | translate }}
+          <span class="optional">{{ 'PROFILE.OPTIONAL' | translate }}</span>
+        </label>
+        <input 
+          type="tel" 
+          id="phone" 
+          formControlName="phone" 
+          class="form-control"
+          placeholder="+995 555 12 34 56"
+          [ngClass]="{'is-invalid': hasError('phone', 'pattern')}"
+        >
+        <div *ngIf="hasError('phone', 'pattern')" class="invalid-feedback">
+          <i class="fas fa-exclamation-triangle"></i>
+          {{ 'PROFILE.PHONE_INVALID' | translate }}
+        </div>
+        <small class="form-text">
+          <i class="fas fa-info-circle"></i>
+          {{ 'PROFILE.PHONE_HELP' | translate }}
+        </small>
+      </div>
+
+      <!-- Personal Number -->
+      <div class="form-group">
+        <label for="personalNumber">
+          <i class="fas fa-id-card"></i>
+          {{ 'PROFILE.PERSONAL_NUMBER_LABEL' | translate }}
+          <span class="optional">{{ 'PROFILE.OPTIONAL' | translate }}</span>
+        </label>
+        <input 
+          type="text" 
+          id="personalNumber" 
+          formControlName="personalNumber" 
+          class="form-control"
+          placeholder="01234567891"
+          maxlength="11"
+          [ngClass]="{'is-invalid': (hasError('personalNumber', 'pattern') || 
+                                     hasError('personalNumber', 'minlength') || 
+                                     hasError('personalNumber', 'maxlength'))}"
+        >
+        <div *ngIf="hasError('personalNumber', 'pattern') || 
+                    hasError('personalNumber', 'minlength') || 
+                    hasError('personalNumber', 'maxlength')" 
+             class="invalid-feedback">
+          <i class="fas fa-exclamation-triangle"></i>
+          {{ 'PROFILE.PERSONAL_NUMBER_LENGTH' | translate }}
+        </div>
+        <small class="form-text">
+          <i class="fas fa-info-circle"></i>
+          {{ 'PROFILE.PERSONAL_NUMBER_HELP' | translate }}
+        </small>
+      </div>
+
+      <!-- Date of Birth -->
+      <div class="form-group">
+        <label for="dateOfBirth">
+          <i class="fas fa-calendar-alt"></i>
+          {{ 'PROFILE.DATE_OF_BIRTH_LABEL' | translate }}
+          <span class="optional">{{ 'PROFILE.OPTIONAL' | translate }}</span>
+        </label>
+        <input 
+          type="date" 
+          id="dateOfBirth" 
+          formControlName="dateOfBirth" 
+          class="form-control"
+          [max]="maxDate"
+        >
+        <small class="form-text">
+          <i class="fas fa-info-circle"></i>
+          {{ 'PROFILE.DATE_OF_BIRTH_HELP' | translate }}
+        </small>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="onSkip()"
+          [disabled]="isSubmitting"
+        >
+          <i class="fas fa-forward"></i>
+          {{ 'PROFILE.SKIP_BUTTON' | translate }}
+        </button>
+        <button 
+          type="submit" 
+          class="btn btn-primary" 
+          [disabled]="isSubmitting"
+        >
+          <span *ngIf="isSubmitting">
+            <i class="fas fa-spinner fa-spin"></i>
+            {{ 'PROFILE.SAVING' | translate }}
+          </span>
+          <span *ngIf="!isSubmitting">
+            <i class="fas fa-save"></i>
+            {{ 'PROFILE.SAVE_BUTTON' | translate }}
+          </span>
+        </button>
+      </div>
+    </form>
+
+    <!-- Additional Info -->
+    <div class="info-box">
+      <i class="fas fa-shield-alt"></i>
+      <p>{{ 'PROFILE.PRIVACY_NOTE' | translate }}</p>
+    </div>
+  </div>
+</div>

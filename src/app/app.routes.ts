@@ -31,6 +31,16 @@ export const routes: Routes = [
       }
     ]
   },
+  
+  // ✅ COMPLETE PROFILE ROUTE - Google რეგისტრაციის შემდეგ
+  {
+    path: 'complete-profile',
+    loadComponent: () =>
+      import('./complete-profile/complete-profile.component').then((m) => m.CompleteProfileComponent),
+    canActivate: [() => authGuard()],
+    title: 'პროფილის შევსება - MarketZone'
+  },
+  
   {
     path: 'dashboard',
     loadComponent: () =>
@@ -63,7 +73,6 @@ export const routes: Routes = [
   { 
     path: 'product-details/:slug', 
     component: ProductDetailsComponent,
-    // ✅ URL მატჩინგის გამოწვადი ოპცია
     runGuardsAndResolvers: 'paramsOrQueryParamsChange'
   },
   
@@ -89,9 +98,8 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotpasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'auth/reset-password/:token', component: ResetPasswordComponent },
-  
-  // ✅ Wildcard route - ბოლოში
-   {path: 'rules', component:RulesComponent},
+  { path: 'rules', component: RulesComponent },
 
+  // ✅ Wildcard route - ბოლოში
   { path: '**', redirectTo: '/home' }
 ];

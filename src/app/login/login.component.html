@@ -1,11 +1,9 @@
 <div class="login-container">
   <div class="login-form-box">
     <h2>{{ 'LOGIN.TITLE' | translate }}</h2>
+  
     
-    <div *ngIf="errorMessage" class="alert alert-danger">
-      {{ errorMessage }}
-    </div>
-    
+    <!-- Regular Login Form -->
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="email">{{ 'LOGIN.FORM.EMAIL_LABEL' | translate }}</label>
@@ -14,6 +12,7 @@
           id="email" 
           formControlName="email" 
           class="form-control"
+          placeholder="example@email.com"
           [ngClass]="{'is-invalid': loginForm.get('email')?.invalid && loginForm.get('email')?.touched}"
         >
         <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="invalid-feedback">
@@ -33,6 +32,7 @@
           id="password" 
           formControlName="password" 
           class="form-control"
+          placeholder="••••••••"
           [ngClass]="{'is-invalid': loginForm.get('password')?.invalid && loginForm.get('password')?.touched}"
         >
         <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="invalid-feedback">
@@ -48,18 +48,38 @@
           class="btn btn-primary" 
           [disabled]="loginForm.invalid || isSubmitting"
         >
-          <span *ngIf="isSubmitting">{{ 'LOGIN.FORM.SUBMITTING' | translate }}</span>
+          <span *ngIf="isSubmitting">
+            <i class="fas fa-spinner fa-spin"></i>
+            {{ 'LOGIN.FORM.SUBMITTING' | translate }}
+          </span>
           <span *ngIf="!isSubmitting">{{ 'LOGIN.FORM.SUBMIT_BUTTON' | translate }}</span>
         </button>
       </div>
-      
+
       <div class="forgot-password">
         <a routerLink="/forgot-password">{{ 'LOGIN.FORM.FORGOT_PASSWORD' | translate }}</a>
       </div>
       
+          <div class="google-signin-container">
+      <div id="google-signin-button"></div>
+    </div>
+
+
       <div class="form-footer">
-        {{ 'LOGIN.FORM.NO_ACCOUNT' | translate }} <a routerLink="/auth/register">{{ 'LOGIN.FORM.REGISTER_LINK' | translate }}</a>
+        {{ 'LOGIN.FORM.NO_ACCOUNT' | translate }} 
+        <a routerLink="/auth/register">{{ 'LOGIN.FORM.REGISTER_LINK' | translate }}</a>
       </div>
     </form>
+ 
   </div>
+
+  
+   <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+    
+    
+    <!-- Google Sign-In Button -->
+   
 </div>

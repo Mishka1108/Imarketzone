@@ -13,7 +13,6 @@
     "CLOSE": "Close",
     "UNKNOWN_USER": "Unknown User"
   },
-  
   "HOME": {
     "HERO": {
       "BUY_SELL": "Buy and Sell",
@@ -109,7 +108,7 @@
       "CREATED_BY": "Created with ❤️ by Mishiko Chochia"
     }
   },
-   "FORGOT_PASSWORD": {
+  "FORGOT_PASSWORD": {
     "TITLE": "Password Recovery",
     "SUBTITLE": "Enter your email to recover your password",
     "FORM": {
@@ -128,8 +127,9 @@
       "ERROR_OCCURRED": "An error occurred. Please try again"
     }
   },
-   "LOGIN": {
+  "LOGIN": {
     "TITLE": "Authorization",
+    "SUCCESS": "Successfully signed in",
     "FORM": {
       "EMAIL_LABEL": "Email",
       "PASSWORD_LABEL": "Password",
@@ -137,7 +137,9 @@
       "SUBMITTING": "Signing in...",
       "FORGOT_PASSWORD": "Forgot password?",
       "NO_ACCOUNT": "Don't have an account?",
-      "REGISTER_LINK": "Register"
+      "REGISTER_LINK": "Register",
+      "SIGN_IN_WITH_GOOGLE": "Sign in with Google",
+      "OR": "or"
     },
     "VALIDATION": {
       "EMAIL_REQUIRED": "Email is required",
@@ -145,47 +147,79 @@
       "PASSWORD_REQUIRED": "Password is required"
     },
     "ERRORS": {
-      "LOGIN_FAILED": "An error occurred during authorization"
+      "LOGIN_FAILED": "An error occurred during authorization",
+      "INVALID_CREDENTIALS": "Invalid email or password",
+      "USER_NOT_FOUND": "User not found"
     }
   },
-    "PRODUCT_DETAILS": {
+  "PROFILE": {
+    "COMPLETE_TITLE": "Complete Your Profile",
+    "COMPLETE_SUBTITLE": "Add additional information to your account",
+    "OPTIONAL": "(Optional)",
+    "PHONE_LABEL": "Phone Number",
+    "PHONE_HELP": "Example: +995 555 12 34 56",
+    "PHONE_INVALID": "Invalid phone number",
+    "PERSONAL_NUMBER_LABEL": "Personal ID Number",
+    "PERSONAL_NUMBER_HELP": "Enter 11-digit personal ID number",
+    "PERSONAL_NUMBER_INVALID": "Invalid personal ID number",
+    "PERSONAL_NUMBER_LENGTH": "Personal ID must be 11 digits",
+    "DATE_OF_BIRTH_LABEL": "Date of Birth",
+    "DATE_OF_BIRTH_HELP": "Minimum age: 13 years",
+    "DATE_OF_BIRTH_INVALID": "Invalid date of birth",
+    "SKIP_BUTTON": "Skip",
+    "SAVE_BUTTON": "Save and Continue",
+    "SAVING": "Saving...",
+    "UPDATE_SUCCESS": "Profile updated successfully!",
+    "PRIVACY_NOTE": "Your personal information is protected and will not be shared with third parties",
+    "PAGE_TITLE": "Profile",
+    "USER_INFO": "User Information",
+    "PHONE": "Phone",
+    "EMAIL": "Email",
+    "PERSONAL_NUMBER": "Personal Number",
+    "MESSAGES": "Messages",
+    "LOGOUT": "Logout",
+    "PRODUCT_QUANTITY": "Your Product Quantity",
+    "LIMIT_REACHED": "Maximum limit reached ({{max}})",
+    "LIMIT_REACHED_SHORT": "Limit reached",
+    "LIMIT_NEAR": "Only {{remaining}} slots remaining!",
+    "CAN_ADD_MORE": "You can add {{remaining}} more products",
+    "CHECKING_QUANTITY": "Checking product quantity...",
+    "LOADING": "Loading",
+    "CLOSE_FORM": "Close Form",
+    "ADD_PRODUCT": "Add Product",
+    "UPLOADING": "Uploading",
+    "ALTERNATIVE_PHOTO": "Choose Photo (Android)"
+  },
+  "PRODUCT_DETAILS": {
     "PAGE_TITLE": "Product Details",
     "LOADING": "Loading product details...",
     "LOADING_SHORT": "Loading...",
     "IMAGE": "Image",
-    
     "ERROR": {
       "TITLE": "Error"
     },
-    
     "ACTIONS": {
       "GO_BACK": "Go Back",
       "CALL": "Call",
       "EMAIL": "Email",
       "SHARE": "Share"
     },
-    
     "SEND_MESSAGE": "Send Message",
-    
     "BASIC_INFO_TITLE": "Basic Information",
     "DESCRIPTION_TITLE": "Description",
     "SELLER_INFO_TITLE": "Seller Information",
-    
     "SELLER_NAME": "Name",
     "SELLER_PHONE": "Phone",
     "SELLER_EMAIL": "Email",
-    
     "VIEWS": {
       "LABEL": "views",
       "TODAY": "Today",
       "WEEK": "This Week",
       "MONTH": "This Month"
     },
-    
     "INFO": {
       "NOT_SPECIFIED": "Not specified"
     },
-    
     "NOTIFICATIONS": {
       "EMAIL_NOT_AVAILABLE": "Email is not available",
       "EMAIL_OPENED": "Email client opened",
@@ -201,15 +235,13 @@
       "SELLER_INFO_NOT_AVAILABLE": "Seller information is not available",
       "CLOSE": "Close"
     },
-    
     "EMAIL_TEMPLATE": {
       "SUBJECT": "Interest in product: {{title}}",
       "BODY": "Hello,\n\nI am interested in your product:\n{{title}}\nPrice: {{price}}\n\nPlease contact me for more information.\n\nThank you!"
     },
-    
     "SHARE_TEXT": "Check out this product: {{title}}{{views}}"
   },
-    "PUBLIC_PRODUCTS": {
+  "PUBLIC_PRODUCTS": {
     "TITLE": "All Products",
     "LOADING": "Loading products...",
     "NO_PRODUCTS": "No products found or none added",
@@ -217,7 +249,6 @@
     "CLOSE": "Close",
     "VIEW_SUFFIX_THOUSAND": "K",
     "VIEW_SUFFIX_MILLION": "M",
-    
     "FILTERS": {
       "SEARCH": "Search",
       "CLEAR": "Clear",
@@ -228,21 +259,18 @@
       "MIN_PRICE": "Price (Min)",
       "MAX_PRICE": "Price (Max)"
     },
-    
     "ACTIONS": {
       "SEARCH": "Search",
       "RESET": "Reset"
     },
-    
     "ERRORS": {
       "LOAD_FAILED": "Failed to load products",
       "PRODUCT_ID_NOT_FOUND": "Product ID not found"
     }
   },
-   "REGISTER": {
+  "REGISTER": {
     "TITLE": "Registration",
     "OPEN_EMAIL": "Open Email",
-    
     "FIELDS": {
       "NAME": "First Name",
       "SURNAME": "Last Name",
@@ -253,7 +281,6 @@
       "PASSWORD": "Password",
       "CONFIRM_PASSWORD": "Confirm Password"
     },
-    
     "VALIDATION": {
       "NAME_REQUIRED": "First name is required",
       "SURNAME_REQUIRED": "Last name is required",
@@ -269,38 +296,31 @@
       "CONFIRM_PASSWORD_REQUIRED": "Password confirmation is required",
       "PASSWORD_MISMATCH": "Passwords do not match"
     },
-    
     "SUBMITTING": "Registration in progress...",
     "SUBMIT_BUTTON": "Register",
     "ALREADY_HAVE_ACCOUNT": "Already have an account?",
     "LOGIN_LINK": "Sign In",
-    
     "SUCCESS_MESSAGE": "Registration successful. Please check your email for verification. (Please check your spam folder)",
     "ERROR_MESSAGE": "An error occurred during registration. Please try again later."
   },
-    "RESET_PASSWORD": {
+  "RESET_PASSWORD": {
     "TITLE": "Set New Password",
     "SUBTITLE": "Enter a new secure password",
-    
     "FIELDS": {
       "NEW_PASSWORD": "New Password",
       "CONFIRM_PASSWORD": "Confirm Password"
     },
-    
     "PLACEHOLDERS": {
       "MIN_6_CHARS": "Minimum 6 characters",
       "REPEAT_PASSWORD": "Repeat password"
     },
-    
     "VALIDATION": {
       "PASSWORD_MIN_LENGTH": "Password must contain at least 6 characters",
       "PASSWORD_MISMATCH": "Passwords do not match"
     },
-    
     "SAVING": "Saving...",
     "SAVE_PASSWORD": "Save Password",
     "BACK_TO_LOGIN": "Back to Login",
-    
     "ERRORS": {
       "INVALID_LINK": "Invalid link",
       "GENERAL_ERROR": "An error occurred. Please try again"
@@ -311,13 +331,11 @@
       "TITLE": "Terms and Conditions",
       "SUBTITLE": "Please carefully read the terms of use of our platform"
     },
-    
     "SECURITY": {
       "TITLE": "Security Rules",
       "CARD_PROTECTION": "Protecting Your Card Information",
       "IMPORTANT": "Important",
       "WARNING": "Never share your bank card information!",
-      
       "NEVER_SHARE": {
         "TITLE": "Never share",
         "CARD_NUMBER": "Card number (16 digits)",
@@ -326,7 +344,6 @@
         "SMS_CODE": "Verification codes received via SMS",
         "PIN": "PIN code"
       },
-      
       "SAFE_PAYMENT": {
         "TITLE": "Safe Payment",
         "OFFICIAL_SYSTEMS": "Use only official payment systems",
@@ -334,39 +351,32 @@
         "CHECK_URL": "Always verify the URL address when making payments"
       }
     },
-    
     "PHISHING": {
       "TITLE": "What is Phishing and How to Protect Yourself",
       "INTRO": "Phishing is a fraudulent method where cybercriminals attempt to obtain your personal information, banking details, or passwords.",
       "TYPES_TITLE": "Main Types of Phishing:",
       "EXAMPLE": "Example",
-      
       "EMAIL": {
         "TITLE": "Email Phishing",
         "DESCRIPTION": "Fake emails sent on behalf of banks, companies, or services.",
         "EXAMPLE": "Your account has been blocked, please enter your information immediately..."
       },
-      
       "SMS": {
         "TITLE": "SMS Phishing (Smishing)",
         "DESCRIPTION": "Fraudulent SMS messages requesting your information.",
         "EXAMPLE": "You've won a prize! Click the link and enter your card details..."
       },
-      
       "CALL": {
         "TITLE": "Phone Phishing (Vishing)",
         "DESCRIPTION": "Fraudsters call you pretending to be bank/company employees.",
         "EXAMPLE": "Hello, this is your bank calling. For security purposes, please verify your card information..."
       },
-      
       "FAKE_WEBSITES": {
         "TITLE": "Fake Websites",
         "DESCRIPTION": "Sites resembling originals that steal your information.",
         "EXAMPLE": "www.bаnk-ge.com instead of www.bank-ge.com (Cyrillic 'а' instead of Latin 'a')"
       },
-      
       "PROTECTION_TITLE": "How to Protect Yourself:",
-      
       "TIPS": {
         "TIP1": {
           "TITLE": "Always verify sender authenticity",
@@ -390,12 +400,10 @@
         }
       }
     },
-    
     "ADMIN_RESPONSIBILITY": {
       "TITLE": "Administration Responsibility",
       "DISCLAIMER_TITLE": "Important Notice",
       "DISCLAIMER_INTRO": "Site administration is not responsible in the following cases:",
-      
       "NOT_RESPONSIBLE": {
         "ITEM1": "User sharing their account information with other persons",
         "ITEM2": "Technical disruptions of third-party services (banking systems, payment services)",
@@ -404,9 +412,7 @@
         "ITEM5": "Internet connection instability on the user's side",
         "ITEM6": "Damage caused by user's violation of platform rules"
       },
-      
       "RESPONSIBLE_TITLE": "What we are responsible for:",
-      
       "RESPONSIBLE": {
         "ITEM1": "Safe operation of the platform",
         "ITEM2": "Data encryption and secure storage",
@@ -415,7 +421,6 @@
         "ITEM5": "Regular platform updates and maintenance"
       }
     },
-    
     "CONTACT": {
       "TITLE": "Contact and Support",
       "TEXT": "If you notice suspicious activity or have questions about security, please contact us immediately:",
@@ -424,13 +429,12 @@
       "WORKING_HOURS": "Working Hours",
       "SCHEDULE": "Mon-Fri: 09:00 - 18:00"
     },
-    
     "FOOTER": {
       "LAST_UPDATE": "Last updated",
       "WARNING": "Remember: Your security is our priority!"
     }
   },
-    "MESSAGE_DIALOG": {
+  "MESSAGE_DIALOG": {
     "AVATAR": "avatar",
     "TYPING": "typing...",
     "LOADING": "Loading...",
@@ -438,7 +442,7 @@
     "WRITE_FIRST_MESSAGE": "Write the first message",
     "PLACEHOLDER": "Write a message..."
   },
-   "MESSAGES_MODAL": {
+  "MESSAGES_MODAL": {
     "TITLE": "Messages",
     "CONVERSATIONS": "Conversations",
     "LOADING": "Loading...",
@@ -454,26 +458,6 @@
     "SEND_FIRST_MESSAGE": "Send the first message",
     "MESSAGE_PLACEHOLDER": "Write a message...",
     "SEND": "Send"
-  },
-    "PROFILE": {
-    "PAGE_TITLE": "Profile",
-    "USER_INFO": "User Information",
-    "PHONE": "Phone",
-    "EMAIL": "Email",
-    "PERSONAL_NUMBER": "Personal Number",
-    "MESSAGES": "Messages",
-    "LOGOUT": "Logout",
-    "PRODUCT_QUANTITY": "Your Product Quantity",
-    "LIMIT_REACHED": "Maximum limit reached ({{max}})",
-    "LIMIT_REACHED_SHORT": "Limit reached",
-    "LIMIT_NEAR": "Only {{remaining}} slots remaining!",
-    "CAN_ADD_MORE": "You can add {{remaining}} more products",
-    "CHECKING_QUANTITY": "Checking product quantity...",
-    "LOADING": "Loading",
-    "CLOSE_FORM": "Close Form",
-    "ADD_PRODUCT": "Add Product",
-    "UPLOADING": "Uploading",
-    "ALTERNATIVE_PHOTO": "Choose Photo (Android)"
   },
   "PRODUCT_FORM": {
     "TITLE": "Add Product",
@@ -534,4 +518,3 @@
     "SENDING_DATA": "Sending data"
   }
 }
-
