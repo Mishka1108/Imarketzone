@@ -1,5 +1,7 @@
 // dashboard.component.ts - Fixed version with improved product loading
 
+declare var google: any;
+
 import { Component, OnInit, ViewChild, ElementRef, NgZone, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -72,7 +74,7 @@ export class DashboardComponent implements OnInit {
   
   // ✅ Initialize with empty array
   userProducts: Product[] = [];
-  
+  isLoggingOut: boolean = false;
   // ✅ Product limits
   readonly MAX_PRODUCTS_ALLOWED: number = 5;
   readonly MAX_PRODUCT_IMAGES: number = 3;
@@ -642,10 +644,42 @@ export class DashboardComponent implements OnInit {
     return new Date(date).toLocaleDateString('ka-GE');
   }
   
-  logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/auth/login']);
+logout(): void {
+  if (this.isLoggingOut) return;
+
+  this.isLoggingOut = true;
+  
+  // ✅ პირველ რიგში Google prompt გამორთვა
+  if (typeof google !== 'undefined') {
+    try {
+      google.accounts.id.disableAutoSelect();
+      google.accounts.id.cancel();
+      console.log('✅ Google prompt disabled on logout');
+    } catch (e) {
+      console.warn('Could not disable Google prompt:', e);
+    }
   }
+
+  this.authService.logout().subscribe({
+    next: () => {
+      console.log('✅ Logout successful');
+      this.isLoggingOut = false;
+      
+      // ✅ Navigate-მდე დაყოვნება
+      setTimeout(() => {
+        this.router.navigate(['/auth/login']);
+      }, 100);
+    },
+    error: (error) => {
+      console.error('❌ Logout error:', error);
+      this.isLoggingOut = false;
+      
+      // ✅ Error-ის შემთხვევაშიც გადავიდეთ login-ზე
+      setTimeout(() => {
+        this.router.navigate(['/auth/login']);
+      }, 100);
+    }
+  });}
 
   triggerFileInput(): void {
     this.ngZone.run(() => {

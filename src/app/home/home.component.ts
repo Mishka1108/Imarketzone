@@ -119,7 +119,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   get maxIndex(): number {
     const products = this.getProductsWithHighViews();
-    return Math.max(0, Math.ceil(products.length / this.itemsPerView) - 1);
+    // თითო პროდუქტით გადასვლისთვის
+    return Math.max(0, products.length - this.itemsPerView);
   }
 
   nextSlide() {
@@ -147,7 +148,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   getIndicators(): any[] {
-    return Array(this.maxIndex + 1).fill(0);
+    const products = this.getProductsWithHighViews();
+    // თითო პროდუქტისთვის indicator
+    return Array(Math.max(0, products.length - this.itemsPerView + 1)).fill(0);
   }
 
   // Autoplay Methods

@@ -46,13 +46,13 @@
         <button 
           type="submit" 
           class="btn btn-primary" 
-          [disabled]="loginForm.invalid || isSubmitting"
+          [disabled]="loginForm.invalid || isLoading"
         >
-          <span *ngIf="isSubmitting">
+          <span *ngIf="isLoading">
             <i class="fas fa-spinner fa-spin"></i>
             {{ 'LOGIN.FORM.SUBMITTING' | translate }}
           </span>
-          <span *ngIf="!isSubmitting">{{ 'LOGIN.FORM.SUBMIT_BUTTON' | translate }}</span>
+          <span *ngIf="!isLoading">{{ 'LOGIN.FORM.SUBMIT_BUTTON' | translate }}</span>
         </button>
       </div>
 
@@ -60,10 +60,10 @@
         <a routerLink="/forgot-password">{{ 'LOGIN.FORM.FORGOT_PASSWORD' | translate }}</a>
       </div>
       
-          <div class="google-signin-container">
-      <div id="google-signin-button"></div>
-    </div>
-
+      <!-- Google Sign-In Button -->
+      <div class="google-signin-container">
+        <div #googleButton id="google-signin-button"></div>
+      </div>
 
       <div class="form-footer">
         {{ 'LOGIN.FORM.NO_ACCOUNT' | translate }} 
@@ -73,13 +73,10 @@
  
   </div>
 
-  
-   <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-      <i class="fas fa-exclamation-circle"></i>
-      {{ errorMessage }}
-    </div>
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
     
-    
-    <!-- Google Sign-In Button -->
-   
 </div>

@@ -507,6 +507,7 @@
     "YEAR": "Year",
     "ADDED": "Added",
     "DELETE": "Delete",
+    "VIEW_DETAILS": "View details",
     "NO_PRODUCTS_TITLE": "No Products Found",
     "NO_PRODUCTS_MESSAGE": "You can add up to {{max}} products.",
     "ADD_FIRST_PRODUCT": "Add Your First Product"

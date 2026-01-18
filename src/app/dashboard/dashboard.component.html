@@ -410,7 +410,7 @@
 <div class="user-products-section" *ngIf="userProducts.length > 0 && !isLoadingProducts">
   <div class="products-grid">
     <div class="product-card" *ngFor="let product of userProducts; trackBy: trackByProductId"
-       (click)="product ? openProductDetails(product) : null">
+       >
       
       <!-- სურათების სლაიდერი -->
       <div class="product-images">
@@ -459,6 +459,10 @@
         <button mat-flat-button class="delete-btn" (click)="deleteProduct(product._id!); $event.stopPropagation()">
           🗑️ {{ 'PRODUCTS.DELETE' | translate }}
         </button>
+          <button mat-flat-button class="delete-btn" (click)="product ? openProductDetails(product) : null">
+          🗑️ {{ 'PRODUCTS.VIEW_DETAILS' | translate }}
+        </button>
+        
       </div>
     </div>
   </div>

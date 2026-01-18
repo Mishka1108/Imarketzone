@@ -2,15 +2,27 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map, delay } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { environment } from '../environment';
 import { ProfileImageService } from './profileImage.service';
+
+declare const google: any;
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+ resendVerificationEmail(email: string): Observable<any> {
+  return this.http.post(`${this.apiUrl}/auth/resend-verification`, 
+    { email }, 
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+}
   private apiUrl = environment.apiUrl;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -82,18 +94,214 @@ export class AuthService {
     }
   }
 
+  // ✅ IMPROVED: Enhanced auth data clearing
   public clearAuthData(): void {
+    console.log('🧹 Starting comprehensive auth data cleanup...');
+    
     if (this.isBrowser()) {
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('token');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('username');
+      // 1. Clear ALL localStorage keys
+      const keysToRemove = [
+        'currentUser',
+        'token',
+        'userId',
+        'username',
+        'userName',
+        'userEmail',
+        'googleUser',
+        'g_state',
+        'google_session'
+      ];
+      
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      // 2. Clear ALL sessionStorage
+      sessionStorage.clear();
+      
+      // 3. Clear Google cookies (comprehensive)
+      this.clearAllGoogleCookies();
+      
+      // 4. Revoke Google session
+      this.revokeGoogleSession();
+      
+      // 5. Clear Google state cookie
+      this.clearGoogleState();
+      
+      console.log('✅ All auth data cleared from storage');
     }
+    
+    // 6. Reset all subjects and services
     this.currentUserSubject.next(null);
     
+    // 7. Reset profile image
     this.profileImageService.updateProfileImage(
       'https://i.ibb.co/GvshXkLK/307ce493-b254-4b2d-8ba4-d12c080d6651.jpg'
     );
+    
+    console.log('✅ Auth cleanup completed');
+  }
+
+  // ✅ FIXED: Google session revocation without FedCM errors
+  private revokeGoogleSession(): void {
+    if (!this.isBrowser() || typeof google === 'undefined') {
+      console.warn('⚠️ Google API not available for session revocation');
+      return;
+    }
+
+    try {
+      const user = this.currentUserSubject.value;
+      
+      // 1. Cancel any active prompts FIRST
+      try {
+        google.accounts.id.cancel();
+        console.log('✅ Google prompt cancelled');
+      } catch (e) {
+        // Silently ignore if no active prompt
+      }
+      
+      // 2. Disable auto-select
+      try {
+        google.accounts.id.disableAutoSelect();
+        console.log('✅ Google auto-select disabled');
+      } catch (e) {
+        console.warn('⚠️ Could not disable auto-select:', e);
+      }
+      
+      // 3. Revoke token ONLY if user email exists (prevents pending disconnect error)
+      if (user && user.email) {
+        try {
+          google.accounts.id.revoke(user.email, (done: any) => {
+            if (done && done.successful) {
+              console.log('✅ Google token revoked for:', user.email);
+            } else if (done && done.error) {
+              // Silently handle - this is expected after logout
+              console.log('ℹ️ Google revoke response:', done.error);
+            }
+          });
+        } catch (e) {
+          // Silently ignore revoke errors - session is already cleared
+          console.log('ℹ️ Google revoke skipped:', e);
+        }
+      }
+      
+    } catch (error) {
+      // Don't show errors for Google cleanup - it's not critical
+      console.log('ℹ️ Google session cleanup completed with warnings');
+    }
+  }
+
+  // ✅ ENHANCED: More comprehensive Google cookie clearing
+  private clearAllGoogleCookies(): void {
+    console.log('🍪 Clearing all Google cookies...');
+    
+    const googleCookies = [
+      // Google Sign-In cookies
+      '__Secure-1PSID',
+      '__Secure-3PSID',
+      'SIDCC',
+      'SSID',
+      'APISID',
+      'SAPISID',
+      '__Secure-1PAPISID',
+      '__Secure-3PAPISID',
+      'HSID',
+      'SID',
+      
+      // Google OAuth state
+      'g_state',
+      'google_session',
+      'oauth_token',
+      
+      // Additional Google cookies
+      'CONSENT',
+      'NID',
+      '1P_JAR',
+      'DV',
+      'SEARCH_SAMESITE',
+      'OTZ',
+      '__Secure-ENID',
+      
+      // Google Analytics (optional, but good to clear)
+      '_ga',
+      '_gid',
+      '_gat'
+    ];
+
+    const domains = [
+      window.location.hostname,
+      `.${window.location.hostname}`,
+      'localhost',
+      '.localhost',
+      '.google.com',
+      'google.com',
+      '.accounts.google.com',
+      'accounts.google.com',
+      '.googleapis.com',
+      'googleapis.com'
+    ];
+
+    const paths = ['/', '/auth', '/login', '/auth/login', '/dashboard'];
+
+    // Clear cookies for all combinations of cookie names, domains, and paths
+    googleCookies.forEach(cookieName => {
+      domains.forEach(domain => {
+        paths.forEach(path => {
+          // Standard deletion
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}`;
+          
+          // Secure deletion
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; secure`;
+          
+          // SameSite variations
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; SameSite=None; Secure`;
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; SameSite=Lax`;
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; SameSite=Strict`;
+        });
+        
+        // Also clear without specific path
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${domain}`;
+      });
+      
+      // Clear without domain specification
+      paths.forEach(path => {
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}`;
+      });
+      
+      // Simple clear
+      document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+    });
+
+    console.log('✅ All Google cookies cleared');
+  }
+
+  // ✅ ENHANCED: Better Google state clearing
+  private clearGoogleState(): void {
+    console.log('🔄 Clearing Google state...');
+    
+    const paths = ['/', '/auth', '/login', '/auth/login', '/dashboard'];
+    const domains = [
+      window.location.hostname,
+      `.${window.location.hostname}`,
+      'localhost',
+      '.localhost'
+    ];
+
+    // Clear g_state cookie with all variations
+    paths.forEach(path => {
+      domains.forEach(domain => {
+        document.cookie = `g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}`;
+        document.cookie = `g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; secure`;
+        document.cookie = `g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; SameSite=None; Secure`;
+      });
+      
+      document.cookie = `g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}`;
+    });
+
+    // Also clear from current domain without specific path
+    document.cookie = 'g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+    
+    console.log('✅ Google state cookie cleared');
   }
 
   refreshUserData(): Observable<any> {
@@ -158,15 +366,11 @@ export class AuthService {
       );
   }
 
-  /**
-   * ✅ Google OAuth Login
-   * @param credential - Google ID Token (JWT credential)
-   */
   loginWithGoogle(credential: string): Observable<any> {
     console.log('📤 Sending Google credential to backend...');
     
     return this.http.post(`${this.apiUrl}/auth/google`, { 
-      credential: credential // Backend expects { credential: string }
+      credential: credential
     }, {
       headers: {
         'Content-Type': 'application/json'
@@ -182,20 +386,11 @@ export class AuthService {
       }),
       catchError((error: HttpErrorResponse) => {
         console.error('❌ Google login error:', error);
-        console.error('Error details:', {
-          status: error.status,
-          message: error.message,
-          error: error.error
-        });
         return throwError(() => error);
       })
     );
   }
 
-  /**
-   * ✅ Google OAuth Registration
-   * @param credential - Google ID Token
-   */
   registerWithGoogle(credential: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/auth/google/register`, { credential })
       .pipe(
@@ -211,9 +406,6 @@ export class AuthService {
       );
   }
 
-  /**
-   * ✅ Auth Data-ს შენახვა (DRY principle)
-   */
   private saveAuthData(token: string, user: any): void {
     if (!this.isBrowser()) return;
 
@@ -237,8 +429,74 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/auth/verify/${token}`);
   }
 
-  logout(): void {
-    this.clearAuthData();
+  // ✅ COMPLETELY REWRITTEN: Enhanced logout WITHOUT FedCM errors
+  logout(): Observable<void> {
+    console.log('🚪 Starting logout process...');
+    
+    const token = this.getToken();
+    const userEmail = this.getCurrentUser()?.email;
+    
+    // STEP 1: Disable Google features BEFORE clearing data
+    if (this.isBrowser() && typeof google !== 'undefined') {
+      try {
+        // Only cancel and disable, DON'T revoke yet
+        google.accounts.id.cancel();
+        google.accounts.id.disableAutoSelect();
+        console.log('✅ Google features disabled');
+      } catch (e) {
+        console.log('ℹ️ Google disable skipped');
+      }
+    }
+    
+    // STEP 2: Backend logout (if token exists)
+    const backendLogout = token 
+      ? this.http.post(`${this.apiUrl}/auth/logout`, {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }).pipe(
+          tap(() => console.log('✅ Backend logout successful')),
+          catchError((error) => {
+            console.log('ℹ️ Backend logout completed');
+            return of(null);
+          })
+        )
+      : of(null);
+
+    return backendLogout.pipe(
+      // STEP 3: Clear all local data
+      tap(() => {
+        this.clearAuthData();
+        console.log('✅ Local auth data cleared');
+      }),
+      
+      // STEP 4: Final cleanup AFTER data is cleared (prevents disconnect error)
+      delay(50),
+      tap(() => {
+        if (this.isBrowser() && typeof google !== 'undefined') {
+          try {
+            // Final disable (data is already cleared, so no pending disconnect)
+            google.accounts.id.disableAutoSelect();
+            
+            // Only revoke if we have email AND user wants complete logout
+            if (userEmail) {
+              // Use revoke with silent error handling
+              google.accounts.id.revoke(userEmail, () => {
+                // Callback fires but we don't log it to avoid console spam
+              });
+            }
+            
+            console.log('✅ Final Google cleanup completed');
+          } catch (e) {
+            // Silently ignore any final cleanup errors
+          }
+        }
+      }),
+      
+      // STEP 5: Return void
+      map(() => void 0)
+    );
   }
 
   getCurrentUser(): User | null {
@@ -385,7 +643,7 @@ export class AuthService {
         this.clearAuthData();
         return of(false);
       }),
-      tap(() => of(!!this.getCurrentUser()))
+      map(() => !!this.getCurrentUser())
     );
   }
 

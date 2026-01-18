@@ -131,7 +131,7 @@
          (mouseleave)="startAutoplay()">
       
       <div class="carousel-track" 
-           [style.transform]="'translateX(-' + (currentIndex * slideWidth) + '%)'">
+           [style.transform]="'translateX(-' + (currentIndex * (100 / itemsPerView)) + '%)'">
         
         <div *ngFor="let product of getProductsWithHighViews()" class="product-slide">
           <div class="product-card">
@@ -201,9 +201,6 @@
   </div>
 </div>
 </div>
-
-
-
 
 
 <div class="categorymain">

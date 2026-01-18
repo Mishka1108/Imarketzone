@@ -583,6 +583,9 @@ body {
   padding: 15px 20px;
   border-top: 1px solid #f0f0f0;
   background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   
   .delete-btn {
     width: 100%;
