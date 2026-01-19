@@ -1,41 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
 // ==================== ფერების პალიტრა ====================
-$primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-$secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-$background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+$primary-blue: #3B5998;
+$primary-purple: #6B5B95;
+$accent-pink: #FF4B6E;
+$accent-orange: #FF8C42;
+$gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$gradient-button: linear-gradient(135deg, #FF4B6E 0%, #FF8C42 100%);
 $glass-bg: rgba(255, 255, 255, 0.95);
-$glass-border: rgba(255, 255, 255, 0.3);
+$glass-border: rgba(255, 255, 255, 0.25);
 
-$primary-color: #667eea;
-$primary-dark: #5a67d8;
-$success-color: #48bb78;
-$danger-color: #e53e3e;
 $text-primary: #2d3748;
-$text-secondary: #4a5568;
 $text-muted: #718096;
-$border-color: #e2e8f0;
+$border-light: #e8ecf4;
 
 // ==================== ანიმაციები ====================
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  0%, 100% { 
+    transform: translateY(0px);
+  }
+  50% { 
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.4); }
-  50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.6); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
+  0%, 100% { 
+    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+  }
+  50% { 
+    box-shadow: 0 30px 80px rgba(102, 126, 234, 0.5);
+  }
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
@@ -43,10 +49,10 @@ $border-color: #e2e8f0;
   }
 }
 
-@keyframes slideInRight {
+@keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-30px);
   }
   to {
     opacity: 1;
@@ -54,16 +60,38 @@ $border-color: #e2e8f0;
   }
 }
 
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
 // ==================== მიქსინები ====================
 @mixin glass-effect {
-  background: $glass-bg;
+  background: rgba(45, 53, 97, 0.4);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid $glass-border;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 @mixin smooth-transition($properties...) {
-  transition: $properties 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: $properties 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // ==================== ძირითადი სტილები ====================
@@ -74,8 +102,10 @@ $border-color: #e2e8f0;
 }
 
 body {
-  font-family: 'Inter', 'BPG Nino Mtavruli', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: $background-gradient;
+  font-family: 'Poppins', 'BPG Nino Mtavruli', -apple-system, sans-serif;
+  background: linear-gradient(135deg, #2d3561 0%, #3d4574 25%, #4a5489 50%, #3d4574 75%, #2d3561 100%);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -84,137 +114,165 @@ body {
   position: relative;
   overflow-x: hidden;
   
-  // მოძრავი ფონური ელემენტები
-  &::before,
+  // მოძრავი blur სფეროები
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(74, 84, 137, 0.5) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: float 8s ease-in-out infinite;
+  }
+  
   &::after {
     content: '';
     position: absolute;
+    bottom: -10%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(61, 69, 116, 0.4) 0%, transparent 70%);
     border-radius: 50%;
     filter: blur(80px);
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  &::before {
-    top: -100px;
-    left: -100px;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(102, 126, 234, 0.4) 0%, transparent 70%);
-    animation-delay: 0s;
-  }
-  
-  &::after {
-    bottom: -100px;
-    right: -100px;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(240, 147, 251, 0.3) 0%, transparent 70%);
-    animation-delay: 3s;
+    animation: float 10s ease-in-out infinite reverse;
   }
 }
 
 // ==================== ლოგინის კონტეინერი ====================
 .login-container {
   position: relative;
-  z-index: 1;
+  z-index: 10;
   width: 100%;
-  max-width: 450px;
+  max-width: 460px;
   margin: auto;
-  animation: fadeInUp 0.6s ease-out;
-  margin-top: 40px
+  animation: fadeInUp 0.8s ease-out;
+  background-color: #6B5B95;
+  border-radius: 30px;
+  margin-top: 50px;
 }
 
 .login-form-box {
-  @include glass-effect;
-  border-radius: 24px;
-  padding: 50px 45px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 30px;
+  padding: 55px 50px;
   box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    0 30px 80px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   @include smooth-transition(transform, box-shadow);
   position: relative;
   overflow: hidden;
+  animation: pulse-glow 4s ease-in-out infinite;
   
-  // ტოპ გრადიენტის ხაზი
+  // ზედა დეკორატიული ხაზი
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
-    background: $primary-gradient;
+    height: 5px;
+    background: $gradient-button;
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+  }
+  
+  // Shimmer ეფექტი
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    animation: shimmer 8s infinite;
+    pointer-events: none;
   }
   
   &:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px) scale(1.01);
     box-shadow: 
-      0 35px 70px rgba(0, 0, 0, 0.2),
-      0 0 0 1px rgba(255, 255, 255, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      0 40px 100px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7);
   }
 }
 
 // ==================== სათაური ====================
 h2 {
   text-align: center;
-  margin-bottom: 40px;
-  color: $text-primary;
-  font-size: 32px;
-  font-weight: 700;
+  margin-bottom: 45px;
+  color: #ffffff;
+  font-size: 38px;
+  font-weight: 800;
   position: relative;
-  letter-spacing: -0.5px;
-  background: $primary-gradient;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: slideInRight 0.6s ease-out 0.2s both;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   
   &::after {
     content: '';
     position: absolute;
-    bottom: -12px;
+    bottom: -15px;
     left: 50%;
     transform: translateX(-50%);
-    width: 60px;
-    height: 4px;
-    background: $primary-gradient;
-    border-radius: 2px;
-    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+    width: 70px;
+    height: 5px;
+    background: $gradient-button;
+    border-radius: 3px;
+    box-shadow: 0 4px 15px rgba(255, 75, 110, 0.4);
   }
 }
 
 // ==================== ფორმის ჯგუფები ====================
 .form-group {
-  margin-bottom: 28px;
+  margin-bottom: 30px;
   position: relative;
-  animation: fadeInUp 0.6s ease-out 0.3s both;
+  animation: slideIn 0.6s ease-out backwards;
+  
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
 }
 
 label {
   display: block;
-  margin-bottom: 10px;
-  font-weight: 600;
-  color: $text-secondary;
+  margin-bottom: 12px;
+  font-weight: 700;
+  color: #ffffff;
   font-size: 14px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   @include smooth-transition(color);
+  padding-left: 4px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 // ==================== ინპუტები ====================
 .form-control {
   width: 100%;
-  padding: 16px 20px;
-  border: 2px solid $border-color;
-  border-radius: 14px;
+  padding: 18px 22px;
+  padding-left: 50px;
+  border: 2px solid $border-light;
+  border-radius: 16px;
   font-size: 16px;
-  background: #fff;
+  background: #ffffff;
   color: $text-primary;
   @include smooth-transition(all);
   outline: none;
   font-weight: 500;
+  position: relative;
   
   &::placeholder {
     color: #a0aec0;
@@ -222,50 +280,69 @@ label {
   }
   
   &:hover {
-    border-color: darken($border-color, 5%);
+    border-color: darken($border-light, 8%);
+    background: #fafbfd;
   }
   
   &:focus {
-    border-color: $primary-color;
+    border-color: transparent;
+    background: #ffffff;
     box-shadow: 
-      0 0 0 4px rgba(102, 126, 234, 0.1),
-      0 4px 12px rgba(102, 126, 234, 0.15);
-    transform: translateY(-2px);
+      0 0 0 4px rgba(102, 126, 234, 0.15),
+      0 10px 30px rgba(102, 126, 234, 0.2);
+    transform: translateY(-3px);
     
-    + label {
-      color: $primary-color;
+    ~ label {
+      color: #667eea;
     }
   }
   
   &.is-invalid {
-    border-color: $danger-color;
-    box-shadow: 0 0 0 4px rgba(229, 62, 62, 0.1);
-    animation: shake 0.3s;
+    border-color: $accent-pink;
+    box-shadow: 0 0 0 4px rgba(255, 75, 110, 0.15);
+    animation: shake 0.4s;
   }
 }
 
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+// ინპუტის აიქონები
+.form-group {
+  position: relative;
+  
+  &::before {
+    content: '📧';
+    position: absolute;
+    left: 18px;
+    bottom: 18px;
+    font-size: 22px;
+    z-index: 1;
+    transition: transform 0.3s ease;
+  }
+  
+  &:nth-child(2)::before {
+    content: '🔒';
+  }
+  
+  &:hover::before {
+    transform: scale(1.15);
+  }
 }
 
 // ==================== შეცდომების შეტყობინებები ====================
 .invalid-feedback {
-  color: $danger-color;
+  color: $accent-pink;
   font-size: 13px;
-  margin-top: 8px;
-  padding-left: 4px;
+  margin-top: 10px;
+  padding-left: 8px;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-weight: 500;
-  animation: slideInRight 0.3s ease-out;
+  font-weight: 600;
+  animation: slideIn 0.3s ease-out;
   
   &::before {
     content: '⚠';
-    font-size: 14px;
-    animation: pulse 1s ease-in-out infinite;
+    font-size: 16px;
+    animation: pulse 1.5s ease-in-out infinite;
   }
 }
 
@@ -276,15 +353,15 @@ label {
 
 // ==================== ალერტები ====================
 .alert {
-  padding: 16px 20px;
-  border-radius: 14px;
-  margin-bottom: 25px;
+  padding: 18px 22px;
+  border-radius: 16px;
+  margin-bottom: 28px;
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
-  gap: 12px;
-  animation: fadeInUp 0.4s ease-out;
+  gap: 14px;
+  animation: fadeInUp 0.5s ease-out;
   
   &::before {
     content: '';
@@ -292,33 +369,33 @@ label {
     left: 0;
     top: 0;
     bottom: 0;
-    width: 4px;
+    width: 5px;
   }
   
   i {
-    font-size: 18px;
+    font-size: 20px;
   }
 }
 
 .alert-danger {
-  background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
-  border: 1px solid #fc8181;
-  color: #742a2a;
+  background: linear-gradient(135deg, #fee 0%, #fdd 100%);
+  border: 2px solid rgba(255, 75, 110, 0.3);
+  color: #c53030;
   
   &::before {
-    background: $danger-color;
+    background: $gradient-button;
   }
 }
 
 // ==================== ღილაკები ====================
 .btn {
   width: 100%;
-  padding: 18px 24px;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  padding: 20px 26px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 1px;
   border: none;
-  border-radius: 14px;
+  border-radius: 16px;
   cursor: pointer;
   @include smooth-transition(all);
   position: relative;
@@ -326,6 +403,19 @@ label {
   text-transform: uppercase;
   
   &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s, height 0.5s;
+  }
+  
+  &::after {
     content: '';
     position: absolute;
     top: 0;
@@ -338,83 +428,84 @@ label {
 }
 
 .btn-primary {
-  background: $primary-gradient;
+  background: $gradient-button;
   background-size: 200% 200%;
   color: white;
   box-shadow: 
-    0 6px 20px rgba(102, 126, 234, 0.35),
-    0 0 0 0 rgba(102, 126, 234, 0.5);
+    0 10px 30px rgba(255, 75, 110, 0.4),
+    0 5px 15px rgba(255, 140, 66, 0.3);
   animation: gradient-shift 3s ease infinite;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   
   &:hover:not(:disabled) {
-    transform: translateY(-3px) scale(1.02);
+    transform: translateY(-4px) scale(1.02);
     box-shadow: 
-      0 12px 30px rgba(102, 126, 234, 0.45),
-      0 0 20px rgba(102, 126, 234, 0.3);
+      0 15px 40px rgba(255, 75, 110, 0.5),
+      0 8px 20px rgba(255, 140, 66, 0.4);
     
     &::before {
+      width: 400px;
+      height: 400px;
+    }
+    
+    &::after {
       left: 100%;
     }
   }
   
   &:active:not(:disabled) {
-    transform: translateY(-1px) scale(1);
+    transform: translateY(-2px) scale(1);
   }
   
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 5px 15px rgba(255, 75, 110, 0.2);
   }
   
   .fa-spinner {
-    margin-right: 8px;
+    margin-right: 10px;
   }
 }
 
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
 .form-actions {
-  margin-top: 35px;
-  animation: fadeInUp 0.6s ease-out 0.5s both;
+  margin-top: 38px;
+  animation: fadeInUp 0.6s ease-out 0.4s backwards;
 }
 
 // ==================== დავიწყებული პაროლი ====================
 .forgot-password {
   text-align: right;
-  margin-top: 16px;
-  animation: fadeInUp 0.6s ease-out 0.6s both;
+  margin-top: 18px;
+  animation: slideIn 0.6s ease-out 0.5s backwards;
   
   a {
-    color: $primary-color;
+    color: #a8b3ff;
     text-decoration: none;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     @include smooth-transition(all);
-    padding: 6px 12px;
-    border-radius: 8px;
+    padding: 8px 16px;
+    border-radius: 10px;
     display: inline-block;
     position: relative;
     
     &::after {
       content: '';
       position: absolute;
-      bottom: 4px;
-      left: 12px;
-      right: 12px;
+      bottom: 6px;
+      left: 16px;
+      right: 16px;
       height: 2px;
-      background: $primary-color;
+      background: linear-gradient(135deg, #a8b3ff 0%, #ffffff 100%);
       transform: scaleX(0);
       @include smooth-transition(transform);
     }
     
     &:hover {
-      color: $primary-dark;
-      background: rgba(102, 126, 234, 0.08);
+      color: #ffffff;
+      background: rgba(168, 179, 255, 0.15);
       
       &::after {
         transform: scaleX(1);
@@ -425,127 +516,96 @@ label {
 
 // ==================== Google Sign-In ====================
 .google-signin-container {
-  margin: 25px 0;
+  margin: 28px 0;
   text-align: center;
-  animation: fadeInUp 0.6s ease-out 0.7s both;
+  animation: fadeInUp 0.6s ease-out 0.6s backwards;
+  padding: 20px 0;
   
   #google-signin-button {
-    display: inline-block;
-    @include smooth-transition(transform);
-    
-    &:hover {
-      transform: scale(1.02);
-    }
-  }
-}
-
-.google-login-section {
-  margin-bottom: 28px;
-  animation: fadeInUp 0.6s ease-out 0.8s both;
-  
-  .btn-google {
-    width: 100%;
-    padding: 14px 20px;
-    border: 2px solid $border-color;
-    border-radius: 14px;
-    background: white;
-    color: $text-primary;
-    font-weight: 600;
-    font-size: 15px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
+    padding: 16px 32px;
+    background: white;
+    border: 2px solid #e8ecf4;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
     cursor: pointer;
     @include smooth-transition(all);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     position: relative;
     overflow: hidden;
     
     &::before {
       content: '';
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(102, 126, 234, 0.1);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(66, 133, 244, 0.05) 0%, rgba(234, 67, 53, 0.05) 100%);
+      opacity: 0;
+      @include smooth-transition(opacity);
     }
     
-    &:hover:not(:disabled) {
-      border-color: $primary-color;
-      background: rgba(102, 126, 234, 0.03);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    &:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      border-color: #4285f4;
       
       &::before {
-        width: 300px;
-        height: 300px;
+        opacity: 1;
       }
     }
     
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    
-    svg {
-      flex-shrink: 0;
-      position: relative;
-      z-index: 1;
-    }
-    
-    span {
-      position: relative;
-      z-index: 1;
+    &:active {
+      transform: translateY(-1px) scale(1);
     }
   }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 30px 0;
+  width: 100%;
   
-  .divider {
-    display: flex;
-    align-items: center;
-    margin: 24px 0;
-    width: 100%;
-    
-    &::before,
-    &::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(to right, transparent, $border-color, transparent);
-    }
-    
-    .orr {
-      padding: 0 20px;
-      color: $text-muted;
-      font-size: 14px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, transparent, $border-light, transparent);
+  }
+  
+  .orr {
+    padding: 0 22px;
+    color: $text-muted;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
   }
 }
 
 // ==================== ფორმის ფუტერი ====================
 .form-footer {
   text-align: center;
-  margin-top: 30px;
-  padding-top: 28px;
-  border-top: 1px solid $border-color;
-  font-size: 14px;
-  color: $text-muted;
-  animation: fadeInUp 0.6s ease-out 0.9s both;
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  animation: fadeInUp 0.6s ease-out 0.8s backwards;
   
   a {
-    color: $primary-color;
+    color: #a8b3ff;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 800;
     @include smooth-transition(all);
-    padding: 6px 14px;
-    border-radius: 8px;
-    margin-left: 5px;
+    padding: 8px 18px;
+    border-radius: 10px;
+    margin-left: 6px;
     display: inline-block;
     position: relative;
     
@@ -553,8 +613,8 @@ label {
       content: '';
       position: absolute;
       inset: 0;
-      border-radius: 8px;
-      background: $primary-gradient;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #FF4B6E 0%, #FF8C42 100%);
       opacity: 0;
       @include smooth-transition(opacity);
       z-index: -1;
@@ -562,7 +622,7 @@ label {
     
     &:hover {
       color: white;
-      transform: translateY(-1px);
+      transform: translateY(-2px);
       
       &::before {
         opacity: 1;
@@ -578,48 +638,49 @@ label {
   }
   
   .login-form-box {
-    padding: 35px 25px;
-    border-radius: 20px;
+    padding: 40px 30px;
+    border-radius: 26px;
   }
   
   h2 {
-    font-size: 26px;
-    margin-bottom: 30px;
+    font-size: 30px;
+    margin-bottom: 35px;
   }
   
   .form-control {
-    padding: 14px 18px;
-    font-size: 16px;
+    padding: 16px 20px;
+    padding-left: 48px;
+    font-size: 15px;
   }
   
   .btn {
-    padding: 16px 20px;
+    padding: 18px 24px;
     font-size: 15px;
   }
   
   .form-group {
-    margin-bottom: 24px;
+    margin-bottom: 26px;
   }
 }
 
 @media (max-width: 380px) {
   .login-form-box {
-    padding: 30px 20px;
+    padding: 35px 25px;
   }
   
   h2 {
-    font-size: 24px;
+    font-size: 26px;
   }
 }
 
 // ==================== დამატებითი ეფექტები ====================
 .loading-spinner {
   display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top: 2px solid white;
+  border-top: 3px solid white;
   animation: spin 0.8s linear infinite;
   margin-right: 10px;
 }
@@ -627,41 +688,4 @@ label {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-// ==================== ქართული ფონტის მხარდაჭერა ====================
-@font-face {
-  font-family: 'BPG Nino Mtavruli';
-  src: url('https://fonts.gstatic.com/ea/bpgnino/v1/BPGNino.ttf') format('truetype');
-  font-display: swap;
-}
-
-// ==================== დარქ მოდის მხარდაჭერა (ოფციონალური) ====================
-@media (prefers-color-scheme: dark) {
-  body {
-    background: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #4a5568 100%);
-  }
-  
-  .login-form-box {
-    background: rgba(45, 55, 72, 0.95);
-    color: #e2e8f0;
-  }
-  
-  h2 {
-    color: #e2e8f0;
-  }
-  
-  label {
-    color: #cbd5e0;
-  }
-  
-  .form-control {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #e2e8f0;
-    
-    &::placeholder {
-      color: #718096;
-    }
-  }
 }
