@@ -1,16 +1,21 @@
-// home.component.ts - Custom Carousel Version (No PrimeNG)
+// home.component.ts - SCROLL/TOUCH CONFLICT FIXED VERSION
 
-import { Component, OnInit, HostListener, OnDestroy, Inject, PLATFORM_ID, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { MatButton } from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, HostListener, OnDestroy, Inject, PLATFORM_ID, signal, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
-import { SeoService } from '../../seo.service';
-import { ProductService } from '../services/product.service';
 import { Meta, Title } from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+// PrimeNG Imports
+import { CarouselModule } from 'primeng/carousel';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+
+import { SeoService } from '../../seo.service';
+import { ProductService } from '../services/product.service';
 import { CategoryTranslatePipe } from "../pipes/category-translate.pipe";
 
 @Component({
@@ -22,13 +27,17 @@ import { CategoryTranslatePipe } from "../pipes/category-translate.pipe";
     RouterLink,
     MatButtonModule,
     TranslateModule,
-    CategoryTranslatePipe
+    CategoryTranslatePipe,
+    CarouselModule,
+    ButtonModule,
+    TagModule
   ],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  styleUrl: './home.component.scss'
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+  
+  @ViewChild('carouselContainer') carouselContainer!: ElementRef;
   
   searchQuery: string = '';
   showSuggestions: boolean = false;
@@ -36,24 +45,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   allProducts: any[] = []; 
   isLoadingProducts: boolean = false;
   isLoadingViews: boolean = false;
-  products: any[] = [];
+  products = signal<any[]>([]);
   loading = true;
   error: string | null = null;
 
-  // ==================== CAROUSEL PROPERTIES ====================
-  currentIndex: number = 0;
-  slideWidth: number = 33.333; // Default for 3 items
-  itemsPerView: number = 3;
-  autoplayInterval: any;
-  circular: boolean = true;
-  showNavigators: boolean = true;
-  showIndicators: boolean = true;
-  autoplayDelay: number = 5000;
-  
-  // Touch Events
-  private touchStartX: number = 0;
-  private touchStartY: number = 0;
-  private touchEndX: number = 0;
+  // PrimeNG Carousel Settings
+  responsiveOptions: any[] = [];
   
   categories: string[] = [
     'ტელეფონები', 'ტექნიკა', 'ავტომობილები', 'ტანსაცმელი', 
@@ -69,155 +66,90 @@ export class HomeComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private translate: TranslateService,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  ) {
+    this.responsiveOptions = [
+      { breakpoint: '1400px', numVisible: 4, numScroll: 1 },
+      { breakpoint: '1199px', numVisible: 3, numScroll: 1 },
+      { breakpoint: '991px', numVisible: 2, numScroll: 1 },
+      { breakpoint: '767px', numVisible: 2, numScroll: 1 },
+      { breakpoint: '575px', numVisible: 1, numScroll: 1 }
+    ];
+  }
+
+  ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      // 🔥 CRITICAL: დაბლოკე scroll/touch events carousel-ზე
+      this.preventCarouselScrollInterference();
+    }
+  }
+
+  private preventCarouselScrollInterference(): void {
+    setTimeout(() => {
+      const carouselElement = document.querySelector('.carousel-container');
+      
+      if (carouselElement) {
+        // 🛑 BLOCK WHEEL (Mouse Scroll)
+        carouselElement.addEventListener('wheel', (e: Event) => {
+          e.stopPropagation();
+          e.preventDefault(); // 🔥 ეს არის KEY - სრულიად ბლოკავს scroll-ს
+        }, { passive: false }); // passive: false - იძლევა preventDefault გამოყენების საშუალებას
+
+        // 🛑 BLOCK TOUCH EVENTS (Mobile Swipe)
+        carouselElement.addEventListener('touchstart', (e: Event) => {
+          e.stopPropagation();
+        }, { passive: true });
+
+        carouselElement.addEventListener('touchmove', (e: Event) => {
+          e.stopPropagation();
+        }, { passive: true });
+
+        // 🛑 დამატებითი protection PrimeNG შიგნით
+        const pCarousel = carouselElement.querySelector('.p-carousel');
+        if (pCarousel) {
+          pCarousel.addEventListener('wheel', (e: Event) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }, { passive: false });
+        }
+
+        console.log('✅ Carousel scroll/touch interference BLOCKED');
+      }
+    }, 800); // დაელოდე DOM-ს სრულ რენდერს
+  }
 
   ngOnInit() {
     this.loadProductsWithRealViews();
     this.setupComprehensiveSEO();
     this.loadAllProducts();
-    this.updateCarouselSettings();
-    this.startAutoplay();
     
     if (isPlatformBrowser(this.platformId)) {
       this.addEnhancedStructuredData();
       this.addBreadcrumbSchema();
       this.addOrganizationSchema();
-      window.addEventListener('resize', () => this.updateCarouselSettings());
     }
   }
 
   ngOnDestroy() {
-    this.stopAutoplay();
+    // Cleanup scroll listeners
     if (isPlatformBrowser(this.platformId)) {
-      window.removeEventListener('resize', () => this.updateCarouselSettings());
-    }
-  }
-
-  // ==================== CAROUSEL METHODS ====================
-  
-  updateCarouselSettings() {
-    if (!isPlatformBrowser(this.platformId)) return;
-    
-    const width = window.innerWidth;
-    if (width < 480) {
-      this.itemsPerView = 1;
-      this.slideWidth = 100;
-    } else if (width < 768) {
-      this.itemsPerView = 2;
-      this.slideWidth = 50;
-    } else if (width < 1024) {
-      this.itemsPerView = 2;
-      this.slideWidth = 50;
-    } else if (width < 1400) {
-      this.itemsPerView = 3;
-      this.slideWidth = 33.333;
-    } else {
-      this.itemsPerView = 4;
-      this.slideWidth = 25;
-    }
-  }
-
-  get maxIndex(): number {
-    const products = this.getProductsWithHighViews();
-    // თითო პროდუქტით გადასვლისთვის
-    return Math.max(0, products.length - this.itemsPerView);
-  }
-
-  nextSlide() {
-    const products = this.getProductsWithHighViews();
-    if (this.currentIndex < this.maxIndex) {
-      this.currentIndex++;
-    } else if (this.circular) {
-      this.currentIndex = 0;
-    }
-    this.resetAutoplay();
-  }
-
-  prevSlide() {
-    if (this.currentIndex > 0) {
-      this.currentIndex--;
-    } else if (this.circular) {
-      this.currentIndex = this.maxIndex;
-    }
-    this.resetAutoplay();
-  }
-
-  goToSlide(index: number) {
-    this.currentIndex = index;
-    this.resetAutoplay();
-  }
-
-  getIndicators(): any[] {
-    const products = this.getProductsWithHighViews();
-    // თითო პროდუქტისთვის indicator
-    return Array(Math.max(0, products.length - this.itemsPerView + 1)).fill(0);
-  }
-
-  // Autoplay Methods
-  startAutoplay() {
-    if (!isPlatformBrowser(this.platformId) || this.autoplayDelay <= 0) return;
-    
-    this.autoplayInterval = setInterval(() => {
-      this.nextSlide();
-    }, this.autoplayDelay);
-  }
-
-  stopAutoplay() {
-    if (this.autoplayInterval) {
-      clearInterval(this.autoplayInterval);
-      this.autoplayInterval = null;
-    }
-  }
-
-  resetAutoplay() {
-    this.stopAutoplay();
-    this.startAutoplay();
-  }
-
-  // Touch Events for Mobile Swipe
-  onTouchStart(event: TouchEvent) {
-    this.touchStartX = event.touches[0].clientX;
-    this.touchStartY = event.touches[0].clientY;
-    this.stopAutoplay();
-  }
-
-  onTouchMove(event: TouchEvent) {
-    const touchEndX = event.touches[0].clientX;
-    const touchEndY = event.touches[0].clientY;
-    
-    const diffX = Math.abs(touchEndX - this.touchStartX);
-    const diffY = Math.abs(touchEndY - this.touchStartY);
-    
-    // Prevent vertical scroll if horizontal swipe
-    if (diffX > diffY && diffX > 10) {
-      event.preventDefault();
-    }
-  }
-
-  onTouchEnd(event: TouchEvent) {
-    this.touchEndX = event.changedTouches[0].clientX;
-    const diff = this.touchStartX - this.touchEndX;
-    
-    // Minimum swipe distance: 50px
-    if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        this.nextSlide();
-      } else {
-        this.prevSlide();
+      const carouselElement = document.querySelector('.carousel-container');
+      if (carouselElement) {
+        carouselElement.removeEventListener('wheel', () => {});
+        carouselElement.removeEventListener('touchmove', () => {});
       }
-    } else {
-      this.startAutoplay();
     }
   }
 
   // ==================== PRODUCT METHODS ====================
 
   getProductsWithHighViews(): any[] {
-    if (!this.products || this.products.length === 0) {
+    const currentProducts = this.products();
+    
+    if (!currentProducts || currentProducts.length === 0) {
       return [];
     }
 
-    const highViewProducts = this.products.filter(product => {
+    const highViewProducts = currentProducts.filter(product => {
       const viewCount = product.viewCount || product.views || product.totalViews || 0;
       return viewCount >= 100;
     });
@@ -254,7 +186,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         
         if (!response) {
           console.error('❌ Response is null or undefined!');
-          this.products = [];
+          this.products.set([]);
           this.loading = false;
           this.isLoadingViews = false;
           return;
@@ -276,7 +208,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           this.processProductsWithRealViews(allProducts);
           this.addProductListSchema(allProducts.slice(0, 12));
         } else {
-          this.products = [];
+          this.products.set([]);
           this.loading = false;
           this.isLoadingViews = false;
         }
@@ -305,9 +237,9 @@ export class HomeComponent implements OnInit, OnDestroy {
       .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
 
     if (sortedProducts.length === 0) {
-      this.products = productsWithViewData.slice(0, 12);
+      this.products.set(productsWithViewData.slice(0, 12));
     } else {
-      this.products = sortedProducts.slice(0, 12);
+      this.products.set(sortedProducts.slice(0, 12));
     }
 
     this.loading = false;
@@ -332,15 +264,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     
     this.productService.recordView(productId).subscribe({
       next: (response) => {
-        const product = this.products.find(p => (p._id || p.id) === productId);
-        if (product) {
-          product.viewCount = (product.viewCount || 0) + 1;
+        const currentProducts = this.products();
+        const productIndex = currentProducts.findIndex(p => (p._id || p.id) === productId);
+        if (productIndex !== -1) {
+          const updatedProducts = [...currentProducts];
+          updatedProducts[productIndex] = {
+            ...updatedProducts[productIndex],
+            viewCount: (updatedProducts[productIndex].viewCount || 0) + 1
+          };
+          this.products.set(updatedProducts);
         }
       },
       error: (error) => console.error('❌ ნახვის რეგისტრაციის შეცდომა:', error)
     });
 
-    const product = this.products.find(p => (p._id || p.id) === productId);
+    const currentProducts = this.products();
+    const product = currentProducts.find(p => (p._id || p.id) === productId);
     if (product && product.title) {
       const productUrl = this.generateProductUrl(product.title);
       this.router.navigate([productUrl]).then(success => {

@@ -107,100 +107,111 @@
 
 
 
-<div class="caroussel">
-<div *ngIf="getProductsWithHighViews().length > 0" class="popular-products-carousel">
-  <h1 class="popular-products-title">{{ 'HOME.POPULAR_PRODUCTS.TITLE' | translate }}</h1>
+<!-- home.component.html - SCROLL/TOUCH FIXED -->
 
-  <div class="carousel-container">
-    <!-- Previous Button -->
-    <button class="carousel-nav prev" 
-            (click)="prevSlide()" 
-            [disabled]="currentIndex === 0 && !circular"
-            *ngIf="showNavigators">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
+<div class="popular-products-section">
+  <div *ngIf="getProductsWithHighViews().length > 0" class="popular-products-carousel">
+    <h1 class="popular-products-title">{{ 'HOME.POPULAR_PRODUCTS.TITLE' | translate }}</h1>
 
-    <!-- Carousel Wrapper -->
-    <div class="carousel-wrapper" 
-         (touchstart)="onTouchStart($event)"
-         (touchmove)="onTouchMove($event)"
-         (touchend)="onTouchEnd($event)"
-         (mouseenter)="stopAutoplay()"
-         (mouseleave)="startAutoplay()">
+    <!-- 🔥 CRITICAL: carousel-container WITH #carouselContainer REFERENCE -->
+    <div class="carousel-container" >
       
-      <div class="carousel-track" 
-           [style.transform]="'translateX(-' + (currentIndex * (100 / itemsPerView)) + '%)'">
+      <p-carousel 
+        [value]="getProductsWithHighViews()" 
+        [numVisible]="4" 
+        [numScroll]="1" 
+        [circular]="true"
+        [responsiveOptions]="responsiveOptions"
+        [autoplayInterval]="5000"
+        [showNavigators]="true"
+        [showIndicators]="true">
         
-        <div *ngFor="let product of getProductsWithHighViews()" class="product-slide">
-          <div class="product-card">
-            <div class="product-image2">
-              <img [src]="getProductImage(product)" 
-                   [alt]="product.title"
-                   class="product-img"
-                   loading="lazy"
-                   (error)="onImageError($event)">
-            </div>
-            
-            <div class="product-info2">
-              <h3 class="product-title">{{ product.title }}</h3>
-              <p class="product-description">
-                {{ product.description | slice:0:100 }}{{ product.description?.length > 100 ? '...' : '' }}
-              </p>
-              <div class="product-price">{{ product.price }} {{ 'HOME.POPULAR_PRODUCTS.LARI' | translate }}</div>
-              
-              <div class="product-stats">
-                <div class="category-chip">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <line x1="7" y1="7" x2="7.01" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>{{ product.category | categoryTranslate }}</span>
-                </div>
-                <div class="view-count" [class.loading]="isLoadingViews">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span class="view-text">{{ formatViews(product.viewCount || 0) }} {{ 'HOME.POPULAR_PRODUCTS.VIEWS' | translate }}</span>
-                </div>
+        <ng-template let-product #item>
+          <div class="product-slide">
+            <div class="product-card">
+              <!-- Product Image -->
+              <div class="product-image">
+                <img 
+                  [src]="getProductImage(product)" 
+                  [alt]="product.title"
+                  class="product-img"
+                  loading="lazy"
+                  (error)="onImageError($event)">
               </div>
               
-              <button mat-stroked-button
-                      class="view-product-btn"
-                      (click)="selectProduct(product)">
-                {{ 'HOME.POPULAR_PRODUCTS.VIEW_PRODUCT' | translate }}
-              </button>
+              <!-- Product Info -->
+              <div class="product-info">
+                <h3 class="product-title">{{ product.title }}</h3>
+                
+                <p class="product-description">
+                  {{ product.description | slice:0:100 }}{{ product.description?.length > 100 ? '...' : '' }}
+                </p>
+                
+                <div class="product-price">
+                  {{ product.price }} {{ 'HOME.POPULAR_PRODUCTS.LARI' | translate }}
+                </div>
+                
+                <!-- Product Stats -->
+                <div class="product-stats">
+                  <!-- Category -->
+                  <div class="category-chip">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" 
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <line x1="7" y1="7" x2="7.01" y2="7" stroke="currentColor" stroke-width="2" 
+                            stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>{{ product.category | categoryTranslate }}</span>
+                  </div>
+                  
+                  <!-- View Count -->
+                  <div class="view-count" [class.loading]="isLoadingViews">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" 
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" 
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="view-text">
+                      {{ formatViews(product.viewCount || 0) }} {{ 'HOME.POPULAR_PRODUCTS.VIEWS' | translate }}
+                    </span>
+                  </div>
+                </div>
+                
+                <!-- View Product Button -->
+                <button 
+                  mat-stroked-button
+                  class="view-product-btn"
+                  (click)="selectProduct(product)">
+                  {{ 'HOME.POPULAR_PRODUCTS.VIEW_PRODUCT' | translate }}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-
-      </div>
+        </ng-template>
+      </p-carousel>
     </div>
-
-    <!-- Next Button -->
-    <button class="carousel-nav next" 
-            (click)="nextSlide()" 
-            [disabled]="currentIndex >= maxIndex && !circular"
-            *ngIf="showNavigators">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
   </div>
 
-  <!-- Indicators -->
-  <div class="carousel-indicators" *ngIf="showIndicators">
-    <button *ngFor="let item of getIndicators(); let i = index"
-            class="indicator"
-            [class.active]="i === currentIndex"
-            (click)="goToSlide(i)"
-            [attr.aria-label]="'Slide ' + (i + 1)">
-    </button>
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>პროდუქტები იტვირთება...</p>
+  </div>
+
+  <!-- No Products State -->
+  <div *ngIf="!loading && getProductsWithHighViews().length === 0" class="no-products">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 6v6m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <h3>პოპულარული პროდუქტები ვერ მოიძებნა</h3>
+    <p>ამჟამად არ არის 100+ ნახვის მქონე პროდუქტები</p>
   </div>
 </div>
-</div>
+
+
+
 
 
 <div class="categorymain">

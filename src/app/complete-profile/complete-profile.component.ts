@@ -29,20 +29,32 @@ export class CompleteProfileComponent implements OnInit {
     private router: Router,
     private translate: TranslateService
   ) {
+    // ✅ ყველა ველი სავალდებულოა
     this.profileForm = this.fb.group({
       phone: ['', [
+        Validators.required, // ✅ სავალდებულო
         Validators.pattern(/^\+?[0-9]{9,15}$/)
       ]],
       personalNumber: ['', [
+        Validators.required, // ✅ სავალდებულო
         Validators.pattern(/^[0-9]{11}$/),
         Validators.minLength(11),
         Validators.maxLength(11)
       ]],
-      dateOfBirth: ['']
+      dateOfBirth: ['', [
+        Validators.required // ✅ სავალდებულო
+      ]]
     });
   }
 
   ngOnInit(): void {
+    // ✅ დავამატოთ შემოწმება - თუ არ არის ახალი მომხმარებელი, გადავიყვანოთ dashboard-ზე
+    if (!this.authService.isNewUser()) {
+      console.log('⚠️ Not a new user, redirecting to dashboard');
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+
     // Set max date to 13 years ago
     const today = new Date();
     today.setFullYear(today.getFullYear() - 13);
@@ -75,37 +87,21 @@ export class CompleteProfileComponent implements OnInit {
       this.profileForm.get(key)?.markAsTouched();
     });
 
-    // Check if form has invalid fields that are not empty
+    // ✅ შემოწმება - ყველა ველი უნდა იყოს შევსებული
     if (this.profileForm.invalid) {
-      const controls = this.profileForm.controls;
-      if ((controls['phone'].value && controls['phone'].invalid) ||
-          (controls['personalNumber'].value && controls['personalNumber'].invalid) ||
-          (controls['dateOfBirth'].value && controls['dateOfBirth'].invalid)) {
-        this.errorMessage = 'გთხოვთ შეავსოთ ველები სწორად';
-        return;
-      }
+      this.errorMessage = 'გთხოვთ შეავსოთ ყველა ველი სწორად';
+      return;
     }
 
     this.isSubmitting = true;
     this.errorMessage = '';
 
-    // Get only filled values
-    const profileData: any = {};
-    if (this.profileForm.value.phone) {
-      profileData.phone = this.profileForm.value.phone;
-    }
-    if (this.profileForm.value.personalNumber) {
-      profileData.personalNumber = this.profileForm.value.personalNumber;
-    }
-    if (this.profileForm.value.dateOfBirth) {
-      profileData.dateOfBirth = this.profileForm.value.dateOfBirth;
-    }
-
-    // If nothing to update, just skip
-    if (Object.keys(profileData).length === 0) {
-      this.onSkip();
-      return;
-    }
+    // ✅ ყველა ველი სავალდებულოა, ასე რომ არ გვჭირდება შემოწმება
+    const profileData = {
+      phone: this.profileForm.value.phone,
+      personalNumber: this.profileForm.value.personalNumber,
+      dateOfBirth: this.profileForm.value.dateOfBirth
+    };
 
     console.log('📤 Updating profile with data:', profileData);
 
@@ -113,6 +109,9 @@ export class CompleteProfileComponent implements OnInit {
       next: (response) => {
         console.log('✅ Profile updated successfully:', response);
         this.isSubmitting = false;
+        
+        // ✅ Clear new user flag
+        this.authService.clearNewUserFlag();
         
         // Show success message
         this.translate.get('PROFILE.UPDATE_SUCCESS').subscribe(msg => {
@@ -146,10 +145,7 @@ export class CompleteProfileComponent implements OnInit {
     });
   }
 
-  onSkip(): void {
-    console.log('⏭️ Skipping profile completion');
-    this.router.navigate(['/dashboard']);
-  }
+  // ✅ წაშლილია onSkip() მეთოდი - აღარ არის გამოტოვების შესაძლებლობა
 
   // Helper method to check if field has error
   hasError(fieldName: string, errorType: string): boolean {

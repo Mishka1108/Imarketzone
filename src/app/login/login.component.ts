@@ -204,9 +204,13 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
 
           this.showSnackBar('✅ Google Sign-In წარმატებული!');
 
-          // ✅ Navigate to dashboard
+          // ✅ თუ ახალი მომხმარებელია, გადავიდეთ პროფილის შევსებაზე
           setTimeout(() => {
-            this.router.navigate(['/dashboard']);
+            if (this.authService.isNewUser()) {
+              this.router.navigate(['/complete-profile']);
+            } else {
+              this.router.navigate(['/dashboard']);
+            }
           }, 500);
         },
         error: (error) => {
@@ -343,15 +347,16 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ✅ Toggle password visibility
-  visibility: any
-togglePasswordVisibility(): void {
-this.hidePassword = !this.hidePassword;
-}
-// ✅ Get form control for template
-get email() {
-return this.loginForm.get('email');
-}
-get password() {
-return this.loginForm.get('password');
-}
+  togglePasswordVisibility(): void {
+    this.hidePassword = !this.hidePassword;
+  }
+
+  // ✅ Get form control for template
+  get email() {
+    return this.loginForm.get('email');
+  }
+
+  get password() {
+    return this.loginForm.get('password');
+  }
 }

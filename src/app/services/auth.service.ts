@@ -13,16 +13,17 @@ declare const google: any;
   providedIn: 'root'
 })
 export class AuthService {
- resendVerificationEmail(email: string): Observable<any> {
-  return this.http.post(`${this.apiUrl}/auth/resend-verification`, 
-    { email }, 
-    {
-      headers: {
-        'Content-Type': 'application/json'
+  resendVerificationEmail(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/resend-verification`, 
+      { email }, 
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       }
-    }
-  );
-}
+    );
+  }
+  
   private apiUrl = environment.apiUrl;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -94,7 +95,6 @@ export class AuthService {
     }
   }
 
-  // ✅ IMPROVED: Enhanced auth data clearing
   public clearAuthData(): void {
     console.log('🧹 Starting comprehensive auth data cleanup...');
     
@@ -109,7 +109,8 @@ export class AuthService {
         'userEmail',
         'googleUser',
         'g_state',
-        'google_session'
+        'google_session',
+        'isNewUser'
       ];
       
       keysToRemove.forEach(key => {
@@ -142,7 +143,6 @@ export class AuthService {
     console.log('✅ Auth cleanup completed');
   }
 
-  // ✅ FIXED: Google session revocation without FedCM errors
   private revokeGoogleSession(): void {
     if (!this.isBrowser() || typeof google === 'undefined') {
       console.warn('⚠️ Google API not available for session revocation');
@@ -168,35 +168,30 @@ export class AuthService {
         console.warn('⚠️ Could not disable auto-select:', e);
       }
       
-      // 3. Revoke token ONLY if user email exists (prevents pending disconnect error)
+      // 3. Revoke token ONLY if user email exists
       if (user && user.email) {
         try {
           google.accounts.id.revoke(user.email, (done: any) => {
             if (done && done.successful) {
               console.log('✅ Google token revoked for:', user.email);
             } else if (done && done.error) {
-              // Silently handle - this is expected after logout
               console.log('ℹ️ Google revoke response:', done.error);
             }
           });
         } catch (e) {
-          // Silently ignore revoke errors - session is already cleared
           console.log('ℹ️ Google revoke skipped:', e);
         }
       }
       
     } catch (error) {
-      // Don't show errors for Google cleanup - it's not critical
       console.log('ℹ️ Google session cleanup completed with warnings');
     }
   }
 
-  // ✅ ENHANCED: More comprehensive Google cookie clearing
   private clearAllGoogleCookies(): void {
     console.log('🍪 Clearing all Google cookies...');
     
     const googleCookies = [
-      // Google Sign-In cookies
       '__Secure-1PSID',
       '__Secure-3PSID',
       'SIDCC',
@@ -207,13 +202,9 @@ export class AuthService {
       '__Secure-3PAPISID',
       'HSID',
       'SID',
-      
-      // Google OAuth state
       'g_state',
       'google_session',
       'oauth_token',
-      
-      // Additional Google cookies
       'CONSENT',
       'NID',
       '1P_JAR',
@@ -221,8 +212,6 @@ export class AuthService {
       'SEARCH_SAMESITE',
       'OTZ',
       '__Secure-ENID',
-      
-      // Google Analytics (optional, but good to clear)
       '_ga',
       '_gid',
       '_gat'
@@ -243,39 +232,29 @@ export class AuthService {
 
     const paths = ['/', '/auth', '/login', '/auth/login', '/dashboard'];
 
-    // Clear cookies for all combinations of cookie names, domains, and paths
     googleCookies.forEach(cookieName => {
       domains.forEach(domain => {
         paths.forEach(path => {
-          // Standard deletion
           document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}`;
-          
-          // Secure deletion
           document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; secure`;
-          
-          // SameSite variations
           document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; SameSite=None; Secure`;
           document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; SameSite=Lax`;
           document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; SameSite=Strict`;
         });
         
-        // Also clear without specific path
         document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${domain}`;
       });
       
-      // Clear without domain specification
       paths.forEach(path => {
         document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}`;
       });
       
-      // Simple clear
       document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
     });
 
     console.log('✅ All Google cookies cleared');
   }
 
-  // ✅ ENHANCED: Better Google state clearing
   private clearGoogleState(): void {
     console.log('🔄 Clearing Google state...');
     
@@ -287,7 +266,6 @@ export class AuthService {
       '.localhost'
     ];
 
-    // Clear g_state cookie with all variations
     paths.forEach(path => {
       domains.forEach(domain => {
         document.cookie = `g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}`;
@@ -298,7 +276,6 @@ export class AuthService {
       document.cookie = `g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}`;
     });
 
-    // Also clear from current domain without specific path
     document.cookie = 'g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
     
     console.log('✅ Google state cookie cleared');
@@ -381,6 +358,12 @@ export class AuthService {
         
         if (response && response.token && response.user && this.isBrowser()) {
           this.saveAuthData(response.token, response.user);
+          
+          // ✅ შევინახოთ isNewUser ფლაგი localStorage-ში
+          if (response.isNewUser) {
+            localStorage.setItem('isNewUser', 'true');
+          }
+          
           console.log('✅ Auth data saved successfully');
         }
       }),
@@ -429,17 +412,14 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/auth/verify/${token}`);
   }
 
-  // ✅ COMPLETELY REWRITTEN: Enhanced logout WITHOUT FedCM errors
   logout(): Observable<void> {
     console.log('🚪 Starting logout process...');
     
     const token = this.getToken();
     const userEmail = this.getCurrentUser()?.email;
     
-    // STEP 1: Disable Google features BEFORE clearing data
     if (this.isBrowser() && typeof google !== 'undefined') {
       try {
-        // Only cancel and disable, DON'T revoke yet
         google.accounts.id.cancel();
         google.accounts.id.disableAutoSelect();
         console.log('✅ Google features disabled');
@@ -448,7 +428,6 @@ export class AuthService {
       }
     }
     
-    // STEP 2: Backend logout (if token exists)
     const backendLogout = token 
       ? this.http.post(`${this.apiUrl}/auth/logout`, {}, {
           headers: {
@@ -465,38 +444,40 @@ export class AuthService {
       : of(null);
 
     return backendLogout.pipe(
-      // STEP 3: Clear all local data
       tap(() => {
         this.clearAuthData();
         console.log('✅ Local auth data cleared');
       }),
-      
-      // STEP 4: Final cleanup AFTER data is cleared (prevents disconnect error)
       delay(50),
       tap(() => {
         if (this.isBrowser() && typeof google !== 'undefined') {
           try {
-            // Final disable (data is already cleared, so no pending disconnect)
             google.accounts.id.disableAutoSelect();
             
-            // Only revoke if we have email AND user wants complete logout
             if (userEmail) {
-              // Use revoke with silent error handling
-              google.accounts.id.revoke(userEmail, () => {
-                // Callback fires but we don't log it to avoid console spam
-              });
+              google.accounts.id.revoke(userEmail, () => {});
             }
             
             console.log('✅ Final Google cleanup completed');
           } catch (e) {
-            // Silently ignore any final cleanup errors
+            // Silently ignore
           }
         }
       }),
-      
-      // STEP 5: Return void
       map(() => void 0)
     );
+  }
+
+  // ✅ დამატებითი მეთოდები isNewUser-სთვის
+  isNewUser(): boolean {
+    if (!this.isBrowser()) return false;
+    return localStorage.getItem('isNewUser') === 'true';
+  }
+  
+  clearNewUserFlag(): void {
+    if (this.isBrowser()) {
+      localStorage.removeItem('isNewUser');
+    }
   }
 
   getCurrentUser(): User | null {

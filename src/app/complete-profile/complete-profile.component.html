@@ -2,16 +2,22 @@
   <div class="profile-card">
     <div class="profile-header">
       <div class="google-logo">
-  <span class="logo-letter logo-g">G</span>
-  <span class="logo-letter logo-o1">o</span>
-  <span class="logo-letter logo-o2">o</span>
-  <span class="logo-letter logo-g2">g</span>
-  <span class="logo-letter logo-l">l</span>
-  <span class="logo-letter logo-e">e</span>
-  <span style="color: #5f6368; margin-left: 8px;">Account</span>
-</div>
+        <span class="logo-letter logo-g">G</span>
+        <span class="logo-letter logo-o1">o</span>
+        <span class="logo-letter logo-o2">o</span>
+        <span class="logo-letter logo-g2">g</span>
+        <span class="logo-letter logo-l">l</span>
+        <span class="logo-letter logo-e">e</span>
+        <span style="color: #5f6368; margin-left: 8px;">Account</span>
+      </div>
       <h2>{{ 'PROFILE.COMPLETE_TITLE' | translate }}</h2>
       <p class="subtitle">{{ 'PROFILE.COMPLETE_SUBTITLE' | translate }}</p>
+      
+      <!-- ✅ დამატებითი ინფორმაცია - რომ ველები სავალდებულოა -->
+      <div class="required-notice">
+        <i class="fas fa-info-circle"></i>
+        <p>ყველა ველი სავალდებულოა რეგისტრაციის დასასრულებლად</p>
+      </div>
     </div>
 
     <!-- Error Message -->
@@ -38,7 +44,7 @@
         <label for="phone">
           <i class="fas fa-phone"></i>
           {{ 'PROFILE.PHONE_LABEL' | translate }}
-          <span class="optional">{{ 'PROFILE.OPTIONAL' | translate }}</span>
+          <span class="required">*</span> <!-- ✅ შეიცვალა optional-დან required-ზე -->
         </label>
         <input 
           type="tel" 
@@ -46,9 +52,13 @@
           formControlName="phone" 
           class="form-control"
           placeholder="+995 555 12 34 56"
-          [ngClass]="{'is-invalid': hasError('phone', 'pattern')}"
+          [ngClass]="{'is-invalid': (hasError('phone', 'required') || hasError('phone', 'pattern'))}"
         >
-        <div *ngIf="hasError('phone', 'pattern')" class="invalid-feedback">
+        <div *ngIf="hasError('phone', 'required')" class="invalid-feedback">
+          <i class="fas fa-exclamation-triangle"></i>
+          ტელეფონის ნომერი სავალდებულოა
+        </div>
+        <div *ngIf="hasError('phone', 'pattern') && !hasError('phone', 'required')" class="invalid-feedback">
           <i class="fas fa-exclamation-triangle"></i>
           {{ 'PROFILE.PHONE_INVALID' | translate }}
         </div>
@@ -63,7 +73,7 @@
         <label for="personalNumber">
           <i class="fas fa-id-card"></i>
           {{ 'PROFILE.PERSONAL_NUMBER_LABEL' | translate }}
-          <span class="optional">{{ 'PROFILE.OPTIONAL' | translate }}</span>
+          <span class="required">*</span> <!-- ✅ შეიცვალა optional-დან required-ზე -->
         </label>
         <input 
           type="text" 
@@ -72,13 +82,19 @@
           class="form-control"
           placeholder="01234567891"
           maxlength="11"
-          [ngClass]="{'is-invalid': (hasError('personalNumber', 'pattern') || 
+          [ngClass]="{'is-invalid': (hasError('personalNumber', 'required') || 
+                                     hasError('personalNumber', 'pattern') || 
                                      hasError('personalNumber', 'minlength') || 
                                      hasError('personalNumber', 'maxlength'))}"
         >
-        <div *ngIf="hasError('personalNumber', 'pattern') || 
-                    hasError('personalNumber', 'minlength') || 
-                    hasError('personalNumber', 'maxlength')" 
+        <div *ngIf="hasError('personalNumber', 'required')" class="invalid-feedback">
+          <i class="fas fa-exclamation-triangle"></i>
+          პირადი ნომერი სავალდებულოა
+        </div>
+        <div *ngIf="!hasError('personalNumber', 'required') && 
+                    (hasError('personalNumber', 'pattern') || 
+                     hasError('personalNumber', 'minlength') || 
+                     hasError('personalNumber', 'maxlength'))" 
              class="invalid-feedback">
           <i class="fas fa-exclamation-triangle"></i>
           {{ 'PROFILE.PERSONAL_NUMBER_LENGTH' | translate }}
@@ -94,7 +110,7 @@
         <label for="dateOfBirth">
           <i class="fas fa-calendar-alt"></i>
           {{ 'PROFILE.DATE_OF_BIRTH_LABEL' | translate }}
-          <span class="optional">{{ 'PROFILE.OPTIONAL' | translate }}</span>
+          <span class="required">*</span> <!-- ✅ შეიცვალა optional-დან required-ზე -->
         </label>
         <input 
           type="date" 
@@ -102,36 +118,32 @@
           formControlName="dateOfBirth" 
           class="form-control"
           [max]="maxDate"
+          [ngClass]="{'is-invalid': hasError('dateOfBirth', 'required')}"
         >
+        <div *ngIf="hasError('dateOfBirth', 'required')" class="invalid-feedback">
+          <i class="fas fa-exclamation-triangle"></i>
+          დაბადების თარიღი სავალდებულოა
+        </div>
         <small class="form-text">
           <i class="fas fa-info-circle"></i>
           {{ 'PROFILE.DATE_OF_BIRTH_HELP' | translate }}
         </small>
       </div>
 
-      <!-- Action Buttons -->
+      <!-- ✅ მხოლოდ ერთი ღილაკი - გამოტოვების გარეშე -->
       <div class="form-actions">
         <button 
-          type="button" 
-          class="btn btn-secondary" 
-          (click)="onSkip()"
-          [disabled]="isSubmitting"
-        >
-          <i class="fas fa-forward"></i>
-          {{ 'PROFILE.SKIP_BUTTON' | translate }}
-        </button>
-        <button 
           type="submit" 
-          class="btn btn-primary" 
-          [disabled]="isSubmitting"
+          class="btn btn-primary btn-block" 
+          [disabled]="isSubmitting || profileForm.invalid"
         >
           <span *ngIf="isSubmitting">
             <i class="fas fa-spinner fa-spin"></i>
             {{ 'PROFILE.SAVING' | translate }}
           </span>
           <span *ngIf="!isSubmitting">
-            <i class="fas fa-save"></i>
-            {{ 'PROFILE.SAVE_BUTTON' | translate }}
+            <i class="fas fa-check-circle"></i>
+            რეგისტრაციის დასრულება
           </span>
         </button>
       </div>
@@ -141,6 +153,12 @@
     <div class="info-box">
       <i class="fas fa-shield-alt"></i>
       <p>{{ 'PROFILE.PRIVACY_NOTE' | translate }}</p>
+    </div>
+    
+    <!-- ✅ დამატებითი გაფრთხილება -->
+    <div class="warning-box">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>თქვენ უნდა შეავსოთ ყველა ველი რეგისტრაციის დასასრულებლად. ეს ინფორმაცია აუცილებელია თქვენი ანგარიშის სრულყოფილად ფუნქციონირებისთვის.</p>
     </div>
   </div>
 </div>
