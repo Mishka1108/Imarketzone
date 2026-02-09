@@ -1,266 +1,661 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   
-  <!-- მთავარი გვერდი -->
+  <!-- ============================================
+       მთავარი გვერდი
+       ============================================ -->
   <url>
     <loc>https://imarketzone.ge/</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="ka" href="https://imarketzone.ge/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://imarketzone.ge/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://imarketzone.ge/"/>
     <image:image>
-      <image:loc>https://imarketzone.ge/assets/homepage-hero.jpg</image:loc>
-      <image:title>iMarketZone - საქართველოს მარკეტპლეისი</image:title>
-      <image:caption>ყიდვა გაყიდვა მარტივად საქართველოში</image:caption>
+      <image:loc>https://imarketzone.ge/assets/homepage-hero-buy-sell.jpg</image:loc>
+      <image:title>iMarketZone - ყიდვა გაყიდვა საქართველოში</image:title>
+      <image:caption>საქართველოს #1 ონლაინ მარკეტპლეისი - ყიდვა გაყიდვა უფასოდ</image:caption>
     </image:image>
   </url>
   
-  <!-- კატეგორიის გვერდები -->
+  <!-- ============================================
+       მთავარი კატეგორიები
+       ============================================ -->
+  
+  <!-- ავტომობილები -->
   <url>
     <loc>https://imarketzone.ge/categories/ავტომობილები</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.95</priority>
     <xhtml:link rel="alternate" hreflang="ka" href="https://imarketzone.ge/categories/ავტომობილები"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://imarketzone.ge/en/categories/cars"/>
+    <image:image>
+      <image:loc>https://imarketzone.ge/assets/categories/cars-category.jpg</image:loc>
+      <image:title>ავტომობილების ყიდვა გაყიდვა საქართველოში</image:title>
+    </image:image>
   </url>
   
+  <!-- ტელეფონები -->
   <url>
     <loc>https://imarketzone.ge/categories/ტელეფონები</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.95</priority>
+    <xhtml:link rel="alternate" hreflang="ka" href="https://imarketzone.ge/categories/ტელეფონები"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://imarketzone.ge/en/categories/phones"/>
+    <image:image>
+      <image:loc>https://imarketzone.ge/assets/categories/phones-category.jpg</image:loc>
+      <image:title>ტელეფონების ყიდვა გაყიდვა - iPhone, Samsung, Xiaomi</image:title>
+    </image:image>
   </url>
   
+  <!-- ტექნიკა -->
   <url>
     <loc>https://imarketzone.ge/categories/ტექნიკა</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="ka" href="https://imarketzone.ge/categories/ტექნიკა"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://imarketzone.ge/en/categories/electronics"/>
+    <image:image>
+      <image:loc>https://imarketzone.ge/assets/categories/electronics-category.jpg</image:loc>
+      <image:title>ბითოვი ტექნიკის ყიდვა გაყიდვა</image:title>
+    </image:image>
   </url>
   
-  <url>
-    <loc>https://imarketzone.ge/categories/ტანსაცმელი</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
+  <!-- კომპიუტერები -->
   <url>
     <loc>https://imarketzone.ge/categories/კომპიუტერები</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="ka" href="https://imarketzone.ge/categories/კომპიუტერები"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://imarketzone.ge/en/categories/computers"/>
+    <image:image>
+      <image:loc>https://imarketzone.ge/assets/categories/computers-category.jpg</image:loc>
+      <image:title>კომპიუტერების და ლეპტოპების ყიდვა გაყიდვა</image:title>
+    </image:image>
   </url>
   
+  <!-- ტანსაცმელი -->
+  <url>
+    <loc>https://imarketzone.ge/categories/ტანსაცმელი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="ka" href="https://imarketzone.ge/categories/ტანსაცმელი"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://imarketzone.ge/en/categories/clothing"/>
+  </url>
+  
+  <!-- სათამაშოები -->
   <url>
     <loc>https://imarketzone.ge/categories/სათამაშოები</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ka" href="https://imarketzone.ge/categories/სათამაშოები"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://imarketzone.ge/en/categories/toys"/>
   </url>
   
+  <!-- უძრავი ქონება -->
   <url>
     <loc>https://imarketzone.ge/categories/უძრავი-ქონება</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="ka" href="https://imarketzone.ge/categories/უძრავი-ქონება"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://imarketzone.ge/en/categories/real-estate"/>
   </url>
   
+  <!-- სამუშაო -->
   <url>
     <loc>https://imarketzone.ge/categories/სამუშაო</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="ka" href="https://imarketzone.ge/categories/სამუშაო"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://imarketzone.ge/en/categories/jobs"/>
   </url>
   
+  <!-- სერვისები -->
   <url>
     <loc>https://imarketzone.ge/categories/სერვისები</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
   </url>
   
+  <!-- სპორტი და დასვენება -->
   <url>
     <loc>https://imarketzone.ge/categories/სპორტი-და-დასვენება</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   
+  <!-- სახლის ნივთები -->
   <url>
     <loc>https://imarketzone.ge/categories/სახლის-ნივთები</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   
-  <!-- მნიშვნელოვანი ფუნქციონალური გვერდები -->
+  <!-- ბაღი და ეზო -->
+  <url>
+    <loc>https://imarketzone.ge/categories/ბაღი-და-ეზო</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  
+  <!-- ============================================
+       ქვეკატეგორიები - ავტომობილები
+       ============================================ -->
+  <url>
+    <loc>https://imarketzone.ge/categories/ავტომობილები/მსუბუქი-ავტომობილები</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/categories/ავტომობილები/ჯიპები</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/categories/ავტომობილები/მინივენები</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/categories/ავტომობილები/მოტოციკლები</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/categories/ავტომობილები/სატვირთო-ავტომობილები</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  
+  <!-- ============================================
+       ქვეკატეგორიები - ტელეფონები
+       ============================================ -->
+  <url>
+    <loc>https://imarketzone.ge/categories/ტელეფონები/iPhone</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/categories/ტელეფონები/Samsung</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/categories/ტელეფონები/Xiaomi</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/categories/ტელეფონები/Huawei</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/categories/ტელეფონები/აქსესუარები</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- ============================================
+       ფუნქციონალური გვერდები
+       ============================================ -->
+  
+  <!-- ძებნა -->
   <url>
     <loc>https://imarketzone.ge/search</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   
+  <!-- პროდუქტები -->
+  <url>
+    <loc>https://imarketzone.ge/public-products</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- ახალი განცხადება -->
   <url>
     <loc>https://imarketzone.ge/add-listing</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   
+  <!-- როგორ მუშაობს -->
   <url>
     <loc>https://imarketzone.ge/how-it-works</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- როგორ გავყიდო -->
+  <url>
+    <loc>https://imarketzone.ge/how-to-sell</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- როგორ ვიყიდო -->
+  <url>
+    <loc>https://imarketzone.ge/how-to-buy</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- FAQ -->
+  <url>
+    <loc>https://imarketzone.ge/faq</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  
+  <!-- ჩვენ შესახებ -->
+  <url>
+    <loc>https://imarketzone.ge/about</loc>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   
-  <url>
-    <loc>https://imarketzone.ge/about</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
+  <!-- კონტაქტი -->
   <url>
     <loc>https://imarketzone.ge/contact</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
   </url>
   
+  <!-- დახმარება -->
   <url>
     <loc>https://imarketzone.ge/help</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.6</priority>
   </url>
   
+  <!-- წესები და პირობები -->
   <url>
     <loc>https://imarketzone.ge/terms</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.4</priority>
   </url>
   
+  <!-- კონფიდენციალურობა -->
   <url>
     <loc>https://imarketzone.ge/privacy</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
+    <priority>0.4</priority>
   </url>
   
-  <!-- ლოკალური ძებნის გვერდები (მნიშვნელოვანია SEO-სთვის) -->
+  <!-- ბლოგი -->
   <url>
-    <loc>https://imarketzone.ge/tbilisi</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  
-  <url>
-    <loc>https://imarketzone.ge/batumi</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://imarketzone.ge/kutaisi</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://imarketzone.ge/rustavi</loc>
-    <lastmod>2025-08-24</lastmod>
+    <loc>https://imarketzone.ge/blog</loc>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
+  <!-- ============================================
+       ლოკალური ძებნის გვერდები (ძალიან მნიშვნელოვანია SEO-სთვის!)
+       ============================================ -->
+  
+  <!-- თბილისი -->
+  <url>
+    <loc>https://imarketzone.ge/tbilisi</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://imarketzone.ge/assets/cities/tbilisi-marketplace.jpg</image:loc>
+      <image:title>ყიდვა გაყიდვა თბილისში</image:title>
+    </image:image>
+  </url>
+  
+  <!-- ბათუმი -->
+  <url>
+    <loc>https://imarketzone.ge/batumi</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://imarketzone.ge/assets/cities/batumi-marketplace.jpg</image:loc>
+      <image:title>ყიდვა გაყიდვა ბათუმში</image:title>
+    </image:image>
+  </url>
+  
+  <!-- ქუთაისი -->
+  <url>
+    <loc>https://imarketzone.ge/kutaisi</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <!-- რუსთავი -->
+  <url>
+    <loc>https://imarketzone.ge/rustavi</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- ზუგდიდი -->
   <url>
     <loc>https://imarketzone.ge/zugdidi</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
   </url>
   
+  <!-- გორი -->
   <url>
     <loc>https://imarketzone.ge/gori</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
   </url>
   
+  <!-- ფოთი -->
   <url>
     <loc>https://imarketzone.ge/poti</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
   </url>
   
-  <!-- ქართული SEO-ფრენდლი URL-ები -->
+  <!-- სამტრედია -->
+  <url>
+    <loc>https://imarketzone.ge/samtredia</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- თელავი -->
+  <url>
+    <loc>https://imarketzone.ge/telavi</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- მარნეული -->
+  <url>
+    <loc>https://imarketzone.ge/marneuli</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- ქობულეთი -->
+  <url>
+    <loc>https://imarketzone.ge/kobuleti</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- სენაკი -->
+  <url>
+    <loc>https://imarketzone.ge/senaki</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  
+  <!-- ახალციხე -->
+  <url>
+    <loc>https://imarketzone.ge/akhaltsikhe</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  
+  <!-- ============================================
+       ქართული SEO-ფრენდლი URL-ები
+       ============================================ -->
+  
+  <!-- ყიდვა გაყიდვა + ქალაქი -->
   <url>
     <loc>https://imarketzone.ge/ყიდვა-გაყიდვა-თბილისი</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.95</priority>
   </url>
   
   <url>
     <loc>https://imarketzone.ge/ყიდვა-გაყიდვა-ბათუმი</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://imarketzone.ge/ყიდვა-გაყიდვა-ქუთაისი</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   
   <url>
     <loc>https://imarketzone.ge/ყიდვა-გაყიდვა-რუსთავი</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
   
-  <!-- კომბინირებული კატეგორია + ლოკაცია გვერდები -->
+  <url>
+    <loc>https://imarketzone.ge/ყიდვა-გაყიდვა-ზუგდიდი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/ყიდვა-გაყიდვა-გორი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  
+  <!-- ============================================
+       კომბინირებული გვერდები: კატეგორია + ქალაქი
+       ============================================ -->
+  
+  <!-- ავტომობილები + ქალაქები -->
   <url>
     <loc>https://imarketzone.ge/ავტომობილები-თბილისი</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://imarketzone.ge/ტელეფონები-თბილისი</loc>
-    <lastmod>2025-08-24</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://imarketzone.ge/ავტომობილები-ბათუმი</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/ავტომობილები-ქუთაისი</loc>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/ავტომობილები-რუსთავი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  
+  <!-- ტელეფონები + ქალაქები -->
+  <url>
+    <loc>https://imarketzone.ge/ტელეფონები-თბილისი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://imarketzone.ge/ტელეფონები-ბათუმი</loc>
-    <lastmod>2025-08-24</lastmod>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/ტელეფონები-ქუთაისი</loc>
+    <lastmod>2025-02-09</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- ტექნიკა + ქალაქები -->
+  <url>
+    <loc>https://imarketzone.ge/ტექნიკა-თბილისი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/ტექნიკა-ბათუმი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- კომპიუტერები + ქალაქები -->
+  <url>
+    <loc>https://imarketzone.ge/კომპიუტერები-თბილისი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/კომპიუტერები-ბათუმი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- უძრავი ქონება + ქალაქები -->
+  <url>
+    <loc>https://imarketzone.ge/უძრავი-ქონება-თბილისი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/უძრავი-ქონება-ბათუმი</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <!-- ============================================
+       სპეციალური SEO გვერდები
+       ============================================ -->
+  
+  <url>
+    <loc>https://imarketzone.ge/უფასო-განცხადებები</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/მარკეტპლეისი-საქართველო</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/ონლაინ-მაღაზია</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  
+  <!-- ============================================
+       ბრენდის სპეციფიური გვერდები
+       ============================================ -->
+  
+  <url>
+    <loc>https://imarketzone.ge/iPhone-იყიდება</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/Samsung-იყიდება</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/Toyota-იყიდება</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  
+  <url>
+    <loc>https://imarketzone.ge/Mercedes-იყიდება</loc>
+    <lastmod>2025-02-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
   
 </urlset>

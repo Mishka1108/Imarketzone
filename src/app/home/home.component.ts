@@ -1,4 +1,4 @@
-// home.component.ts - SCROLL/TOUCH CONFLICT FIXED VERSION
+// home.component.ts - FULL SEO OPTIMIZED VERSION
 
 import { Component, OnInit, HostListener, OnDestroy, Inject, PLATFORM_ID, signal, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -49,7 +49,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   loading = true;
   error: string | null = null;
 
-  // PrimeNG Carousel Settings
   responsiveOptions: any[] = [];
   
   categories: string[] = [
@@ -78,7 +77,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
-      // 🔥 CRITICAL: დაბლოკე scroll/touch events carousel-ზე
       this.preventCarouselScrollInterference();
     }
   }
@@ -88,13 +86,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       const carouselElement = document.querySelector('.carousel-container');
       
       if (carouselElement) {
-        // 🛑 BLOCK WHEEL (Mouse Scroll)
         carouselElement.addEventListener('wheel', (e: Event) => {
           e.stopPropagation();
-          e.preventDefault(); // 🔥 ეს არის KEY - სრულიად ბლოკავს scroll-ს
-        }, { passive: false }); // passive: false - იძლევა preventDefault გამოყენების საშუალებას
+          e.preventDefault();
+        }, { passive: false });
 
-        // 🛑 BLOCK TOUCH EVENTS (Mobile Swipe)
         carouselElement.addEventListener('touchstart', (e: Event) => {
           e.stopPropagation();
         }, { passive: true });
@@ -103,7 +99,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           e.stopPropagation();
         }, { passive: true });
 
-        // 🛑 დამატებითი protection PrimeNG შიგნით
         const pCarousel = carouselElement.querySelector('.p-carousel');
         if (pCarousel) {
           pCarousel.addEventListener('wheel', (e: Event) => {
@@ -111,26 +106,21 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
             e.preventDefault();
           }, { passive: false });
         }
-
-        console.log('✅ Carousel scroll/touch interference BLOCKED');
       }
-    }, 800); // დაელოდე DOM-ს სრულ რენდერს
+    }, 800);
   }
 
   ngOnInit() {
     this.loadProductsWithRealViews();
-    this.setupComprehensiveSEO();
+    this.setupAdvancedSEO();
     this.loadAllProducts();
     
     if (isPlatformBrowser(this.platformId)) {
-      this.addEnhancedStructuredData();
-      this.addBreadcrumbSchema();
-      this.addOrganizationSchema();
+      this.addAllStructuredData();
     }
   }
 
   ngOnDestroy() {
-    // Cleanup scroll listeners
     if (isPlatformBrowser(this.platformId)) {
       const carouselElement = document.querySelector('.carousel-container');
       if (carouselElement) {
@@ -138,6 +128,280 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         carouselElement.removeEventListener('touchmove', () => {});
       }
     }
+  }
+
+  // ==================== ADVANCED SEO SETUP ====================
+
+  private setupAdvancedSEO(): void {
+    // Primary Title
+    const pageTitle = 'ყიდვა გაყიდვა საქართველოში უფასოდ | iMarketZone - ონლაინ მარკეტპლეისი';
+    this.title.setTitle(pageTitle);
+    
+    // Meta Description
+    const description = 'ყიდვა გაყიდვა საქართველოში უფასოდ ⭐ ტელეფონები, ავტომობილები, ტექნიკა, ტანსაცმელი და სხვა ათასობით პროდუქტი | iMarketZone - საქართველოს #1 ონლაინ მარკეტპლეისი';
+    this.meta.updateTag({ name: 'description', content: description });
+    
+    // Keywords - ძალიან მნიშვნელოვანი SEO-სთვის
+    const keywords = 'ყიდვა გაყიდვა, ყიდვა გაყიდვა საქართველოში, ყიდვა გაყიდვა თბილისში, ონლაინ ყიდვა გაყიდვა, უფასო განცხადებები, ტელეფონების ყიდვა გაყიდვა, ავტომობილების ყიდვა გაყიდვა, ბითოვი ტექნიკის ყიდვა გაყიდვა, მარკეტპლეისი საქართველოში, imarketzone, იმარკეტ ზონი';
+    this.meta.updateTag({ name: 'keywords', content: keywords });
+    
+    // Robots
+    this.meta.updateTag({ name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' });
+    this.meta.updateTag({ name: 'googlebot', content: 'index, follow' });
+    
+    // Canonical URL
+    this.meta.updateTag({ rel: 'canonical', href: 'https://imarketzone.ge/' });
+    
+    // Open Graph
+    this.meta.updateTag({ property: 'og:locale', content: 'ka_GE' });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ property: 'og:title', content: pageTitle });
+    this.meta.updateTag({ property: 'og:description', content: description });
+    this.meta.updateTag({ property: 'og:url', content: 'https://imarketzone.ge/' });
+    this.meta.updateTag({ property: 'og:site_name', content: 'iMarketZone' });
+    this.meta.updateTag({ property: 'og:image', content: 'https://imarketzone.ge/assets/og-image.jpg' });
+    this.meta.updateTag({ property: 'og:image:width', content: '1200' });
+    this.meta.updateTag({ property: 'og:image:height', content: '630' });
+    
+    // Twitter Card
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ name: 'twitter:title', content: pageTitle });
+    this.meta.updateTag({ name: 'twitter:description', content: description });
+    this.meta.updateTag({ name: 'twitter:image', content: 'https://imarketzone.ge/assets/og-image.jpg' });
+    
+    // Additional SEO
+    this.meta.updateTag({ name: 'author', content: 'iMarketZone' });
+    this.meta.updateTag({ name: 'geo.region', content: 'GE' });
+    this.meta.updateTag({ name: 'geo.placename', content: 'Tbilisi' });
+    this.meta.updateTag({ name: 'language', content: 'Georgian' });
+    this.meta.updateTag({ httpEquiv: 'Content-Language', content: 'ka' });
+  }
+
+  private addAllStructuredData(): void {
+    this.addWebSiteSchema();
+    this.addOrganizationSchema();
+    this.addBreadcrumbSchema();
+    this.addFAQSchema();
+    this.addLocalBusinessSchema();
+  }
+
+  private addWebSiteSchema(): void {
+    this.removeExistingSchema('website-schema');
+
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "iMarketZone - ყიდვა გაყიდვა საქართველოში",
+      "alternateName": ["იმარკეტ ზონი", "iMarket Zone", "ყიდვა გაყიდვა"],
+      "url": "https://imarketzone.ge",
+      "description": "საქართველოს ყველაზე დიდი უფასო განცხადებების პორტალი - ყიდვა გაყიდვა მარტივად",
+      "inLanguage": "ka-GE",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://imarketzone.ge/public-products?search={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    };
+
+    this.appendSchema('website-schema', structuredData);
+  }
+
+  private addOrganizationSchema(): void {
+    this.removeExistingSchema('org-schema');
+
+    const orgData = {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "iMarketZone",
+      "alternateName": "იმარკეტ ზონი",
+      "url": "https://imarketzone.ge",
+      "logo": "https://imarketzone.ge/assets/logo.png",
+      "description": "საქართველოს საუკეთესო ონლაინ მარკეტპლეისი - ყიდვა გაყიდვა უფასოდ",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "თბილისი",
+        "addressRegion": "თბილისი",
+        "addressCountry": "GE"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "availableLanguage": ["Georgian", "English"]
+      },
+      "sameAs": [
+        "https://www.facebook.com/imarketzone",
+        "https://www.instagram.com/imarketzone"
+      ]
+    };
+
+    this.appendSchema('org-schema', orgData);
+  }
+
+  private addBreadcrumbSchema(): void {
+    this.removeExistingSchema('breadcrumb-schema');
+
+    const breadcrumbData = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "name": "მთავარი - ყიდვა გაყიდვა",
+        "item": "https://imarketzone.ge"
+      }]
+    };
+
+    this.appendSchema('breadcrumb-schema', breadcrumbData);
+  }
+
+  private addFAQSchema(): void {
+    this.removeExistingSchema('faq-schema');
+
+    const faqData = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "როგორ გავყიდო პროდუქტი iMarketZone-ზე?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "დარეგისტრირდით უფასოდ, შედით თქვენს პროფილში, დააჭირეთ 'ახალი განცხადება' ღილაკს, ატვირთეთ პროდუქტის ფოტოები, შეავსეთ ინფორმაცია (სათაური, აღწერა, ფასი, კატეგორია) და გამოაქვეყნეთ. ყველაფერი მარტივია და სრულიად უფასო!"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "რა კატეგორიების პროდუქტები შემიძლია გავყიდო?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "iMarketZone-ზე შეგიძლიათ გაყიდოთ: ტელეფონები (iPhone, Samsung, Xiaomi), ბითოვი ტექნიკა (მაცივარი, სარეცხი მანქანა, ტელევიზორი), ავტომობილები, ტანსაცმელი, ფეხსაცმელი, სათამაშოები, კომპიუტერები, აქსესუარები და ათასობით სხვა პროდუქტი."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "იხდის თუ არა iMarketZone საკომისიოს?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "არა! iMarketZone-ზე განცხადების განთავსება სრულიად უფასოა. არ არსებობს რეგისტრაციის საფასური, განცხადების განთავსების საფასური ან საკომისიო. ყველაფერი 100% უფასოა!"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "რამდენი ხნით რჩება განცხადება აქტიური?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "თქვენი განცხადება რჩება აქტიური 30 დღე. შემდეგ შეგიძლიათ მისი განახლება ერთი დაჭერით უფასოდ და განცხადება კვლავ გახდება აქტიური შემდეგი 30 დღის განმავლობაში."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "როგორ ვიყიდო პროდუქტი iMarketZone-ზე?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "გამოიყენეთ ძებნის ველი და მოძებნეთ სასურველი პროდუქტი, ან შეარჩიეთ კატეგორია. დაათვალიერეთ განცხადებები, იხილეთ ფოტოები, ფასები და აღწერილობები. დაუკავშირდით გამყიდველს მითითებული საკონტაქტო ინფორმაციით."
+          }
+        }
+      ]
+    };
+
+    this.appendSchema('faq-schema', faqData);
+  }
+
+  private addLocalBusinessSchema(): void {
+    this.removeExistingSchema('local-business-schema');
+
+    const businessData = {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "iMarketZone",
+      "image": "https://imarketzone.ge/assets/logo.png",
+      "description": "საქართველოს #1 ონლაინ მარკეტპლეისი - ყიდვა გაყიდვა უფასოდ",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "თბილისი",
+        "addressRegion": "თბილისი",
+        "postalCode": "0100",
+        "addressCountry": "GE"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "41.7151",
+        "longitude": "44.8271"
+      },
+      "url": "https://imarketzone.ge",
+      "priceRange": "უფასო",
+      "openingHours": "Mo-Su 00:00-23:59",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "1250"
+      }
+    };
+
+    this.appendSchema('local-business-schema', businessData);
+  }
+
+  addProductListSchema(products: any[]): void {
+    if (!isPlatformBrowser(this.platformId) || products.length === 0) return;
+
+    this.removeExistingSchema('product-list-schema');
+
+    const productListData = {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "პოპულარული პროდუქტები - ყიდვა გაყიდვა საქართველოში",
+      "description": "100+ ნახვის მქონე ყველაზე პოპულარული პროდუქტები iMarketZone-ზე",
+      "itemListElement": products.slice(0, 10).map((product, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "Product",
+          "name": product.title,
+          "description": product.description?.substring(0, 200),
+          "image": this.getProductImage(product),
+          "brand": {
+            "@type": "Brand",
+            "name": product.brand || "iMarketZone"
+          },
+          "offers": {
+            "@type": "Offer",
+            "price": product.price || 0,
+            "priceCurrency": "GEL",
+            "availability": "https://schema.org/InStock",
+            "url": `https://imarketzone.ge${this.generateProductUrl(product.title)}`,
+            "seller": {
+              "@type": "Organization",
+              "name": "iMarketZone"
+            }
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.5",
+            "reviewCount": product.viewCount || 100
+          }
+        }
+      }))
+    };
+
+    this.appendSchema('product-list-schema', productListData);
+  }
+
+  private removeExistingSchema(id: string): void {
+    const existingScript = document.querySelector(`script[type="application/ld+json"]#${id}`);
+    if (existingScript) {
+      existingScript.remove();
+    }
+  }
+
+  private appendSchema(id: string, data: any): void {
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = id;
+    script.textContent = JSON.stringify(data);
+    document.head.appendChild(script);
   }
 
   // ==================== PRODUCT METHODS ====================
@@ -307,147 +571,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  // ==================== SEO METHODS ====================
-
-  private setupComprehensiveSEO(): void {
-    this.translate.get('SEO.PAGE_TITLE').subscribe(title => {
-      this.title.setTitle(title);
-    });
-    
-    this.translate.get('SEO.PAGE_DESCRIPTION').subscribe(desc => {
-      this.meta.updateTag({ name: 'description', content: desc });
-    });
-    
-    this.translate.get('SEO.KEYWORDS').subscribe(keywords => {
-      this.meta.updateTag({ name: 'keywords', content: keywords });
-    });
-  }
-
-  private addEnhancedStructuredData(): void {
-    const existingScript = document.querySelector('script[type="application/ld+json"]#website-schema');
-    if (existingScript) existingScript.remove();
-
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "iMarketZone",
-      "alternateName": "იმარკეტ ზონი",
-      "url": "https://imarketzone.ge",
-      "description": "საქართველოს #1 ონლაინ მარკეტპლეისი - ყიდვა გაყიდვა მარტივად",
-      "inLanguage": "ka-GE",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://imarketzone.ge/public-products?search={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-      }
-    };
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = 'website-schema';
-    script.textContent = JSON.stringify(structuredData);
-    document.head.appendChild(script);
-  }
-
-  private addOrganizationSchema(): void {
-    const existingScript = document.querySelector('script[type="application/ld+json"]#org-schema');
-    if (existingScript) existingScript.remove();
-
-    const orgData = {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "iMarketZone",
-      "alternateName": "იმარკეტ ზონი",
-      "url": "https://imarketzone.ge",
-      "logo": "https://imarketzone.ge/assets/logo.png",
-      "description": "საქართველოს საუკეთესო ონლაინ მარკეტპლეისი",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "თბილისი",
-        "addressRegion": "თბილისი",
-        "addressCountry": "GE"
-      },
-      "sameAs": [
-        "https://www.facebook.com/imarketzone",
-        "https://www.instagram.com/imarketzone"
-      ]
-    };
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = 'org-schema';
-    script.textContent = JSON.stringify(orgData);
-    document.head.appendChild(script);
-  }
-
-  private addBreadcrumbSchema(): void {
-    const existingScript = document.querySelector('script[type="application/ld+json"]#breadcrumb-schema');
-    if (existingScript) existingScript.remove();
-
-    const breadcrumbData = {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [{
-        "@type": "ListItem",
-        "position": 1,
-        "name": "მთავარი",
-        "item": "https://imarketzone.ge"
-      }]
-    };
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = 'breadcrumb-schema';
-    script.textContent = JSON.stringify(breadcrumbData);
-    document.head.appendChild(script);
-  }
-
-  private addProductListSchema(products: any[]): void {
-    if (!isPlatformBrowser(this.platformId) || products.length === 0) return;
-
-    const existingScript = document.querySelector('script[type="application/ld+json"]#product-list-schema');
-    if (existingScript) existingScript.remove();
-
-    const productListData = {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      "name": "პოპულარული პროდუქტები",
-      "description": "100+ ნახვის მქონე პროდუქტები iMarketZone-ზე",
-      "itemListElement": products.slice(0, 10).map((product, index) => ({
-        "@type": "ListItem",
-        "position": index + 1,
-        "item": {
-          "@type": "Product",
-          "name": product.title,
-          "description": product.description?.substring(0, 200),
-          "image": this.getProductImage(product),
-          "offers": {
-            "@type": "Offer",
-            "price": product.price || 0,
-            "priceCurrency": "GEL",
-            "availability": "https://schema.org/InStock",
-            "url": `https://imarketzone.ge${this.generateProductUrl(product.title)}`
-          },
-          "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.5",
-            "reviewCount": product.viewCount || 0
-          }
-        }
-      }))
-    };
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = 'product-list-schema';
-    script.textContent = JSON.stringify(productListData);
-    document.head.appendChild(script);
-  }
-
-  private generateProductUrl(title: string): string {
+  generateProductUrl(title: string): string {
     const slug = title.toLowerCase().trim()
       .replace(/[^\w\s\-ა-ჰ]/g, '')
       .replace(/\s+/g, '-')

@@ -10,6 +10,69 @@ body {
     overflow-x: hidden;
 }
 
+// Accessibility - Hidden but readable by screen readers
+.visually-hidden {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+// SEO Improvements
+.section-title {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--primary-color, #1976d2);
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 1rem auto;
+}
+
+// Category descriptions
+.category-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+// Lists
+.sell-features,
+.why-us-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  
+  li {
+    padding: 0.5rem 0;
+    font-size: 1.1rem;
+  }
+}
+
+// Focus states for accessibility
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid #1976d2;
+  outline-offset: 2px;
+}
+
+// Product card improvements
+.product-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+}
+
 // ==================== PRIMENG CAROUSEL STYLES ====================
 .popular-products-section {
   width: 100%;

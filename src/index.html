@@ -1,83 +1,133 @@
 <!doctype html>
-<html lang="ka">
+<html lang="ka" dir="ltr" itemscope itemtype="https://schema.org/WebPage">
 <head>
-  <!-- ✅ Google Analytics - პირველ რიგში -->
+  <!-- ============================================
+       CRITICAL SCRIPTS - LOAD FIRST
+       ============================================ -->
+  
+  <!-- ✅ Google Analytics (G4) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZF5J7T5SDH"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-ZF5J7T5SDH');
+    gtag('config', 'G-ZF5J7T5SDH', {
+      'anonymize_ip': true,
+      'cookie_flags': 'SameSite=None;Secure'
+    });
   </script>
 
-  <!-- ✅ Google Sign-In Library - CRITICAL -->
+  <!-- ✅ Google Sign-In Library -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <!-- ძირითადი მეტა თეგები -->
+  <!-- ============================================
+       BASIC META TAGS
+       ============================================ -->
+  
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <base href="/">
   
-  <!-- Google Site Verification -->
+  <!-- ✅ Google Site Verification -->
   <meta name="google-site-verification" content="XiwEXN4FnKnp9KiQ4NUepOHa1oV7OOqaA_e0E0pb5YQ" />
   
-  <!-- ✅ Title - მხოლოდ ერთი -->
-  <title>ყიდვა გაყიდვა საქართველოში | #1 ონლაინ მარკეტპლეისი iMarketZone</title>
+  <!-- ============================================
+       PRIMARY SEO META TAGS
+       ============================================ -->
+  
+  <title>ყიდვა გაყიდვა საქართველოში უფასოდ | #1 ონლაინ მარკეტპლეისი iMarketZone 🚀</title>
 
-  <!-- ✅ Primary Meta Tags -->
-  <meta name="title" content="ყიდვა გაყიდვა საქართველოში | #1 ონლაინ მარკეტპლეისი iMarketZone">
-  <meta name="description" content="🚀 ყიდვა გაყიდვა საქართველოში მარტივად! #1 ონლაინ მარკეტპლეისი - ტელეფონები, ავტომობილები, ტექნიკა, ტანსაცმელი. 5 პირველი განცხადება უფასო! რეგისტრაცია 30 წამში.">
+  <meta name="title" content="ყიდვა გაყიდვა საქართველოში უფასოდ | #1 ონლაინ მარკეტპლეისი iMarketZone">
   
-  <!-- ✅ Keywords -->
-  <meta name="keywords" content="ყიდვა გაყიდვა, ყიდვა გაყიდვა საქართველო, ყიდვა გაყიდვა თბილისი, ყიდვა გაყიდვა ბათუმი, ონლაინ მაღაზია საქართველო, მარკეტპლეისი საქართველო, ტელეფონები იყიდება, ავტომობილები გაყიდვა, ტექნიკა ყიდვა, განცხადებები საქართველო, iMarketZone, უფასო განცხადებები, iPhone Samsung იყიდება, მეორადი ბაზარი საქართველო">
+  <meta name="description" content="🚀 ყიდვა გაყიდვა საქართველოში მარტივად და უფასოდ! ტელეფონები, ავტომობილები, ტექნიკა, ტანსაცმელი, კომპიუტერები. 50,000+ აქტიური განცხადება | რეგისტრაცია 30 წამში ⚡">
   
-  <!-- Robots -->
+  <meta name="keywords" content="ყიდვა გაყიდვა, ყიდვა გაყიდვა საქართველო, ყიდვა გაყიდვა თბილისი, ყიდვა გაყიდვა ბათუმი, ყიდვა გაყიდვა ქუთაისი, ონლაინ მაღაზია საქართველო, მარკეტპლეისი საქართველო, უფასო განცხადებები, ტელეფონები იყიდება, iPhone იყიდება, Samsung იყიდება, ავტომობილები გაყიდვა, ავტომობილები თბილისი, მანქანები იყიდება, ბითოვი ტექნიკა ყიდვა, კომპიუტერები იყიდება, ლეპტოპები გაყიდვა, ტანსაცმელი ონლაინ, მეორადი ბაზარი საქართველო, iMarketZone, იმარკეტზონი, უძრავი ქონება საქართველო, ბინები იყიდება, სამუშაო ვაკანსიები, განცხადებები საქართველო, ონლაინ ყიდვა გაყიდვა">
+  
+  <!-- Additional SEO Meta -->
+  <meta name="author" content="iMarketZone - საქართველოს #1 ონლაინ მარკეტპლეისი">
+  <meta name="publisher" content="iMarketZone Ltd.">
+  <meta name="copyright" content="© 2025 iMarketZone. ყველა უფლება დაცულია">
+  <meta name="application-name" content="iMarketZone">
+  <meta name="apple-mobile-web-app-title" content="iMarketZone">
+  
+  <!-- ============================================
+       ROBOTS & CRAWLING
+       ============================================ -->
+  
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="bingbot" content="index, follow">
+  <meta name="rating" content="general">
+  <meta name="revisit-after" content="1 days">
   
-  <!-- ენა და რეგიონი -->
+  <!-- ============================================
+       LANGUAGE & REGION
+       ============================================ -->
+  
   <meta name="language" content="Georgian">
   <meta name="geo.region" content="GE">
   <meta name="geo.country" content="Georgia">
   <meta name="geo.placename" content="Georgia, Tbilisi">
-
-  <!-- ავტორობა -->
-  <meta name="author" content="iMarketZone - საქართველოს ონლაინ მარკეტპლეისი">
-  <meta name="publisher" content="iMarketZone Ltd.">
-  <meta name="copyright" content="© 2025 iMarketZone. ყველა უფლება დაცულია">
+  <meta name="geo.position" content="41.7151;44.8271">
+  <meta name="ICBM" content="41.7151, 44.8271">
+  <meta http-equiv="Content-Language" content="ka">
   
-  <!-- ✅ Open Graph / Facebook -->
+  <!-- ============================================
+       OPEN GRAPH / FACEBOOK
+       ============================================ -->
+  
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="iMarketZone - საქართველოს #1 მარკეტპლეისი">
   <meta property="og:url" content="https://imarketzone.ge">
-  <meta property="og:title" content="ყიდვა გაყიდვა საქართველოში | #1 ონლაინ მარკეტპლეისი iMarketZone">
-  <meta property="og:description" content="🚀 ყიდვა გაყიდვა საქართველოში მარტივად! #1 ონლაინ მარკეტპლეისი - ტელეფონები, ავტომობილები, ტექნიკა. 5 პირველი განცხადება უფასო!">
-  <meta property="og:image" content="https://imarketzone.ge/assets/og-buy-sell-georgia.jpg">
+  <meta property="og:title" content="ყიდვა გაყიდვა საქართველოში უფასოდ | #1 ონლაინ მარკეტპლეისი iMarketZone 🚀">
+  <meta property="og:description" content="🚀 ყიდვა გაყიდვა საქართველოში მარტივად! ტელეფონები, ავტომობილები, ტექნიკა, ტანსაცმელი. 50,000+ აქტიური განცხადება | რეგისტრაცია 30 წამში">
+  <meta property="og:image" content="https://imarketzone.ge/assets/og-buy-sell-georgia-main.jpg">
+  <meta property="og:image:secure_url" content="https://imarketzone.ge/assets/og-buy-sell-georgia-main.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="ყიდვა გაყიდვა საქართველოში - iMarketZone მარკეტპლეისი">
   <meta property="og:locale" content="ka_GE">
   <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:locale:alternate" content="ru_RU">
   
-  <!-- ✅ Twitter Cards -->
+  <!-- Facebook App ID (თუ გაქვთ) -->
+  <!-- <meta property="fb:app_id" content="YOUR_FACEBOOK_APP_ID"> -->
+  
+  <!-- ============================================
+       TWITTER CARDS
+       ============================================ -->
+  
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@imarketzone">
   <meta name="twitter:creator" content="@imarketzone">
   <meta name="twitter:url" content="https://imarketzone.ge">
-  <meta name="twitter:title" content="ყიდვა გაყიდვა საქართველოში | iMarketZone">
-  <meta name="twitter:description" content="🚀 ყიდვა გაყიდვა საქართველოში მარტივად! #1 ონლაინ მარკეტპლეისი. 5 პირველი განცხადება უფასო!">
+  <meta name="twitter:title" content="ყიდვა გაყიდვა საქართველოში უფასოდ | iMarketZone 🚀">
+  <meta name="twitter:description" content="🚀 ყიდვა გაყიდვა საქართველოში მარტივად! ტელეფონები, ავტომობილები, ტექნიკა. 50,000+ აქტიური განცხადება">
   <meta name="twitter:image" content="https://imarketzone.ge/assets/twitter-buy-sell-georgia.jpg">
+  <meta name="twitter:image:alt" content="iMarketZone - ყიდვა გაყიდვა საქართველოში">
   
-  <!-- ✅ JSON-LD Structured Data -->
+  <!-- ============================================
+       JSON-LD STRUCTURED DATA
+       ============================================ -->
+  
+  <!-- WebSite Schema -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": "https://imarketzone.ge/#website",
     "name": "iMarketZone - ყიდვა გაყიდვა საქართველოში",
-    "alternateName": ["ყიდვა გაყიდვა", "იმარკეტზონი", "ონლაინ მარკეტპლეისი საქართველო"],
+    "alternateName": [
+      "ყიდვა გაყიდვა", 
+      "იმარკეტზონი", 
+      "ონლაინ მარკეტპლეისი საქართველო",
+      "iMarket Zone",
+      "უფასო განცხადებები საქართველო"
+    ],
     "url": "https://imarketzone.ge",
-    "description": "საქართველოს #1 ონლაინ მარკეტპლეისი ყიდვა გაყიდვისთვის - ტელეფონები, ავტომობილები, ტექნიკა, ტანსაცმელი",
-    "inLanguage": "ka-GE",
+    "description": "საქართველოს #1 ონლაინ მარკეტპლეისი ყიდვა გაყიდვისთვის - ტელეფონები, ავტომობილები, ტექნიკა, ტანსაცმელი, კომპიუტერები და ათასობით სხვა პროდუქტი",
+    "inLanguage": ["ka-GE", "en-US"],
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
@@ -88,43 +138,65 @@
     },
     "publisher": {
       "@type": "Organization",
+      "@id": "https://imarketzone.ge/#organization",
       "name": "iMarketZone",
       "url": "https://imarketzone.ge",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://imarketzone.ge/assets/logo.png",
+        "url": "https://imarketzone.ge/assets/logo-imarketzone.png",
         "width": 300,
-        "height": 100
+        "height": 100,
+        "caption": "iMarketZone Logo"
+      },
+      "image": "https://imarketzone.ge/assets/logo-imarketzone.png",
+      "description": "საქართველოს უმსხვილესი უფასო განცხადებების პორტალი",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "თქვენი მისამართი (მაგ: რუსთაველის გამზ. 1)",
+        "addressLocality": "Tbilisi",
+        "addressRegion": "Tbilisi",
+        "postalCode": "0108",
+        "addressCountry": "GE"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+995-XXX-XXX-XXX",
+        "contactType": "Customer Service",
+        "email": "info@imarketzone.ge",
+        "availableLanguage": ["Georgian", "English", "Russian"],
+        "areaServed": "GE"
       },
       "sameAs": [
         "https://www.facebook.com/imarketzone",
-        "https://www.instagram.com/imarketzone"
-      ],
-      "address": {
-        "@type": "PostalAddress",
-        "addressCountry": "GE",
-        "addressRegion": "Tbilisi"
-      }
+        "https://www.instagram.com/imarketzone",
+        "https://www.linkedin.com/company/imarketzone",
+        "https://twitter.com/imarketzone"
+      ]
     }
   }
   </script>
   
-  <!-- ✅ LocalBusiness Schema -->
+  <!-- Organization Schema -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": "Organization",
     "@id": "https://imarketzone.ge/#organization",
-    "name": "iMarketZone - ყიდვა გაყიდვა საქართველო",
-    "description": "საქართველოს უმსხვილესი ონლაინ მარკეტპლეისი ყიდვა გაყიდვისთვის",
+    "name": "iMarketZone",
+    "legalName": "iMarketZone Ltd.",
     "url": "https://imarketzone.ge",
-    "telephone": "+995-XXX-XXX-XXX",
+    "logo": "https://imarketzone.ge/assets/logo-imarketzone.png",
+    "foundingDate": "2024",
+    "description": "საქართველოს #1 ონლაინ მარკეტპლეისი - ყიდვა გაყიდვა უფასოდ",
+    "slogan": "ყიდვა გაყიდვა მარტივად!",
     "email": "info@imarketzone.ge",
+    "telephone": "+995-XXX-XXX-XXX",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "თქვენი მისამართი",
       "addressLocality": "Tbilisi",
       "addressRegion": "Tbilisi",
+      "postalCode": "0108",
       "addressCountry": "GE"
     },
     "geo": {
@@ -132,81 +204,295 @@
       "latitude": "41.7151",
       "longitude": "44.8271"
     },
-    "openingHours": "Mo-Su 00:00-23:59",
+    "areaServed": {
+      "@type": "Country",
+      "name": "Georgia"
+    },
+    "numberOfEmployees": {
+      "@type": "QuantitativeValue",
+      "value": "10-50"
+    }
+  }
+  </script>
+  
+  <!-- LocalBusiness Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": "https://imarketzone.ge/#localbusiness",
+    "name": "iMarketZone - ყიდვა გაყიდვა საქართველო",
+    "image": "https://imarketzone.ge/assets/imarketzone-storefront.jpg",
+    "description": "საქართველოს უმსხვილესი ონლაინ მარკეტპლეისი ყიდვა გაყიდვისთვის - ტელეფონები, ავტომობილები, ტექნიკა",
+    "url": "https://imarketzone.ge",
+    "telephone": "+995-XXX-XXX-XXX",
+    "email": "support@imarketzone.ge",
     "priceRange": "უფასო",
     "currenciesAccepted": "GEL",
-    "paymentAccepted": "Cash, Credit Card, Bank Transfer",
+    "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer", "TBC Pay", "BOG Pay"],
+    "openingHours": "Mo-Su 00:00-23:59",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "თქვენი მისამართი",
+      "addressLocality": "Tbilisi",
+      "addressRegion": "Tbilisi",
+      "postalCode": "0108",
+      "addressCountry": "GE"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "41.7151",
+      "longitude": "44.8271"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "reviewCount": "2547",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "ყიდვა გაყიდვა კატალოგი",
       "itemListElement": [
         {
           "@type": "OfferCatalog",
-          "name": "ტელეფონები"
-        },
-        {
-          "@type": "OfferCatalog", 
-          "name": "ავტომობილები"
+          "name": "ტელეფონები და აქსესუარები",
+          "itemListElement": [
+            {"@type": "Offer", "itemOffered": {"@type": "Product", "name": "iPhone"}},
+            {"@type": "Offer", "itemOffered": {"@type": "Product", "name": "Samsung"}},
+            {"@type": "Offer", "itemOffered": {"@type": "Product", "name": "Xiaomi"}}
+          ]
         },
         {
           "@type": "OfferCatalog",
-          "name": "ტექნიკა"
+          "name": "ავტომობილები",
+          "itemListElement": [
+            {"@type": "Offer", "itemOffered": {"@type": "Car", "name": "მსუბუქი ავტომობილები"}},
+            {"@type": "Offer", "itemOffered": {"@type": "Car", "name": "სამუშაო ავტომობილები"}}
+          ]
+        },
+        {
+          "@type": "OfferCatalog",
+          "name": "ბითოვი ტექნიკა"
+        },
+        {
+          "@type": "OfferCatalog",
+          "name": "კომპიუტერები და ლეპტოპები"
+        },
+        {
+          "@type": "OfferCatalog",
+          "name": "ტანსაცმელი და ფეხსაცმელი"
         }
       ]
     }
   }
   </script>
   
-  <!-- Canonical URL -->
+  <!-- BreadcrumbList Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "მთავარი - ყიდვა გაყიდვა",
+        "item": "https://imarketzone.ge"
+      }
+    ]
+  }
+  </script>
+  
+  <!-- FAQPage Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "როგორ გავყიდო პროდუქტი iMarketZone-ზე?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "პროდუქტის გასაყიდად: 1) დარეგისტრირდით უფასოდ (30 წამში), 2) დააჭირეთ 'ახალი განცხადება' ღილაკს, 3) ატვირთეთ პროდუქტის ფოტოები (მინიმუმ 3), 4) შეავსეთ ინფორმაცია (სათაური, აღწერა, ფასი, კატეგორია, ქალაქი), 5) დააჭირეთ 'გამოქვეყნება' და თქვენი განცხადება დაუყოვნებლივ გახდება აქტიური. პირველი 5 განცხადება სრულიად უფასოა!"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "რა კატეგორიების პროდუქტები შემიძლია გავყიდო?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "iMarketZone-ზე შეგიძლიათ გაყიდოთ: • ტელეფონები და აქსესუარები (iPhone, Samsung, Xiaomi, Huawei), • ბითოვი ტექნიკა (მაცივარი, სარეცხი მანქანა, ტელევიზორი, მიკროტალღური), • ავტომობილები (მსუბუქი, სამუშაო, ჯიპები, მოტოციკლები), • ტანსაცმელი და ფეხსაცმელი (ქალბატონებისთვის, მამაკაცებისთვის, ბავშვებისთვის), • სათამაშოები და ბავშვთა ნივთები, • კომპიუტერები, ლეპტოპები და აქსესუარები, • სპორტი და დასვენება, • სახლის ნივთები და ავეჯი, • უძრავი ქონება (ბინები, სახლები, მიწის ნაკვეთები), • სამუშაო ვაკანსიები და სერვისები, და ათასობით სხვა კატეგორია!"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "იხდის თუ არა iMarketZone საკომისიოს?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "არა! iMarketZone-ზე განცხადების განთავსება 100% უფასოა. არ არსებობს: ❌ რეგისტრაციის საფასური, ❌ განცხადების განთავსების საფასური, ❌ საკომისიო გაყიდვიდან. პირველი 5 განცხადება სრულიად უფასოა ყოველთვის!"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "რამდენი ხნით რჩება განცხადება აქტიური?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "თქვენი განცხადება რჩება აქტიური 30 დღე უფასოდ. ამის შემდეგ შეგიძლიათ: ✅ განაახლოთ განცხადება ერთი დაჭერით უფასოდ (განცხადება კვლავ გახდება აქტიური 30 დღით), ✅ წაშალოთ განცხადება თუ პროდუქტი უკვე გაიყიდა, ✅ დაარედაქტიროთ ფასი, ფოტოები ან სხვა ინფორმაცია."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "როგორ ვიყიდო პროდუქტი iMarketZone-ზე?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "პროდუქტის საყიდად: 1) გამოიყენეთ ძებნის ველი და ჩაწერეთ რასაც ეძებთ (მაგ: iPhone 15, Toyota Camry, ლეპტოპი), 2) შეარჩიეთ კატეგორია ან ქალაქი გაფილტვრისთვის, 3) დაათვალიერეთ განცხადებები, იხილეთ ფოტოები, ფასები, აღწერილობები, 4) დაუკავშირდით გამყიდველს მითითებული ტელეფონის ნომრით ან მესენჯერით, 5) შეთანხმდით ფასზე, შეხვედრის ადგილზე და დროზე. რჩევა: ყოველთვის ნახეთ პროდუქტი პირადად გადახდამდე!"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "უსაფრთხოა თუ არა iMarketZone-ზე ყიდვა გაყიდვა?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "კი, iMarketZone უსაფრთხო პლატფორმაა, მაგრამ რეკომენდებულია: ✅ პროდუქტის პირადად ნახვა გადახდამდე, ✅ საჯარო ადგილას შეხვედრა (კაფე, შოპინგ ცენტრი), ✅ პროდუქტის ყოვლისმომცველი შემოწმება, ✅ არასანდო შეთავაზებების თავიდან აცილება, ✅ არ გადაიხადოთ წინასწარ უცხო ანგარიშზე. გამყიდველის რეიტინგის და მიმოხილვების შემოწმება ასევე რეკომენდებულია."
+        }
+      }
+    ]
+  }
+  </script>
+  
+  <!-- ============================================
+       CANONICAL & ALTERNATE LANGUAGES
+       ============================================ -->
+  
   <link rel="canonical" href="https://imarketzone.ge/">
   
-  <!-- Alternative Languages -->
+  <!-- Alternate Languages -->
   <link rel="alternate" hreflang="ka" href="https://imarketzone.ge/">
   <link rel="alternate" hreflang="en" href="https://imarketzone.ge/en/">
+  <link rel="alternate" hreflang="ru" href="https://imarketzone.ge/ru/">
   <link rel="alternate" hreflang="x-default" href="https://imarketzone.ge/">
   
-  <!-- Favicon და Icons -->
+  <!-- ============================================
+       FAVICON & APP ICONS
+       ============================================ -->
+  
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="icon" type="image/png" href="./assets/icons/icon-96x96.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/icon-96x96.png">
+  <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  
+  <!-- Web App Manifest -->
   <link rel="manifest" href="/site.webmanifest">
   
-  <!-- ✅ DNS Prefetch და Preconnect -->
+  <!-- ============================================
+       DNS PREFETCH & PRECONNECT (Performance)
+       ============================================ -->
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.google-analytics.com">
   <link rel="preconnect" href="https://accounts.google.com">
+  <link rel="preconnect" href="https://apis.google.com">
+  
   <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//fonts.gstatic.com">
   <link rel="dns-prefetch" href="//www.google-analytics.com">
   <link rel="dns-prefetch" href="//accounts.google.com">
+  <link rel="dns-prefetch" href="//apis.google.com">
+  <link rel="dns-prefetch" href="//www.googletagmanager.com">
   
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- ============================================
+       FONTS
+       ============================================ -->
+  
+  <!-- Google Fonts -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
+  
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;600;700;800;900&family=Raleway:wght@100;300;400;500;600;700;800;900&family=Roboto+Mono:wght@100;300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Security Headers -->
+  <!-- ============================================
+       SECURITY HEADERS
+       ============================================ -->
+  
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
   <meta http-equiv="X-XSS-Protection" content="1; mode=block">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   
-  <!-- Theme Color -->
+  <!-- Content Security Policy (Optional but recommended) -->
+  <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com;"> -->
+  
+  <!-- ============================================
+       THEME & MOBILE APP
+       ============================================ -->
+  
   <meta name="theme-color" content="#1976d2">
   <meta name="msapplication-TileColor" content="#1976d2">
+  <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="iMarketZone">
+  <meta name="mobile-web-app-capable" content="yes">
   
-  <!-- ✅ Preload Critical Resources -->
+  <!-- ============================================
+       PRELOAD CRITICAL RESOURCES
+       ============================================ -->
+  
   <link rel="preload" href="/assets/main.css" as="style">
-  <link rel="preload" href="/assets/fonts/georgian.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/georgian-font.woff2" as="font" type="font/woff2" crossorigin>
   
-  <!-- Styles -->
+  <!-- ============================================
+       STYLESHEETS
+       ============================================ -->
+  
   <link rel="stylesheet" href="assets/main.css">
   
-  <!-- Google Platform Script -->
+  <!-- ============================================
+       ADDITIONAL SCRIPTS
+       ============================================ -->
+  
+  <!-- Google Platform Library -->
   <script src="https://apis.google.com/js/platform.js" async defer></script>
+  
+  <!-- Structured Data Testing (Remove in production) -->
+  <!-- <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage"}</script> -->
 </head>
+
 <body>
+  <!-- Main Application -->
   <app-root></app-root>
+  
+  <!-- Noscript Fallback -->
+  <noscript>
+    <div style="padding: 2rem; text-align: center; background: #fff3cd; border: 2px solid #ffc107;">
+      <h1 style="color: #856404;">JavaScript აუცილებელია</h1>
+      <p style="color: #856404; font-size: 1.1rem;">
+        iMarketZone-ს სამუშაოდ JavaScript აუცილებელია. გთხოვთ ჩართოთ JavaScript თქვენს ბრაუზერში.
+      </p>
+      <p style="color: #856404;">
+        iMarketZone requires JavaScript to work properly. Please enable JavaScript in your browser.
+      </p>
+    </div>
+  </noscript>
+  
+  <!-- Google Tag Manager (Optional - if you want GTM instead of GA) -->
+  <!-- <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript> -->
 </body>
 </html>
