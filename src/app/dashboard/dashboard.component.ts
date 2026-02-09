@@ -29,6 +29,7 @@ import { MessagesModalComponent } from '../messages-modal/messages-modal.compone
 import { TranslateModule } from '@ngx-translate/core';
 import { CityTranslatePipe } from '../pipes/city-translate.pipe';
 import { CategoryTranslatePipe } from '../pipes/category-translate.pipe';
+import { LogoutConfirmationDialogComponent } from '../logout-confirmation-dialog/logout-confirmation-dialog.component';
 
 
 @Component({
@@ -52,7 +53,8 @@ import { CategoryTranslatePipe } from '../pipes/category-translate.pipe';
     MatDialogModule,
     TranslateModule,
     CityTranslatePipe,
-    CategoryTranslatePipe
+    CategoryTranslatePipe,
+    
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
@@ -647,40 +649,52 @@ export class DashboardComponent implements OnInit {
 logout(): void {
   if (this.isLoggingOut) return;
 
-  this.isLoggingOut = true;
-  
-  // ✅ პირველ რიგში Google prompt გამორთვა
-  if (typeof google !== 'undefined') {
-    try {
-      google.accounts.id.disableAutoSelect();
-      google.accounts.id.cancel();
-      console.log('✅ Google prompt disabled on logout');
-    } catch (e) {
-      console.warn('Could not disable Google prompt:', e);
-    }
-  }
+  // ✅ ლამაზი confirmation dialog
+  const dialogRef = this.dialog.open(LogoutConfirmationDialogComponent, {
+    width: '400px',
+    panelClass: 'logout-confirmation-dialog',
+    disableClose: false,
+    autoFocus: true
+  });
 
-  this.authService.logout().subscribe({
-    next: () => {
-      console.log('✅ Logout successful');
-      this.isLoggingOut = false;
-      
-      // ✅ Navigate-მდე დაყოვნება
-      setTimeout(() => {
-        this.router.navigate(['/auth/login']);
-      }, 100);
-    },
-    error: (error) => {
-      console.error('❌ Logout error:', error);
-      this.isLoggingOut = false;
-      
-      // ✅ Error-ის შემთხვევაშიც გადავიდეთ login-ზე
-      setTimeout(() => {
-        this.router.navigate(['/auth/login']);
-      }, 100);
+  dialogRef.afterClosed().subscribe(confirmed => {
+    if (!confirmed) {
+      return; // ✅ გაუქმდა
     }
-  });}
 
+    // ✅ დადასტურდა - logout
+    this.isLoggingOut = true;
+    
+    if (typeof google !== 'undefined') {
+      try {
+        google.accounts.id.disableAutoSelect();
+        google.accounts.id.cancel();
+        console.log('✅ Google prompt disabled on logout');
+      } catch (e) {
+        console.warn('Could not disable Google prompt:', e);
+      }
+    }
+
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('✅ Logout successful');
+        this.isLoggingOut = false;
+        
+        setTimeout(() => {
+          window.location.href = '/auth/login';
+        }, 100);
+      },
+      error: (error) => {
+        console.error('❌ Logout error:', error);
+        this.isLoggingOut = false;
+        
+        setTimeout(() => {
+          window.location.href = '/auth/login';
+        }, 100);
+      }
+    });
+  });
+}
   triggerFileInput(): void {
     this.ngZone.run(() => {
       try {

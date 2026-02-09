@@ -517,5 +517,11 @@
     "UPLOADING_PRODUCT": "Uploading product",
     "PROCESSING_IMAGES": "Processing images",
     "SENDING_DATA": "Sending data"
+  },
+     "LOGOUT": {
+    "CONFIRM_TITLE": "Logout",
+    "CONFIRM_MESSAGE": "Are you sure you want to logout?",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Logout"
   }
 }
