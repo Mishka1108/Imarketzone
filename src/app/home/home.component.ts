@@ -17,7 +17,9 @@ import { TagModule } from 'primeng/tag';
 import { SeoService } from '../../seo.service';
 import { ProductService } from '../services/product.service';
 import { CategoryTranslatePipe } from "../pipes/category-translate.pipe";
-
+import Swiper from 'swiper';
+import { Navigation, Pagination, Autoplay, A11y } from 'swiper/modules';
+Swiper.use([Navigation, Pagination, Autoplay, A11y]);
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -55,6 +57,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     'ტელეფონები', 'ტექნიკა', 'ავტომობილები', 'ტანსაცმელი', 
     'სათამაშოები', 'კომპიუტერები', 'სპორტი', 'წიგნები'
   ];
+ popularSwiperInstance: Swiper | null = null;
   
   constructor(
     private router: Router, 
@@ -76,10 +79,45 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.preventCarouselScrollInterference();
-    }
+  if (isPlatformBrowser(this.platformId)) {
+    setTimeout(() => this.initSwiper(), 500);
   }
+}
+ private initSwiper(): void {
+  if (this.popularSwiperInstance) {
+    this.popularSwiperInstance.destroy(true, true);
+  }
+
+  this.popularSwiperInstance = new Swiper('.popular-swiper', {
+    slidesPerView: 1,
+    spaceBetween: 20,
+    loop: true,
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: false,
+      pauseOnMouseEnter: true,
+    },
+    navigation: {
+      prevEl: '.popular-prev',
+      nextEl: '.popular-next',
+    },
+    pagination: {
+      el: '.popular-pagination',
+      clickable: true,
+      dynamicBullets: true,
+    },
+    a11y: {
+      prevSlideMessage: 'წინა სლაიდი',
+      nextSlideMessage: 'შემდეგი სლაიდი',
+    },
+    breakpoints: {
+      575: { slidesPerView: 1, spaceBetween: 16 },
+      768: { slidesPerView: 2, spaceBetween: 20 },
+      992: { slidesPerView: 3, spaceBetween: 24 },
+      1200: { slidesPerView: 4, spaceBetween: 24 },
+    },
+  });
+}
 
   private preventCarouselScrollInterference(): void {
     setTimeout(() => {

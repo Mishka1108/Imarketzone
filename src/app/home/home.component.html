@@ -175,126 +175,132 @@
     </aside>
 </main>
 
-<!-- Popular Products Section -->
-<section class="popular-products-section" 
-         aria-labelledby="popular-products-heading"
-         itemscope 
-         itemtype="https://schema.org/ItemList">
-    <div *ngIf="getProductsWithHighViews().length > 0" class="popular-products-carousel">
-        <h2 id="popular-products-heading" class="popular-products-title section-title" itemprop="name">
-            პოპულარული პროდუქტები - ყიდვა გაყიდვა საქართველოში
-        </h2>
-        <meta itemprop="description" content="ყველაზე პოპულარული პროდუქტები iMarketZone-ზე - ტელეფონები, ტექნიკა, ავტომობილები">
 
-        <div class="carousel-container">
-            <p-carousel 
-                [value]="getProductsWithHighViews()" 
-                [numVisible]="4" 
-                [numScroll]="1" 
-                [circular]="true"
-                [responsiveOptions]="responsiveOptions"
-                [autoplayInterval]="5000"
-                [showNavigators]="true"
-                [showIndicators]="true"
-                ariaLabel="პოპულარული პროდუქტების სია">
-                
-                <ng-template let-product let-i="index" #item>
-                    <article class="product-slide" 
-                             itemprop="itemListElement" 
-                             itemscope 
-                             itemtype="https://schema.org/ListItem">
-                        <meta itemprop="position" [content]="i + 1">
-                        <div class="product-card" itemprop="item" itemscope itemtype="https://schema.org/Product">
-                            <!-- Product Image -->
-                            <figure class="product-image">
-                                <img 
-                                    [src]="getProductImage(product)" 
-                                    [alt]="product.title + ' - ყიდვა გაყიდვა ' + product.category + ' საქართველოში'"
-                                    class="product-img"
-                                    itemprop="image"
-                                    loading="lazy"
-                                    decoding="async"
-                                    width="300"
-                                    height="200"
-                                    (error)="onImageError($event)">
-                            </figure>
-                            
-                            <!-- Product Info -->
-                            <div class="product-info">
-                                <h3 class="product-title" itemprop="name">
-                                    {{ product.title }}
-                                </h3>
-                                
-                                <p class="product-description" itemprop="description">
-                                    {{ product.description | slice:0:100 }}{{ product.description?.length > 100 ? '...' : '' }}
-                                </p>
-                                
-                                <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                                    <meta itemprop="price" [content]="product.price">
-                                    <meta itemprop="priceCurrency" content="GEL">
-                                    <meta itemprop="availability" content="https://schema.org/InStock">
-                                    <meta itemprop="url" [content]="'https://imarketzone.ge' + generateProductUrl(product.title)">
-                                    {{ product.price }} {{ 'HOME.POPULAR_PRODUCTS.LARI' | translate }}
-                                </div>
-                                
-                                <!-- Product Stats -->
-                                <div class="product-stats">
-                                    <div class="category-chip">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" 
-                                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <line x1="7" y1="7" x2="7.01" y2="7" stroke="currentColor" stroke-width="2" 
-                                                  stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span itemprop="category">{{ product.category | categoryTranslate }}</span>
-                                    </div>
-                                    
-                                    <div class="view-count" [class.loading]="isLoadingViews" itemprop="interactionStatistic" itemscope itemtype="https://schema.org/InteractionCounter">
-                                        <meta itemprop="interactionType" content="https://schema.org/ViewAction">
-                                        <meta itemprop="userInteractionCount" [content]="product.viewCount || 0">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" 
-                                                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" 
-                                                    stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        <span class="view-text">
-                                            {{ formatViews(product.viewCount || 0) }} {{ 'HOME.POPULAR_PRODUCTS.VIEWS' | translate }}
-                                        </span>
-                                    </div>
-                                </div>
-                                
-                                <button 
-                                    mat-stroked-button
-                                    class="view-product-btn"
-                                    (click)="selectProduct(product)"
-                                    [attr.aria-label]="'ნახე ' + product.title + ' - ფასი ' + product.price + ' ლარი'">
-                                    {{ 'HOME.POPULAR_PRODUCTS.VIEW_PRODUCT' | translate }}
-                                </button>
-                            </div>
-                        </div>
-                    </article>
-                </ng-template>
-            </p-carousel>
+
+
+
+<!-- ==================== POPULAR PRODUCTS — SEO ENHANCED ==================== -->
+<section 
+  class="popular-products-section"
+  aria-label="პოპულარული პროდუქტები"
+  itemscope
+  itemtype="https://schema.org/ItemList">
+
+  <meta itemprop="name" content="პოპულარული პროდუქტები — iMarketZone">
+  <meta itemprop="description" content="ყველაზე პოპულარული განცხადებები iMarketZone-ზე — ტელეფონები, ლეპტოპები, ავტომობილები და სხვა">
+
+  <h2 class="popular-products-title">
+    {{ 'HOME.POPULAR_PRODUCTS.TITLE' | translate }}
+  </h2>
+
+  <div class="swiper-wrapper-outer">
+    <div class="swiper popular-swiper" role="region" aria-label="პოპულარული პროდუქტების სლაიდერი">
+      <div class="swiper-wrapper">
+
+        <div 
+          class="swiper-slide"
+          *ngFor="let product of getProductsWithHighViews(); let i = index"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem">
+
+          <meta itemprop="position" [content]="i + 1">
+
+          <article 
+            class="product-card"
+            itemprop="item"
+            itemscope
+            itemtype="https://schema.org/Product"
+            [attr.aria-label]="product.title + ' — ' + product.price + ' ლარი'">
+
+            <!-- Product Image -->
+            <figure class="product-image" itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+              <img 
+                [src]="getProductImage(product)"
+                [alt]="product.title + ' — ყიდვა გაყიდვა ' + (product.category | categoryTranslate) + ' iMarketZone'"
+                itemprop="url"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="240"
+                (error)="onImageError($event)">
+              <meta itemprop="width"  content="400">
+              <meta itemprop="height" content="240">
+            </figure>
+
+            <!-- Product Info -->
+            <div class="product-info">
+
+              <h3 class="product-title" itemprop="name">
+                {{ product.title }}
+              </h3>
+
+              <p class="product-description" itemprop="description">
+                {{ product.description | slice:0:100 }}{{ product.description?.length > 100 ? '...' : '' }}
+              </p>
+
+              <!-- Offer / Price -->
+              <div 
+                class="product-price"
+                itemprop="offers"
+                itemscope
+                itemtype="https://schema.org/Offer">
+                <meta itemprop="priceCurrency" content="GEL">
+                <meta itemprop="price"         [content]="product.price">
+                <meta itemprop="availability"  content="https://schema.org/InStock">
+                <meta itemprop="url"           [content]="'https://imarketzone.ge/product/' + product.id">
+                <link  itemprop="seller"       href="https://imarketzone.ge">
+                {{ product.price }} {{ 'HOME.POPULAR_PRODUCTS.LARI' | translate }}
+              </div>
+
+              <!-- Stats Row -->
+              <div class="product-stats">
+
+                <div class="category-chip" itemprop="category">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="7" y1="7" x2="7.01" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span>{{ product.category | categoryTranslate }}</span>
+                </div>
+
+                <div class="view-count" [class.loading]="isLoadingViews" aria-label="ნახვების რაოდენობა">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                          stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                  <span>{{ formatViews(product.viewCount || 0) }} {{ 'HOME.POPULAR_PRODUCTS.VIEWS' | translate }}</span>
+                </div>
+
+              </div>
+
+              <!-- CTA Button -->
+              <button 
+                class="view-product-btn"
+                [attr.aria-label]="'პროდუქტის ნახვა: ' + product.title"
+                (click)="selectProduct(product)">
+                {{ 'HOME.POPULAR_PRODUCTS.VIEW_PRODUCT' | translate }}
+              </button>
+
+            </div>
+          </article>
         </div>
-    </div>
 
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-container" role="status" aria-live="polite">
-        <div class="spinner" aria-hidden="true"></div>
-        <p>პროდუქტები იტვირთება...</p>
-    </div>
+      </div><!-- /swiper-wrapper -->
 
-    <!-- No Products State -->
-    <div *ngIf="!loading && getProductsWithHighViews().length === 0" class="no-products" role="status">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <path d="M12 6v6m0 4h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <h3>პოპულარული პროდუქტები ვერ მოიძებნა</h3>
-        <p>ამჟამად არ არის 100+ ნახვის მქონე პროდუქტები</p>
-    </div>
+      <!-- Navigation -->
+      <div class="swiper-button-prev popular-prev" role="button" aria-label="წინა პროდუქტი"></div>
+      <div class="swiper-button-next popular-next" role="button" aria-label="შემდეგი პროდუქტი"></div>
+      <div class="swiper-pagination popular-pagination" role="tablist" aria-label="სლაიდის ნავიგაცია"></div>
+
+    </div><!-- /swiper -->
+  </div><!-- /swiper-wrapper-outer -->
 </section>
+
+
+
 
 <!-- Categories Section -->
 <section class="categorymain" aria-labelledby="categories-heading">
