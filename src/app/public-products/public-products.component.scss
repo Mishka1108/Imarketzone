@@ -18,11 +18,8 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0f0f23;
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(120, 119, 198, 0.3) 0%, transparent 70%),
-                radial-gradient(circle at 75% 75%, rgba(255, 119, 198, 0.3) 0%, transparent 70%),
-                radial-gradient(circle at 50% 50%, rgba(120, 219, 255, 0.2) 0%, transparent 70%);
+            background-color: #764ba2 !important;
+           
             min-height: 100vh;
             color: var(--text-primary);
             overflow-x: hidden;

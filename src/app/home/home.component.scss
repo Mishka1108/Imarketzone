@@ -690,6 +690,7 @@ a:focus-visible,
   max-width: 1440px;
   margin: 0 auto;
   z-index: 1;
+  overflow: hidden;
 
   &::before,
   &::after {
@@ -700,8 +701,7 @@ a:focus-visible,
     z-index: 10;
     pointer-events: none;
   }
-  &::before { left: 0;  background: linear-gradient(to right, #0b0922, transparent); }
-  &::after  { right: 0; background: linear-gradient(to left,  #0b0922, transparent); }
+ 
 }
 
 // ── Swiper Instance ───────────────────────────────────────────────────────────
@@ -727,7 +727,7 @@ a:focus-visible,
   flex-direction: column;
   background: #ffffff;
   border-radius: $radius-card;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
   overflow: hidden;
   transition: transform $transition, box-shadow $transition;
   will-change: transform;
@@ -736,7 +736,7 @@ a:focus-visible,
 
   &:hover {
     transform: translateY(-10px) scale(1.012);
-    box-shadow: 0 24px 56px rgba(0,0,0,0.28), 0 0 0 1.5px rgba($accent-1, 0.35);
+     box-shadow: 0 12px 32px rgba(0,0,0,0.15), 0 0 0 1.5px rgba($accent-1, 0.25);
 
     .product-image img { transform: scale(1.06); }
 
@@ -926,10 +926,10 @@ a:focus-visible,
   width: 48px !important;
   height: 48px !important;
   border-radius: 50% !important;
-  background: rgba(255,255,255,0.08) !important;
+  background: rgba(25, 118, 210, 0.85) !important;  // ← ლურჯი
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.15) !important;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+  border: 1px solid rgba(25, 118, 210, 0.4) !important;
+  box-shadow: 0 6px 24px rgba(25, 118, 210, 0.35);
   transition: all 0.3s ease !important;
   top: 42% !important;
 
@@ -939,11 +939,15 @@ a:focus-visible,
     color: #ffffff;
   }
 
-  &:hover {
-    background: linear-gradient(135deg, $accent-1, $accent-2) !important;
+    &:hover {
+    background: linear-gradient(135deg, #6a5bb5, #7b68c8) !important;  // ← hover მუქი
     border-color: transparent !important;
-    box-shadow: 0 8px 28px rgba($accent-1, 0.5) !important;
+    box-shadow: 0 8px 28px rgba(123, 104, 200, 0.6) !important;
     transform: scale(1.1);
+  }&:active {
+    transform: scale(0.88) !important;
+    box-shadow: 0 2px 10px rgba(123, 104, 200, 0.4) !important;
+    transition: transform 0.1s ease, box-shadow 0.1s ease !important;
   }
 
   &.swiper-button-disabled {
@@ -1093,14 +1097,24 @@ a:focus-visible,
   }
 
   .swiper-wrapper-outer {
-    &::before, &::after { width: 30px; }
+   &::before, &::after { display: none; }
   }
 }
 
 @media (max-width: 480px) {
   .swiper-button-prev.popular-prev,
-  .swiper-button-next.popular-next { display: none !important; }
-  .product-image { height: 195px; }
+  .swiper-button-next.popular-next {
+    width: 36px !important;
+    height: 36px !important;
+    
+    &::after {
+      font-size: 0.7rem !important;
+    }
+  }
+  
+  // ბუთონები ქვემოთ გადაიწიოს რომ კარდს არ დაეფაროს
+  .swiper-button-prev.popular-prev { left: 4px !important; }
+  .swiper-button-next.popular-next { right: 4px !important; }
 }
 
 @media screen and (max-width: 320px) {
