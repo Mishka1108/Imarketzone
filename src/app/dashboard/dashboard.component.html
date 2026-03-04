@@ -8,10 +8,8 @@
 </div>
 
 <div class="profile">
-  <!-- პირველი კომპონენტი -->
   <div class="profile-information">
     <div class="image-upload-container">
-      <!-- გამოსწორებული პროფილის სურათის input ყველა ბრაუზერისთვის -->
       <input 
         type="file" 
         id="profileImageInput" 
@@ -23,7 +21,6 @@
         tabindex="-1"
       />
     
-      <!-- ალტერნატიული hidden input ანდროიდისთვის -->
       <input 
         type="file" 
         id="profileImageInputAlt" 
@@ -41,19 +38,20 @@
         style="cursor: pointer;"
       />
           
-      <!-- ანდროიდისთვის ალტერნატიული ღილაკი -->
       <label for="profileImageInputAlt" class="android-upload-btn" 
              style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; font-size: 12px;">
         📷 {{ 'PROFILE.ALTERNATIVE_PHOTO' | translate }}
       </label>
-        <button class="btn messages-btn" mat-flat-button (click)="openMessages()">
-    <span class="button-content">
-      💬 {{ 'PROFILE.MESSAGES' | translate }}
-      <span class="message-badge" *ngIf="unreadMessagesCount > 0">
-        {{ unreadMessagesCount }}
-      </span>
-    </span>
-  </button>
+
+      <button class="btn messages-btn" mat-flat-button (click)="openMessages()">
+        <span class="button-content">
+          💬 {{ 'PROFILE.MESSAGES' | translate }}
+          <span class="message-badge" *ngIf="unreadMessagesCount > 0">
+            {{ unreadMessagesCount }}
+          </span>
+        </span>
+      </button>
+
       <button class="btn" mat-flat-button (click)="logout()">{{ 'PROFILE.LOGOUT' | translate }}</button>
     </div>
     
@@ -67,8 +65,72 @@
         <p>{{ 'PROFILE.EMAIL' | translate }}: {{currentUser.email}}</p>
         <p>{{ 'PROFILE.PERSONAL_NUMBER' | translate }}: {{currentUser.personalNumber}}</p>
       </div>
+
+      <!-- ✅ Profile incomplete warning + edit form -->
+      <div *ngIf="!currentUser.phone || !currentUser.personalNumber">
+        
+        <div style="background: #fff3cd; border: 2px solid #ffc107; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center;">
+          <p style="color: #856404; font-weight: bold; margin: 0;">
+            ⚠️ პროდუქტის დასამატებლად გთხოვთ შეავსოთ პროფილი
+          </p>
+          <p style="color: #856404; margin: 5px 0 0 0; font-size: 14px;">
+            გთხოვთ მიუთითოთ:
+            <span *ngIf="!currentUser.phone"> 📞 ტელეფონი </span>
+            <span *ngIf="!currentUser.personalNumber"> 🪪 პირადი ნომერი</span>
+          </p>
+        </div>
+
+        <button mat-flat-button 
+                (click)="toggleProfileEdit()"
+                style="background: #ffc107; color: #856404; margin: 10px 0; padding: 10px 20px; border-radius: 8px; width: 100%;">
+          ✏️ {{ profileEditVisible ? 'გაუქმება' : 'პროფილის შევსება' }}
+        </button>
+
+        <div *ngIf="profileEditVisible" 
+             style="background: white; border: 2px solid #ffc107; padding: 20px; border-radius: 8px; margin-top: 10px;">
+          <h3 style="color: #856404; margin-bottom: 15px;">📝 პროფილის შევსება</h3>
+          
+          <form [formGroup]="profileEditForm" (ngSubmit)="saveProfileInfo()">
+            
+            <mat-form-field class="example-full-width" *ngIf="!currentUser.phone">
+              <mat-label>📞 ტელეფონის ნომერი</mat-label>
+              <input matInput type="tel" formControlName="phone" placeholder="+995XXXXXXXXX">
+              <mat-error *ngIf="profileEditForm.controls.phone.hasError('required')">
+                ტელეფონი სავალდებულოა
+              </mat-error>
+              <mat-error *ngIf="profileEditForm.controls.phone.hasError('pattern')">
+                არასწორი ფორმატი (მაგ: +995591123456)
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width" *ngIf="!currentUser.personalNumber">
+              <mat-label>🪪 პირადი ნომერი</mat-label>
+              <input matInput type="text" formControlName="personalNumber" placeholder="XXXXXXXXXXX">
+              <mat-error *ngIf="profileEditForm.controls.personalNumber.hasError('required')">
+                პირადი ნომერი სავალდებულოა
+              </mat-error>
+              <mat-error *ngIf="profileEditForm.controls.personalNumber.hasError('minlength') || profileEditForm.controls.personalNumber.hasError('maxlength')">
+                პირადი ნომერი უნდა იყოს 9-11 სიმბოლო
+              </mat-error>
+            </mat-form-field>
+
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+              <button mat-flat-button type="submit"
+                      [disabled]="profileEditForm.invalid"
+                      style="background: #28a745; color: white; padding: 10px 20px; border-radius: 8px; flex: 1;">
+                ✅ შენახვა
+              </button>
+              <button mat-flat-button type="button"
+                      (click)="toggleProfileEdit()"
+                      style="background: #dc3545; color: white; padding: 10px 20px; border-radius: 8px; flex: 1;">
+                ❌ გაუქმება
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
       
-      <!-- ✅ ENHANCED: Product limit display with loading state -->
       <div class="user-actions">
         <div class="product-counter" [class.loading]="isLoadingProducts">
           <span class="pro">{{ 'PROFILE.PRODUCT_QUANTITY' | translate }}:</span>
@@ -79,7 +141,6 @@
           </span>
         </div>
         
-        <!-- ✅ ENHANCED: Clear limit status messages -->
         <div class="limit-status" *ngIf="!isLoadingProducts">
           <p *ngIf="isProductLimitReached()" class="limit-warning">
             ⚠️ {{ 'PROFILE.LIMIT_REACHED' | translate:{ max: MAX_PRODUCTS_ALLOWED } }}
@@ -92,34 +153,30 @@
           </p>
         </div>
         
-        <!-- ✅ Loading state for limit status -->
         <div class="limit-status" *ngIf="isLoadingProducts">
           <p class="loading-status">🔄 {{ 'PROFILE.CHECKING_QUANTITY' | translate }}...</p>
         </div>
       </div>
       
-      <!-- ✅ ENHANCED: Button with proper disable logic and loading states -->
       <div class="btndiv">
         <button 
           mat-flat-button 
           class="btn add-product-btn" 
           (click)="toggleProductForm()" 
-          [disabled]="(!canAddMoreProducts() && !productFormVisible) || isLoadingProducts || isUploading"
+          [disabled]="(!canAddMoreProducts() && !productFormVisible) || isLoadingProducts || isUploading || !currentUser?.phone || !currentUser?.personalNumber"
           [ngClass]="{
-            'btn-disabled': (!canAddMoreProducts() && !productFormVisible) || isLoadingProducts,
+            'btn-disabled': (!canAddMoreProducts() && !productFormVisible) || isLoadingProducts || (!currentUser?.phone || !currentUser?.personalNumber),
             'btn-close': productFormVisible,
             'btn-add': !productFormVisible && canAddMoreProducts(),
             'btn-loading': isLoadingProducts
           }">
           
-          <!-- Loading states -->
           <span *ngIf="isLoadingProducts">⏳ {{ 'PROFILE.LOADING' | translate }}...</span>
           <span *ngIf="isUploading && !isLoadingProducts">📤 {{ 'PROFILE.UPLOADING' | translate }}...</span>
-          
-          <!-- Normal states -->
           <span *ngIf="!isLoadingProducts && !isUploading && productFormVisible">❌ {{ 'PROFILE.CLOSE_FORM' | translate }}</span>
-          <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && canAddMoreProducts()">➕ {{ 'PROFILE.ADD_PRODUCT' | translate }}</span>
+          <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && canAddMoreProducts() && currentUser?.phone && currentUser?.personalNumber">➕ {{ 'PROFILE.ADD_PRODUCT' | translate }}</span>
           <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && !canAddMoreProducts()">🚫 {{ 'PROFILE.LIMIT_REACHED_SHORT' | translate }}</span>
+          <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && canAddMoreProducts() && (!currentUser?.phone || !currentUser?.personalNumber)">⚠️ შეავსეთ პროფილი</span>
         </button>
       </div>
     </div>
@@ -129,7 +186,6 @@
 <!-- ✅ ENHANCED: Product form with limit checks -->
 <div class="conteiner">
   <div class="card3" *ngIf="productFormVisible && canAddMoreProducts()">
-    <!-- ✅ Dynamic header with remaining count -->
     <h2>{{ 'PRODUCT_FORM.TITLE' | translate }}
       <small>({{ 'PRODUCT_FORM.REMAINING_SLOTS' | translate:{ remaining: getRemainingProductsCount() } }})</small>
     </h2>
@@ -238,8 +294,6 @@
             #productInput1
             tabindex="-1"
           />
-
-          <!-- ალტერნატიული hidden input ანდროიდისთვის -->
           <input 
             type="file" 
             id="productImageInput1Alt" 
@@ -247,7 +301,6 @@
             style="display: none;"
             (change)="onAlternativeFileSelected($event, 'product', 0)"
           />
-
           <div class="image-upload-area" (click)="triggerProductImageInput(0)"> 
             <div *ngIf="!productImagePreviews[0]" class="upload-placeholder">
               <span class="upload-icon">📷</span>
@@ -258,8 +311,6 @@
               ✕
             </button>
           </div>
-
-          <!-- ანდროიდისთვის ალტერნატიული ღილაკი -->
           <label for="productImageInput1Alt" class="android-upload-btn" 
                 style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; font-size: 12px;">
             📷 {{ 'PRODUCT_FORM.ALT_IMAGE' | translate }} 1
@@ -279,8 +330,6 @@
             #productInput2
             tabindex="-1"
           />
-
-          <!-- ალტერნატიული hidden input ანდროიდისთვის -->
           <input 
             type="file" 
             id="productImageInput2Alt" 
@@ -288,7 +337,6 @@
             style="display: none;"
             (change)="onAlternativeFileSelected($event, 'product', 1)"
           />
-
           <div class="image-upload-area" (click)="triggerProductImageInput(1)"> 
             <div *ngIf="!productImagePreviews[1]" class="upload-placeholder">
               <span class="upload-icon">📷</span>
@@ -299,8 +347,6 @@
               ✕
             </button>
           </div>
-
-          <!-- ანდროიდისთვის ალტერნატიული ღილაკი -->
           <label for="productImageInput2Alt" class="android-upload-btn" 
                 style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; font-size: 12px;">
             📷 {{ 'PRODUCT_FORM.ALT_IMAGE' | translate }} 2
@@ -320,8 +366,6 @@
             #productInput3
             tabindex="-1"
           />
-
-          <!-- ალტერნატიული hidden input ანდროიდისთვის -->
           <input 
             type="file" 
             id="productImageInput3Alt" 
@@ -329,7 +373,6 @@
             style="display: none;"
             (change)="onAlternativeFileSelected($event, 'product', 2)"
           />
-
           <div class="image-upload-area" (click)="triggerProductImageInput(2)"> 
             <div *ngIf="!productImagePreviews[2]" class="upload-placeholder">
               <span class="upload-icon">📷</span>
@@ -340,8 +383,6 @@
               ✕
             </button>
           </div>
-
-          <!-- ანდროიდისთვის ალტერნატიული ღილაკი -->
           <label for="productImageInput3Alt" class="android-upload-btn" 
                 style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; text-align: center; font-size: 12px;">
             📷 {{ 'PRODUCT_FORM.ALT_IMAGE' | translate }} 3
@@ -360,14 +401,12 @@
         </div>
       </div>
       
-      <!-- ✅ ENHANCED: Form actions with double-check and loading states -->
       <div class="form-actions">
         <button 
           mat-flat-button 
           type="submit" 
           class="btn submit-btn" 
           [disabled]="productForm.invalid || isUploading || isCompressing || !canAddMoreProducts() || !hasProductImages()">
-          
           <span *ngIf="isCompressing">🖼️ {{ 'PRODUCT_FORM.COMPRESSING' | translate }}...</span>
           <span *ngIf="isUploading && !isCompressing">📤 {{ 'PRODUCT_FORM.UPLOADING_PRODUCT' | translate }}...</span>
           <span *ngIf="!isUploading && !isCompressing">🎯 {{ 'PRODUCT_FORM.ADD_PRODUCT_BTN' | translate:{ remaining: getRemainingProductsCount() } }}</span>
@@ -379,8 +418,8 @@
     </form>
   </div>
   
-  <!-- ✅ NEW: Message when form is hidden due to limit -->
-  <div class="card3 limit-reached-card" *ngIf="productFormVisible && !canAddMoreProducts()" style="text-align: center; padding: 30px; background: #fff3cd; border: 2px solid #ffc107;">
+  <div class="card3 limit-reached-card" *ngIf="productFormVisible && !canAddMoreProducts()" 
+       style="text-align: center; padding: 30px; background: #fff3cd; border: 2px solid #ffc107;">
     <h2 style="color: #856404;">🚫 {{ 'PRODUCT_FORM.LIMIT_REACHED_TITLE' | translate }}</h2>
     <p style="color: #856404; font-size: 16px;">
       {{ 'PRODUCT_FORM.LIMIT_REACHED_MESSAGE' | translate:{ max: MAX_PRODUCTS_ALLOWED } }}
@@ -391,7 +430,7 @@
   </div>
 </div>
 
-<!-- ✅ ENHANCED: Products section header with clear count and loading state -->
+<!-- Products header -->
 <div class="products-header" style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
   <h2 class="userproducts">{{ 'PRODUCTS.MY_PRODUCTS' | translate }}</h2> 
   <div class="products-count" style="background: #e3f2fd; padding: 8px 16px; border-radius: 20px; font-weight: bold;">
@@ -400,7 +439,7 @@
   </div>
 </div>
 
-<!-- ✅ Loading indicator for products -->
+<!-- Loading indicator -->
 <div class="products-loading" *ngIf="isLoadingProducts" style="text-align: center; padding: 40px;">
   <mat-progress-spinner diameter="50" color="primary" mode="indeterminate"></mat-progress-spinner>
   <p style="margin-top: 15px; color: #666;">🔄 {{ 'PRODUCTS.LOADING_PRODUCTS' | translate }}...</p>
@@ -409,10 +448,8 @@
 <!-- User products display -->
 <div class="user-products-section" *ngIf="userProducts.length > 0 && !isLoadingProducts">
   <div class="products-grid">
-    <div class="product-card" *ngFor="let product of userProducts; trackBy: trackByProductId"
-       >
+    <div class="product-card" *ngFor="let product of userProducts; trackBy: trackByProductId">
       
-      <!-- სურათების სლაიდერი -->
       <div class="product-images">
         <swiper-container 
           slides-per-view="1" 
@@ -427,7 +464,6 @@
                  (error)="onImageError($event)">
           </swiper-slide>
           
-          <!-- თუ სურათი არ არის, default image -->
           <swiper-slide *ngIf="getAllProductImages(product).length === 0">
             <img src="/assets/default-product.jpg" 
                  class="swiperimage" 
@@ -436,7 +472,6 @@
           
         </swiper-container>
         
-        <!-- სურათების რაოდენობის მაჩვენებელი -->
         <ng-container *ngIf="getAllProductImages(product) as images">
           <div class="image-counter" *ngIf="images.length > 1">
             {{ images.length }} {{ 'PRODUCTS.IMAGES' | translate }}
@@ -444,7 +479,6 @@
         </ng-container>
       </div>
       
-      <!-- პროდუქტის ინფორმაცია -->
       <div class="product-info">
         <h3>{{ product.title }}</h3>
         <p class="product-category">{{ product.category | categoryTranslate }}</p>
@@ -454,22 +488,21 @@
         <p class="product-date">{{ 'PRODUCTS.ADDED' | translate }}: {{ formatDate(product.createdAt) }}</p>
       </div>
       
-      <!-- მოქმედების ღილაკები -->
       <div class="product-actions">
         <button mat-flat-button class="delete-btn" (click)="deleteProduct(product._id!); $event.stopPropagation()">
           🗑️ {{ 'PRODUCTS.DELETE' | translate }}
         </button>
-          <button mat-flat-button class="delete-btn" (click)="product ? openProductDetails(product) : null">
-          🗑️ {{ 'PRODUCTS.VIEW_DETAILS' | translate }}
+        <button mat-flat-button class="delete-btn" (click)="product ? openProductDetails(product) : null">
+          🔍 {{ 'PRODUCTS.VIEW_DETAILS' | translate }}
         </button>
-        
       </div>
     </div>
   </div>
 </div>
 
-<!-- ✅ NEW: Empty state when no products and not loading -->
-<div class="no-products-message" *ngIf="userProducts.length === 0 && !isLoadingProducts" style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px; margin: 20px 0;">
+<!-- Empty state -->
+<div class="no-products-message" *ngIf="userProducts.length === 0 && !isLoadingProducts" 
+     style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px; margin: 20px 0;">
   <div style="font-size: 64px; margin-bottom: 20px;">📦</div>
   <h3 style="color: #6c757d; margin-bottom: 15px;">{{ 'PRODUCTS.NO_PRODUCTS_TITLE' | translate }}</h3>
   <p style="color: #6c757d; margin-bottom: 20px;">
@@ -485,7 +518,7 @@
   </button>
 </div>
 
-<!-- ✅ ENHANCED: Global loading overlay for uploads -->
+<!-- Global loading overlay -->
 <div class="loading-overlay" *ngIf="(isUploading || isCompressing) && !isLoadingProducts" 
      style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; justify-content: center; align-items: center;">
   <div class="loading-spinner" style="text-align: center; color: white; background: rgba(255,255,255,0.1); padding: 30px; border-radius: 15px; backdrop-filter: blur(10px);">

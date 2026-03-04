@@ -1,60 +1,73 @@
 @use 'sass:color';
 
+// ══════════════════════════════════════════════════════════════════════════
 // Variables
-$product-primary: #6C63FF;
+// ══════════════════════════════════════════════════════════════════════════
+$product-primary:   #6C63FF;
 $product-secondary: #F5F7FF;
-$product-accent: #FFA69E;
-$product-green: #4CAF50;
-$product-gray: #7a7a7a;
-$product-dark: #2c3e50;
-$shadow-light: rgba(0, 0, 0, 0.1);
-$shadow-medium: rgba(0, 0, 0, 0.15);
-$shadow-heavy: rgba(0, 0, 0, 0.25);
+$product-accent:    #FFA69E;
+$product-green:     #4CAF50;
+$product-gray:      #7a7a7a;
+$product-dark:      #2c3e50;
+$shadow-light:      rgba(0, 0, 0, 0.1);
+$shadow-medium:     rgba(0, 0, 0, 0.15);
+$shadow-heavy:      rgba(0, 0, 0, 0.25);
 
+// ══════════════════════════════════════════════════════════════════════════
 // Breakpoints
-$mobile: 480px;
-$tablet: 768px;
-$desktop: 1024px;
+// ══════════════════════════════════════════════════════════════════════════
+$mobile:        480px;
+$tablet:        768px;
+$desktop:       1024px;
 $large-desktop: 1200px;
-.views-icon{
-  padding: 10px;
-}
+
+// ══════════════════════════════════════════════════════════════════════════
 // Mixins
-@mixin mobile-only {
-  @media (max-width: $mobile) { @content; }
+// ══════════════════════════════════════════════════════════════════════════
+@mixin mobile-only   { @media (max-width: $mobile)   { @content; } }
+@mixin tablet-up     { @media (min-width: $tablet)   { @content; } }
+@mixin desktop-up    { @media (min-width: $desktop)  { @content; } }
+@mixin large-desktop-up { @media (min-width: $large-desktop) { @content; } }
+
+// ══════════════════════════════════════════════════════════════════════════
+// Keyframes
+// ══════════════════════════════════════════════════════════════════════════
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
-@mixin tablet-up {
-  @media (min-width: $tablet) { @content; }
+@keyframes slideIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1);   }
 }
 
-@mixin desktop-up {
-  @media (min-width: $desktop) { @content; }
+@keyframes shimmer {
+  0%   { left: -100%; }
+  50%  { left: 100%;  }
+  100% { left: 100%;  }
 }
 
-@mixin large-desktop-up {
-  @media (min-width: $large-desktop) { @content; }
-}
-
+// ══════════════════════════════════════════════════════════════════════════
+// Root Container
+// ══════════════════════════════════════════════════════════════════════════
 .product-details-container {
   padding: 0.5rem;
   display: flex;
   justify-content: center;
-  align-items: start;
+  align-items: flex-start;
   background: linear-gradient(135deg, $product-secondary 0%, rgba(255, 255, 255, 0.9) 100%);
   min-height: 100vh;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 
-  @include tablet-up {
-    padding: 1rem;
-  }
+  @include tablet-up     { padding: 1rem;  }
+  @include desktop-up    { padding: 2rem;  }
 
-  @include desktop-up {
-    padding: 2rem;
-  }
-
-  // Loading and Error States
-  .loading-container, .error-container {
+  // ════════════════════════════════════════
+  // Loading & Error States
+  // ════════════════════════════════════════
+  .loading-container,
+  .error-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -63,43 +76,28 @@ $large-desktop: 1200px;
     padding: 2rem;
     text-align: center;
 
-    @include tablet-up {
-      margin-top: 3rem;
-    }
+    @include tablet-up { margin-top: 3rem; }
 
     .loading-text {
       margin-top: 1rem;
       font-size: 1.1rem;
       color: $product-primary;
       font-weight: 500;
-
-      @include tablet-up {
-        font-size: 1.2rem;
-      }
+      @include tablet-up { font-size: 1.2rem; }
     }
-
-.message-action{
-  margin: auto !important;
-}
 
     .error-icon {
       font-size: 2.5rem;
       color: $product-accent;
       margin-bottom: 0.5rem;
-
-      @include tablet-up {
-        font-size: 3rem;
-      }
+      @include tablet-up { font-size: 3rem; }
     }
 
     .error-title {
       font-size: 1.5rem;
       margin-bottom: 0.5rem;
       color: color.adjust($product-accent, $lightness: -15%);
-
-      @include tablet-up {
-        font-size: 1.8rem;
-      }
+      @include tablet-up { font-size: 1.8rem; }
     }
 
     .error-message {
@@ -108,10 +106,7 @@ $large-desktop: 1200px;
       margin-bottom: 1rem;
       color: $product-gray;
       max-width: 400px;
-
-      @include tablet-up {
-        font-size: 1.1rem;
-      }
+      @include tablet-up { font-size: 1.1rem; }
     }
 
     .error-button {
@@ -122,7 +117,9 @@ $large-desktop: 1200px;
     }
   }
 
-  // Main Product Wrapper
+  // ════════════════════════════════════════
+  // Product Wrapper
+  // ════════════════════════════════════════
   .product-wrapper {
     max-width: 100%;
     width: 100%;
@@ -131,109 +128,108 @@ $large-desktop: 1200px;
     box-shadow: 0 4px 20px $shadow-light;
     overflow: hidden;
     margin-bottom: 1rem;
+    animation: fadeIn 0.6s ease-out;
 
     @include tablet-up {
       max-width: 800px;
       border-radius: 16px;
       box-shadow: 0 8px 32px $shadow-medium;
     }
+    @include desktop-up      { max-width: 1000px; border-radius: 20px; }
+    @include large-desktop-up { max-width: 1200px; }
 
-    @include desktop-up {
-      max-width: 1000px;
-      border-radius: 20px;
-    }
-
-    @include large-desktop-up {
-      max-width: 1200px;
-    }
-
-    // Header Section
+    // ─── Header ─────────────────────────────
     .product-header {
       display: flex;
       width: 100%;
       align-items: center;
       justify-content: space-between;
       padding: 1rem;
-      background: linear-gradient(135deg, color.adjust($product-primary, $lightness: 35%) 0%, color.adjust($product-primary, $lightness: 25%) 100%);
+      background: linear-gradient(
+        135deg,
+        color.adjust($product-primary, $lightness: 35%) 0%,
+        color.adjust($product-primary, $lightness: 25%) 100%
+      );
       color: $product-primary;
       position: sticky;
       top: 0;
       z-index: 10;
 
-      @include tablet-up {
-        padding: 1.25rem 1.5rem;
+      @include tablet-up { padding: 1.25rem 1.5rem; }
+
+      .header-left {
+        display: flex;
+        align-items: center;
       }
 
       .back-button {
         margin-right: 0.75rem;
         color: $product-primary;
         transition: transform 0.2s ease;
-
-        &:hover {
-          transform: scale(1.1);
-        }
-
-        @include tablet-up {
-          margin-right: 1rem;
-        }
+        &:hover { transform: scale(1.1); }
+        @include tablet-up { margin-right: 1rem; }
       }
 
       .page-title {
         font-size: 1.25rem;
         font-weight: 600;
         margin: 0;
+        @include tablet-up { font-size: 1.5rem; }
+      }
 
-        @include tablet-up {
-          font-size: 1.5rem;
+      .views-counter {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 15px;
+        margin-right: 16px;
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.35);
+        border-radius: 20px;
+        backdrop-filter: blur(4px);
+        transition: opacity 0.3s ease;
+
+        &.loading { opacity: 0.6; }
+
+        .views-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+
+        .views-count {
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
+        .views-spinner {
+          margin-left: 4px;
         }
       }
-      
     }
-     .views-counter{
-        margin-right: 100px !important;
-        display: flex;
-        gap: 10px;
-        font-size: 19px;
-        align-items: center;
 
-      }
-
-    // Content Section
+    // ─── Content ────────────────────────────
     .product-content {
       display: flex;
       flex-direction: column;
       gap: 1rem;
       padding: 1rem;
 
-      @include tablet-up {
-        padding: 1.5rem;
-        gap: 1.5rem;
-      }
+      @include tablet-up  { padding: 1.5rem; gap: 1.5rem; }
+      @include desktop-up { flex-direction: row; align-items: flex-start; gap: 2rem; }
 
-      @include desktop-up {
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 2rem;
-      }
-
-      // Image Gallery Section
+      // ─── Image Gallery ─────────────────────
       .image-gallery-section {
         width: 100%;
-
-        @include desktop-up {
-          width: 55%;
-        }
+        @include desktop-up { width: 55%; }
 
         .swiper-container {
           border-radius: 12px;
           overflow: hidden;
           box-shadow: 0 4px 16px $shadow-light;
+          @include tablet-up { border-radius: 16px; }
 
-          @include tablet-up {
-            border-radius: 16px;
-          }
-
-          // Main Swiper Styles
+          // Main Swiper
           .main-swiper {
             border-radius: inherit;
 
@@ -252,13 +248,8 @@ $large-desktop: 1200px;
               background: linear-gradient(45deg, #f8f9ff 0%, #ffffff 100%);
               overflow: hidden;
 
-              @include tablet-up {
-                height: 400px;
-              }
-
-              @include desktop-up {
-                height: 450px;
-              }
+              @include tablet-up  { height: 400px; }
+              @include desktop-up { height: 450px; }
 
               .main-image {
                 max-height: 100%;
@@ -266,10 +257,7 @@ $large-desktop: 1200px;
                 object-fit: contain;
                 cursor: zoom-in;
                 transition: transform 0.3s ease;
-
-                &:hover {
-                  transform: scale(1.02);
-                }
+                &:hover { transform: scale(1.02); }
               }
 
               .zoom-indicator {
@@ -287,18 +275,13 @@ $large-desktop: 1200px;
                 opacity: 0;
                 transition: opacity 0.3s ease;
                 pointer-events: none;
-
-                mat-icon {
-                  font-size: 18px;
-                }
+                mat-icon { font-size: 18px; }
               }
 
-              &:hover .zoom-indicator {
-                opacity: 1;
-              }
+              &:hover .zoom-indicator { opacity: 1; }
             }
 
-            // Swiper Navigation Buttons
+            // Swiper native buttons override
             ::ng-deep {
               .swiper-button-next,
               .swiper-button-prev {
@@ -308,42 +291,37 @@ $large-desktop: 1200px;
                 height: 40px;
                 border-radius: 50%;
                 box-shadow: 0 2px 8px $shadow-light;
-                
-                &:after {
-                  font-size: 16px;
-                  font-weight: bold;
-                }
-
-                @include mobile-only {
-                  display: none;
-                }
+                &:after { font-size: 16px; font-weight: bold; }
+                @include mobile-only { display: none; }
               }
 
               .swiper-pagination-bullet {
                 background: $product-primary;
                 opacity: 0.5;
-
-                &-active {
-                  opacity: 1;
-                  background: $product-accent;
-                }
+                &-active { opacity: 1; background: $product-accent; }
               }
             }
           }
 
-          // Thumbnail Container
+          // Thumbnails
           .thumbnail-container {
             margin-top: 1rem;
-            
+
             .thumbnail-wrapper {
               display: flex;
               gap: 0.5rem;
               justify-content: center;
               overflow-x: auto;
               padding: 0.5rem 0;
+              @include tablet-up { gap: 0.75rem; }
 
-              @include tablet-up {
-                gap: 0.75rem;
+              // Scrollbar
+              &::-webkit-scrollbar        { height: 4px; }
+              &::-webkit-scrollbar-track  { background: rgba($product-primary, 0.1); border-radius: 2px; }
+              &::-webkit-scrollbar-thumb  {
+                background: $product-primary;
+                border-radius: 2px;
+                &:hover { background: color.adjust($product-primary, $lightness: -10%); }
               }
 
               .thumbnail-item {
@@ -355,6 +333,7 @@ $large-desktop: 1200px;
                 cursor: pointer;
                 border: 2px solid transparent;
                 transition: all 0.3s ease;
+                outline: none;
 
                 @include tablet-up {
                   width: 80px;
@@ -373,6 +352,11 @@ $large-desktop: 1200px;
                   box-shadow: 0 0 0 2px rgba($product-primary, 0.3);
                 }
 
+                &:focus-visible {
+                  outline: 2px solid $product-primary;
+                  outline-offset: 2px;
+                }
+
                 .thumbnail-image {
                   width: 100%;
                   height: 100%;
@@ -384,56 +368,169 @@ $large-desktop: 1200px;
         }
       }
 
-      // Product Info Section
+      // ─── Product Info ───────────────────────
       .product-info-section {
         width: 100%;
-
-        @include desktop-up {
-          width: 45%;
-        }
+        @include desktop-up { width: 45%; }
 
         .product-card {
           border-radius: 12px;
           box-shadow: 0 4px 16px $shadow-light;
           border: 1px solid rgba($product-primary, 0.1);
+          @include tablet-up { border-radius: 16px; }
 
-          @include tablet-up {
-            border-radius: 16px;
-          }
+          // ── Card Header ──────────────────────
+          .product-card-header {
+            background: linear-gradient(
+              135deg,
+              rgba(108, 99, 255, 0.05) 0%,
+              rgba(108, 99, 255, 0.02) 50%,
+              rgba(255, 166, 158, 0.03) 100%
+            );
+            padding: 1.75rem 1.5rem 1.5rem;
+            border-bottom: 2px solid transparent;
+            border-image: linear-gradient(
+              90deg,
+              rgba(108, 99, 255, 0.2),
+              rgba(255, 166, 158, 0.2)
+            ) 1;
+            position: relative;
+            overflow: hidden;
 
-          .product-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: $product-primary;
-            line-height: 1.3;
-            margin-bottom: 0.5rem;
+            @include tablet-up { padding: 2rem 2rem 1.75rem; }
 
-            @include tablet-up {
-              font-size: 1.6rem;
+            &::before {
+              content: '';
+              position: absolute;
+              top: 0; left: 0; right: 0;
+              height: 4px;
+              background: linear-gradient(90deg, #6C63FF 0%, #FFA69E 100%);
+              opacity: 0.8;
             }
 
-            @include desktop-up {
+            &::after {
+              content: '';
+              position: absolute;
+              top: -50%; right: -20%;
+              width: 300px; height: 300px;
+              background: radial-gradient(circle, rgba(108, 99, 255, 0.06) 0%, transparent 70%);
+              pointer-events: none;
+            }
+
+            .product-title {
               font-size: 1.5rem;
+              font-weight: 700;
+              color: $product-dark;
+              line-height: 1.3;
+              margin: 0 0 1rem;
+              letter-spacing: -0.02em;
+              position: relative;
+              z-index: 1;
+              transition: all 0.3s ease;
+
+              @include tablet-up  { font-size: 1.75rem; margin-bottom: 1.25rem; }
+              @include desktop-up { font-size: 1.65rem; }
+
+              &:hover {
+                background: linear-gradient(135deg, #6C63FF 0%, #FFA69E 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+              }
+            }
+
+            .product-price-info {
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              gap: 1rem;
+              position: relative;
+              z-index: 1;
+
+              @include tablet-up { gap: 1.5rem; }
+
+              .product-price {
+                font-size: 1.75rem;
+                color: $product-green;
+                font-weight: 800;
+                letter-spacing: -0.03em;
+                padding: 0.35rem 1rem;
+                background: linear-gradient(
+                  135deg,
+                  rgba(76, 175, 80, 0.1) 0%,
+                  rgba(76, 175, 80, 0.05) 100%
+                );
+                border-radius: 12px;
+                border: 2px solid rgba(76, 175, 80, 0.2);
+                display: inline-block;
+                box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+
+                @include tablet-up {
+                  font-size: 2rem;
+                  padding: 0.4rem 1.25rem;
+                  border-radius: 14px;
+                }
+
+                &::before {
+                  content: '';
+                  position: absolute;
+                  top: 0; left: -100%;
+                  width: 100%; height: 100%;
+                  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                  animation: shimmer 3s infinite;
+                }
+
+                &:hover {
+                  transform: scale(1.05);
+                  border-color: rgba(76, 175, 80, 0.4);
+                  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.25);
+                }
+              }
+
+              .product-meta {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: $product-gray;
+                font-size: 0.95rem;
+                font-weight: 500;
+                padding: 0.5rem 0.85rem;
+                background: rgba(122, 122, 122, 0.06);
+                border-radius: 10px;
+                transition: all 0.3s ease;
+
+                @include tablet-up {
+                  font-size: 1rem;
+                  padding: 0.6rem 1rem;
+                  border-radius: 12px;
+                }
+
+                .meta-icon {
+                  font-size: 18px;
+                  width: 18px; height: 18px;
+                  color: $product-primary;
+                  transition: transform 0.3s ease;
+                  @include tablet-up { font-size: 20px; width: 20px; height: 20px; }
+                }
+
+                .date-text { color: $product-gray; letter-spacing: 0.01em; }
+
+                &:hover {
+                  background: rgba(108, 99, 255, 0.08);
+                  .meta-icon { transform: rotate(360deg); }
+                }
+              }
             }
           }
 
-          .product-price {
-            font-size: 1.4rem;
-            color: $product-green;
-            font-weight: 700;
-
-            @include tablet-up {
-              font-size: 1.5rem;
-            }
-          }
-
-          // Info Sections
+          // ── Info Sections ────────────────────
           .info-section {
             margin-top: 1.5rem;
-
-            @include tablet-up {
-              margin-top: 2rem;
-            }
+            padding: 0 1rem;
+            @include tablet-up { margin-top: 2rem; padding: 0 1.5rem; }
 
             .section-title {
               display: flex;
@@ -444,56 +541,47 @@ $large-desktop: 1200px;
               margin-bottom: 1rem;
               color: $product-primary;
 
-              @include tablet-up {
-                font-size: 1.2rem;
-                margin-bottom: 1.25rem;
-              }
+              @include tablet-up { font-size: 1.2rem; margin-bottom: 1.25rem; }
 
-              mat-icon {
-                font-size: 20px;
-                
-                @include tablet-up {
-                  font-size: 22px;
-                }
-              }
+              mat-icon { font-size: 20px; @include tablet-up { font-size: 22px; } }
             }
 
             .info-grid {
               display: flex;
               flex-wrap: wrap;
               gap: 0.5rem;
-
-              @include tablet-up {
-                gap: 0.75rem;
-              }
+              @include tablet-up { gap: 0.75rem; }
 
               .info-chip {
-                background: linear-gradient(135deg, color.adjust($product-primary, $lightness: 40%) 0%, color.adjust($product-primary, $lightness: 35%) 100%);
+                background: linear-gradient(
+                  135deg,
+                  color.adjust($product-primary, $lightness: 40%) 0%,
+                  color.adjust($product-primary, $lightness: 35%) 100%
+                );
                 color: $product-primary;
                 font-size: 0.85rem;
                 font-weight: 500;
                 border-radius: 20px;
                 padding: 0.5rem 1rem;
+                transition: all 0.2s ease;
 
-                @include tablet-up {
-                  font-size: 0.9rem;
-                  padding: 0.6rem 1.2rem;
-                }
+                @include tablet-up { font-size: 0.9rem; padding: 0.6rem 1.2rem; }
 
-                mat-icon {
-                  font-size: 16px;
-                  
-                  @include tablet-up {
-                    font-size: 18px;
-                  }
-                }
+                mat-icon { font-size: 16px; @include tablet-up { font-size: 18px; } }
+
+                &.views-chip   { border-left: 3px solid $product-primary; }
+                &.today-views-chip  { background: linear-gradient(135deg, rgba(76,175,80,0.15) 0%, rgba(76,175,80,0.08) 100%); color: color.adjust(#4CAF50, $lightness: -10%); }
+                &.week-views-chip   { background: linear-gradient(135deg, rgba(108,99,255,0.12) 0%, rgba(108,99,255,0.06) 100%); }
+                &.month-views-chip  { background: linear-gradient(135deg, rgba(255,166,158,0.2) 0%, rgba(255,166,158,0.1) 100%); color: color.adjust(#FFA69E, $lightness: -25%); }
+
+                &.loading { opacity: 0.6; pointer-events: none; }
               }
             }
 
             .description-text {
               font-size: 0.95rem;
               color: $product-gray;
-              line-height: 1.6;
+              line-height: 1.7;
               padding: 1rem;
               background: rgba($product-secondary, 0.3);
               border-radius: 8px;
@@ -507,16 +595,15 @@ $large-desktop: 1200px;
             }
           }
 
-          // Seller Section
+          // ── Seller Section ───────────────────
           .seller-section {
+            margin-bottom: 0.5rem;
+
             .seller-info {
               display: flex;
               flex-direction: column;
               gap: 0.75rem;
-
-              @include tablet-up {
-                gap: 1rem;
-              }
+              @include tablet-up { gap: 1rem; }
 
               .seller-detail {
                 display: flex;
@@ -537,10 +624,7 @@ $large-desktop: 1200px;
                   color: $product-primary;
                   font-size: 20px;
                   flex-shrink: 0;
-
-                  @include tablet-up {
-                    font-size: 22px;
-                  }
+                  @include tablet-up { font-size: 22px; }
                 }
 
                 .seller-label {
@@ -552,23 +636,31 @@ $large-desktop: 1200px;
                 .seller-value {
                   color: $product-gray;
                   word-break: break-word;
+                  text-decoration: none;
+
+                  &[href] {
+                    color: $product-primary;
+                    text-decoration: underline;
+                    text-underline-offset: 2px;
+                    &:hover { color: color.adjust($product-primary, $lightness: -10%); }
+                  }
                 }
               }
             }
           }
 
-          // Contact Actions
+          // ── Actions ──────────────────────────
           .contact-actions {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
-            margin-top: 1.5rem;
-            padding: 1rem 0 0.5rem;
+            margin-top: 1rem;
+            padding: 1rem;
 
             @include tablet-up {
               flex-direction: row;
               gap: 1rem;
-              margin-top: 2rem;
+              margin-top: 1.5rem;
             }
 
             .contact-button {
@@ -580,45 +672,50 @@ $large-desktop: 1200px;
               text-transform: none;
               transition: all 0.3s ease;
 
-              @include tablet-up {
-                font-size: 1rem;
-                padding: 0.85rem 1.25rem;
-              }
+              @include tablet-up { font-size: 1rem; padding: 0.85rem 1.25rem; }
 
               mat-icon {
                 margin-right: 0.5rem;
                 font-size: 18px;
-
-                @include tablet-up {
-                  font-size: 20px;
-                }
+                @include tablet-up { font-size: 20px; }
               }
 
               &[color="primary"] {
                 background: linear-gradient(135deg, $product-primary 0%, color.adjust($product-primary, $lightness: -10%) 100%);
                 color: white;
                 box-shadow: 0 4px 12px rgba($product-primary, 0.3);
-
-                &:hover {
-                  transform: translateY(-2px);
-                  box-shadow: 0 6px 20px rgba($product-primary, 0.4);
-                }
+                &:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba($product-primary, 0.4); }
               }
 
               &[color="accent"] {
                 background: linear-gradient(135deg, $product-accent 0%, color.adjust($product-accent, $lightness: -10%) 100%);
                 color: white;
                 box-shadow: 0 4px 12px rgba($product-accent, 0.3);
-
-                &:hover {
-                  transform: translateY(-2px);
-                  box-shadow: 0 6px 20px rgba($product-accent, 0.4);
-                }
+                &:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba($product-accent, 0.4); }
               }
 
-              &:active {
-                transform: translateY(0);
-              }
+              &:active { transform: translateY(0); }
+            }
+          }
+
+          .message-action {
+            display: flex;
+            justify-content: center;
+            padding: 0 1rem 1rem;
+
+            .message-button {
+              width: 100%;
+              font-weight: 600;
+              font-size: 1rem;
+              border-radius: 10px;
+              padding: 0.85rem 1.5rem;
+              text-transform: none;
+              transition: all 0.3s ease;
+
+              mat-icon { margin-right: 0.5rem; }
+
+              &:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(244, 67, 54, 0.3); }
+              &:active { transform: translateY(0); }
             }
           }
         }
@@ -626,59 +723,48 @@ $large-desktop: 1200px;
     }
   }
 
-  // Enhanced Image Modal Styles with proper viewport sizing
+  // ════════════════════════════════════════
+  // Image Modal
+  // ════════════════════════════════════════
   .image-modal {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
-    // Prevent body scroll when modal is open
     overflow: hidden;
+    animation: slideIn 0.4s ease-out;
 
     .modal-backdrop {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.9);
       cursor: pointer;
     }
 
     .modal-content {
       position: relative;
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      // Add padding to ensure content doesn't touch edges
       padding: 80px 20px 60px;
       box-sizing: border-box;
 
-      @include tablet-up {
-        padding: 100px 40px 80px;
-      }
-
-      @include desktop-up {
-        padding: 120px 60px 100px;
-      }
+      @include tablet-up  { padding: 100px 40px 80px;  }
+      @include desktop-up { padding: 120px 60px 100px; }
 
       .modal-close {
         position: fixed;
-        top: 15px;
-        right: 15px;
+        top: 15px; right: 15px;
         background: rgba(255, 255, 255, 0.95);
         border: none;
         border-radius: 50%;
-        width: 44px;
-        height: 44px;
+        width: 44px; height: 44px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -687,55 +773,30 @@ $large-desktop: 1200px;
         transition: all 0.3s ease;
         backdrop-filter: blur(10px);
 
-        @include tablet-up {
-          top: 20px;
-          right: 20px;
-          width: 52px;
-          height: 52px;
-        }
+        @include tablet-up  { top: 20px; right: 20px; width: 52px; height: 52px; }
+        @include desktop-up { top: 30px; right: 30px; }
 
-        @include desktop-up {
-          top: 30px;
-          right: 30px;
-        }
+        &:hover { background: white; transform: scale(1.1); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
 
-        &:hover {
-          background: white;
-          transform: scale(1.1);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        mat-icon {
-          color: $product-dark;
-          font-size: 24px;
-
-          @include tablet-up {
-            font-size: 28px;
-          }
-        }
+        mat-icon { color: $product-dark; font-size: 24px; @include tablet-up { font-size: 28px; } }
       }
 
       .modal-navigation {
         position: fixed;
-        top: 50%;
-        transform: translateY(-50%);
+        top: 50%; transform: translateY(-50%);
         width: 100%;
         display: flex;
         justify-content: space-between;
         padding: 0 15px;
         z-index: 15;
         pointer-events: none;
-
-        @include tablet-up {
-          padding: 0 30px;
-        }
+        @include tablet-up { padding: 0 30px; }
 
         .nav-button {
           background: rgba(255, 255, 255, 0.95);
           border: none;
           border-radius: 50%;
-          width: 48px;
-          height: 48px;
+          width: 48px; height: 48px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -744,31 +805,23 @@ $large-desktop: 1200px;
           backdrop-filter: blur(10px);
           pointer-events: auto;
 
-          @include tablet-up {
-            width: 56px;
-            height: 56px;
-          }
+          @include tablet-up { width: 56px; height: 56px; }
 
           &:hover:not(:disabled) {
             background: white;
             transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
           }
 
           &:disabled {
             opacity: 0.4;
             cursor: not-allowed;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255,255,255,0.6);
           }
 
-          mat-icon {
-            color: $product-dark;
-            font-size: 28px;
+          &:focus-visible { outline: 2px solid $product-primary; }
 
-            @include tablet-up {
-              font-size: 32px;
-            }
-          }
+          mat-icon { color: $product-dark; font-size: 28px; @include tablet-up { font-size: 32px; } }
         }
       }
 
@@ -776,35 +829,24 @@ $large-desktop: 1200px;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 100%;
-        height: 100%;
-        // Ensure the container respects the padding
-        max-width: 100%;
-        max-height: 100%;
+        width: 100%; height: 100%;
+        max-width: 100%; max-height: 100%;
 
         .modal-image {
-          // Critical fix: ensure image never exceeds viewport
-          max-width: 100%;
-          max-height: 100%;
-          width: auto;
-          height: auto;
+          max-width: 100%; max-height: 100%;
+          width: auto; height: auto;
           object-fit: contain;
           border-radius: 8px;
           box-shadow: 0 8px 32px $shadow-heavy;
-          // Prevent image from being larger than its container
           display: block;
-
-          @include tablet-up {
-            border-radius: 12px;
-          }
+          @include tablet-up { border-radius: 12px; }
         }
       }
 
       .modal-indicator {
         position: fixed;
         bottom: 15px;
-        left: 50%;
-        transform: translateX(-50%);
+        left: 50%; transform: translateX(-50%);
         background: rgba(255, 255, 255, 0.95);
         color: $product-dark;
         padding: 0.5rem 1rem;
@@ -814,369 +856,60 @@ $large-desktop: 1200px;
         backdrop-filter: blur(10px);
         z-index: 15;
 
-        @include tablet-up {
-          bottom: 20px;
-          font-size: 1rem;
-          padding: 0.75rem 1.25rem;
-        }
-
-        @include desktop-up {
-          bottom: 30px;
-        }
+        @include tablet-up  { bottom: 20px; font-size: 1rem; padding: 0.75rem 1.25rem; }
+        @include desktop-up { bottom: 30px; }
       }
     }
   }
 }
 
-// Custom scrollbar for thumbnail navigation
-.thumbnail-wrapper {
-  &::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: rgba($product-primary, 0.1);
-    border-radius: 2px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: $product-primary;
-    border-radius: 2px;
-    
-    &:hover {
-      background: color.adjust($product-primary, $lightness: -10%);
-    }
-  }
-}
-
-// Animation keyframes
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-// Apply animations
-.product-wrapper {
-  animation: fadeIn 0.6s ease-out;
-}
-
-.image-modal {
-  animation: slideIn 0.4s ease-out;
-}
-
-// Focus states for accessibility
+// ══════════════════════════════════════════════════════════════════════════
+// Accessibility
+// ══════════════════════════════════════════════════════════════════════════
 button:focus-visible,
 .thumbnail-item:focus-visible {
   outline: 2px solid $product-primary;
   outline-offset: 2px;
 }
 
-// High contrast mode support
-@media (prefers-contrast: high) {
-  .product-details-container {
-    .product-wrapper {
-      border: 2px solid $product-dark;
-    }
-    
-    .info-chip {
-      border: 1px solid $product-primary;
-    }
-    
-    .contact-button {
-      border: 2px solid currentColor;
-    }
-  }
-}
-
-// Reduced motion support
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-// Additional responsive fixes for very small screens
+// ══════════════════════════════════════════════════════════════════════════
+// Responsive edge cases
+// ══════════════════════════════════════════════════════════════════════════
 @media (max-width: 360px) {
   .product-details-container {
     padding: 0.25rem;
-    
-    .image-modal .modal-content {
-      padding: 60px 10px 50px;
-    }
+    .image-modal .modal-content { padding: 60px 10px 50px; }
   }
 }
 
-
-// Ensure modal works well on very large screens
 @media (min-width: 1920px) {
-  .image-modal .modal-content {
-    padding: 150px 100px 120px;
-  }
+  .image-modal .modal-content { padding: 150px 100px 120px; }
 }
-// Product Card Header Styles Only
-// =================================
 
-.product-card-header {
-  background: linear-gradient(
-    135deg,
-    rgba(108, 99, 255, 0.05) 0%,
-    rgba(108, 99, 255, 0.02) 50%,
-    rgba(255, 166, 158, 0.03) 100%
-  );
-  padding: 1.75rem 1.5rem 1.5rem;
-  border-bottom: 2px solid transparent;
-  border-image: linear-gradient(
-    90deg,
-    rgba(108, 99, 255, 0.2),
-    rgba(255, 166, 158, 0.2)
-  ) 1;
-  position: relative;
-  overflow: hidden;
-
-  @media (min-width: 768px) {
-    padding: 2rem 2rem 1.75rem;
-  }
-
-  // Decorative top accent line
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(
-      90deg,
-      #6C63FF 0%,
-      #FFA69E 100%
-    );
-    opacity: 0.8;
-  }
-
-  // Subtle background pattern
-  &::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(
-      circle,
-      rgba(108, 99, 255, 0.06) 0%,
-      transparent 70%
-    );
-    pointer-events: none;
-  }
-
-  .product-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #2c3e50;
-    line-height: 1.3;
-    margin-bottom: 1rem;
-    letter-spacing: -0.02em;
-    position: relative;
-    z-index: 1;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-    transition: all 0.3s ease;
-
-    @media (min-width: 768px) {
-      font-size: 1.75rem;
-      margin-bottom: 1.25rem;
-    }
-
-    @media (min-width: 1024px) {
-      font-size: 1.65rem;
-    }
-
-    // Gradient text effect on hover
-    &:hover {
-      background: linear-gradient(135deg, #6C63FF 0%, #FFA69E 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-  }
-
-  .product-price-info {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1rem;
-    position: relative;
-    z-index: 1;
-
-    @media (min-width: 768px) {
-      gap: 1.5rem;
-    }
-
-    .product-price {
-      font-size: 1.75rem;
-      color: #4CAF50;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      padding: 0.35rem 1rem;
-      background: linear-gradient(
-        135deg,
-        rgba(76, 175, 80, 0.1) 0%,
-        rgba(76, 175, 80, 0.05) 100%
-      );
-      border-radius: 12px;
-      border: 2px solid rgba(76, 175, 80, 0.2);
-      display: inline-block;
-      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-
-      @media (min-width: 768px) {
-        font-size: 2rem;
-        padding: 0.4rem 1.25rem;
-        border-radius: 14px;
-      }
-
-      // Shimmer effect
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.3),
-          transparent
-        );
-        animation: shimmer 3s infinite;
-      }
-
-      &:hover {
-        transform: scale(1.05);
-        border-color: rgba(76, 175, 80, 0.4);
-        box-shadow: 0 4px 16px rgba(76, 175, 80, 0.25);
-      }
-    }
-
-    .product-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #7a7a7a;
-      font-size: 0.95rem;
-      font-weight: 500;
-      padding: 0.5rem 0.85rem;
-      background: rgba(122, 122, 122, 0.06);
-      border-radius: 10px;
-      transition: all 0.3s ease;
-
-      @media (min-width: 768px) {
-        font-size: 1rem;
-        padding: 0.6rem 1rem;
-        border-radius: 12px;
-      }
-
-      .meta-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        color: #6C63FF;
-        transition: transform 0.3s ease;
-
-        @media (min-width: 768px) {
-          font-size: 20px;
-          width: 20px;
-          height: 20px;
-        }
-      }
-
-      .date-text {
-        color: #7a7a7a;
-        letter-spacing: 0.01em;
-      }
-
-      &:hover {
-        background: rgba(108, 99, 255, 0.08);
-        
-        .meta-icon {
-          transform: rotate(360deg);
-        }
-      }
-    }
+// ══════════════════════════════════════════════════════════════════════════
+// High Contrast
+// ══════════════════════════════════════════════════════════════════════════
+@media (prefers-contrast: high) {
+  .product-details-container {
+    .product-wrapper  { border: 2px solid $product-dark; }
+    .info-chip        { border: 1px solid $product-primary; }
+    .contact-button   { border: 2px solid currentColor; }
   }
 }
 
-// Shimmer animation
-@keyframes shimmer {
-  0% {
-    left: -100%;
-  }
-  50% {
-    left: 100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-// Mobile responsive
-@media (max-width: 480px) {
-  .product-card-header {
-    padding: 1.5rem 1.25rem 1.25rem;
-
-    .product-title {
-      font-size: 1.35rem;
-    }
-
-    .product-price-info {
-      gap: 0.75rem;
-
-      .product-price {
-        font-size: 1.6rem;
-        padding: 0.3rem 0.85rem;
-      }
-
-      .product-meta {
-        font-size: 0.9rem;
-        padding: 0.45rem 0.75rem;
-      }
-    }
-  }
-}
-
-// Accessibility
+// ══════════════════════════════════════════════════════════════════════════
+// Reduced Motion
+// ══════════════════════════════════════════════════════════════════════════
 @media (prefers-reduced-motion: reduce) {
-  .product-card-header,
+  *,
+  .product-wrapper,
+  .image-modal,
   .product-title,
   .product-price,
   .product-meta,
   .meta-icon {
-    transition: none !important;
-    animation: none !important;
-  }
-
-  .product-price::before {
-    animation: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

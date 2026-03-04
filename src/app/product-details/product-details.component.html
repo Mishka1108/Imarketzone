@@ -7,42 +7,64 @@
   </div>
   
   <!-- Error State -->
-  <div class="error-container" *ngIf="!isLoading && error">
-    <mat-icon class="error-icon">error_outline</mat-icon>
+  <div class="error-container" *ngIf="!isLoading && error" role="alert" aria-live="assertive">
+    <mat-icon class="error-icon" aria-hidden="true">error_outline</mat-icon>
     <h2 class="error-title">{{ 'PRODUCT_DETAILS.ERROR.TITLE' | translate }}</h2>
     <p class="error-message">{{ error }}</p>
     <button mat-raised-button color="primary" (click)="goBack()" class="error-button">
-      <mat-icon>arrow_back</mat-icon>
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
       {{ 'PRODUCT_DETAILS.ACTIONS.GO_BACK' | translate }}
     </button>
   </div>
   
   <!-- Product Details -->
-  <div class="product-wrapper" *ngIf="!isLoading && product && !error">
+  <div class="product-wrapper" *ngIf="!isLoading && product && !error" itemscope itemtype="https://schema.org/Product">
+
+    <!-- ════════════════════════════════════════════════════ -->
+    <!-- Hidden SEO microdata — search engines-ისთვის       -->
+    <!-- ════════════════════════════════════════════════════ -->
+    <meta itemprop="name"        [attr.content]="product.title" />
+    <meta itemprop="description" [attr.content]="product.description || product.title" />
+    <meta itemprop="image"       [attr.content]="productImages[0]" />
+    <link itemprop="url"         [attr.href]="'https://www.imarketzone.ge' + '/product-details/' + product.title" />
+    <div itemprop="offers" itemscope itemtype="https://schema.org/Offer" style="display:none">
+      <meta itemprop="price"         [attr.content]="product.price" />
+      <meta itemprop="priceCurrency" content="GEL" />
+      <meta itemprop="availability"  content="https://schema.org/InStock" />
+      <div itemprop="seller" itemscope itemtype="https://schema.org/Person">
+        <meta itemprop="name" [attr.content]="product.userName || 'გამყიდველი'" />
+      </div>
+    </div>
+    <!-- ════════════════════════════════════════════════════ -->
+
     <!-- Header with Back Button and Views -->
-    <div class="product-header">
+    <header class="product-header" role="banner">
       <div class="header-left">
-        <button mat-icon-button (click)="goBack()" class="back-button">
-          <mat-icon>arrow_back</mat-icon>
+        <button 
+          mat-icon-button 
+          (click)="goBack()" 
+          class="back-button"
+          [attr.aria-label]="'PRODUCT_DETAILS.ACTIONS.GO_BACK' | translate">
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>
         </button>
         <h1 class="page-title">{{ 'PRODUCT_DETAILS.PAGE_TITLE' | translate }}</h1>
       </div>
       
-      <!-- Enhanced Views Counter -->
-      <div class="views-counter" [class.loading]="isLoadingViews">
-        <mat-icon class="views-icon">visibility</mat-icon>
+      <!-- Views Counter -->
+      <div class="views-counter" [class.loading]="isLoadingViews" aria-live="polite" aria-atomic="true">
+        <mat-icon class="views-icon" aria-hidden="true">visibility</mat-icon>
         <span class="views-count">{{ getFormattedViewsWithDetails() }}</span>
-        
-        <!-- Loading indicator for views -->
         <mat-spinner diameter="16" *ngIf="isLoadingViews" class="views-spinner"></mat-spinner>
       </div>
-    </div>
+    </header>
 
     <div class="product-content">
-      <!-- Image Gallery Section with Enhanced Swiper -->
-      <div class="image-gallery-section">
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- Image Gallery Section                      -->
+      <!-- ══════════════════════════════════════════ -->
+      <section class="image-gallery-section" [attr.aria-label]="product.title + ' - სურათები'">
         <div class="swiper-container">
-          <!-- Main Image Swiper with Zoom -->
           <swiper-container 
             class="main-swiper"
             slides-per-view="1"
@@ -53,18 +75,32 @@
             zoom="true"
             grab-cursor="true"
             keyboard='{ "enabled": true }'
-            mousewheel='{ "thresholdDelta": 70 }'>
-            <swiper-slide *ngFor="let image of productImages; let i = index">
+            mousewheel='{ "thresholdDelta": 70 }'
+            role="region"
+            [attr.aria-label]="product.title + ' სურათების გალერეა'">
+            <swiper-slide 
+              *ngFor="let image of productImages; let i = index"
+              [attr.aria-label]="product.title + ' - სურათი ' + (i + 1) + ' ' + productImages.length + '-დან'">
               <div class="swiper-zoom-container">
                 <div class="main-image-container">
+                  <!-- 
+                    SEO: loading="eager" პირველ სურათზე (LCP-ისთვის),
+                    lazy დანარჩენებზე
+                  -->
                   <img 
                     [src]="image" 
-                    [alt]="product.title + ' - ' + ('PRODUCT_DETAILS.IMAGE' | translate) + ' ' + (i + 1)" 
+                    [alt]="product.title + (productImages.length > 1 ? ' - სურათი ' + (i + 1) : '')"
+                    [attr.title]="product.title"
                     (error)="onImageError($event)"
+                    (load)="onImageLoad($event)"
                     (click)="openImageModal(image, i)"
                     class="main-image zoomable-image"
-                    loading="lazy" />
-                  <div class="zoom-indicator">
+                    [attr.loading]="i === 0 ? 'eager' : 'lazy'"
+                    [attr.fetchpriority]="i === 0 ? 'high' : 'auto'"
+                    width="800"
+                    height="600"
+                    itemprop="image" />
+                  <div class="zoom-indicator" aria-hidden="true">
                     <mat-icon>zoom_in</mat-icon>
                   </div>
                 </div>
@@ -73,123 +109,173 @@
           </swiper-container>
 
           <!-- Thumbnail Navigation -->
-          <div class="thumbnail-container" *ngIf="productImages.length > 1">
-            <div class="thumbnail-wrapper">
+          <nav class="thumbnail-container" *ngIf="productImages.length > 1" aria-label="სურათების ნავიგაცია">
+            <div class="thumbnail-wrapper" role="list">
               <div 
                 class="thumbnail-item" 
                 *ngFor="let image of productImages; let i = index"
                 [class.active]="i === currentImageIndex"
-                (click)="changeImage(i)">
+                (click)="changeImage(i)"
+                role="listitem"
+                [attr.aria-label]="'სურათი ' + (i + 1)"
+                [attr.aria-current]="i === currentImageIndex ? 'true' : null"
+                tabindex="0"
+                (keydown.enter)="changeImage(i)"
+                (keydown.space)="changeImage(i)">
                 <img 
                   [src]="image" 
-                  [alt]="'Thumbnail ' + (i + 1)"
+                  [alt]="product.title + ' - მინიატურა ' + (i + 1)"
                   (error)="onThumbnailError($event)"
-                  class="thumbnail-image" />
+                  class="thumbnail-image"
+                  loading="lazy"
+                  width="80"
+                  height="80" />
               </div>
             </div>
-          </div>
+          </nav>
         </div>
-      </div>
+      </section>
 
-      <!-- Product Info Section -->
-      <div class="product-info-section">
+      <!-- ══════════════════════════════════════════ -->
+      <!-- Product Info Section                       -->
+      <!-- ══════════════════════════════════════════ -->
+      <main class="product-info-section" role="main">
         <mat-card class="product-card">
+          
           <mat-card-header class="product-card-header">
-            <mat-card-title class="product-title">{{ product.title }}</mat-card-title>
-            <mat-card-subtitle class="product-price-info">
-              <span class="product-price">{{ formatPrice(product.price) }}</span>
-              <span class="product-meta">
-                <mat-icon class="meta-icon">schedule</mat-icon>
-                <span class="date-text">{{ formatDate(product.createdAt || product.date) }}</span>
+            <!-- 
+              SEO: h1 ნაცვლად mat-card-title-ისა, რადგან ეს ძირითადი სათაურია.
+              page-title header-ში უფრო ზოგადია.
+            -->
+            <h2 class="product-title" itemprop="name">{{ product.title }}</h2>
+            
+            <div class="product-price-info">
+              <span 
+                class="product-price" 
+                itemprop="offers" 
+                itemscope 
+                itemtype="https://schema.org/Offer">
+                <span itemprop="priceCurrency" content="GEL" aria-hidden="true"></span>
+                <span itemprop="price" [attr.content]="product.price">{{ formatPrice(product.price) }}</span>
               </span>
-            </mat-card-subtitle>
+              
+              <span class="product-meta">
+                <mat-icon class="meta-icon" aria-hidden="true">schedule</mat-icon>
+                <time 
+                  class="date-text"
+                  [attr.datetime]="product.createdAt || product.date"
+                  itemprop="datePublished">
+                  {{ formatDate(product.createdAt || product.date) }}
+                </time>
+              </span>
+            </div>
           </mat-card-header>
 
           <mat-card-content>
+
             <!-- Basic Info -->
-            <div class="info-section">
+            <section class="info-section" aria-label="ძირითადი ინფორმაცია">
               <h3 class="section-title">
-                <mat-icon>info</mat-icon>
+                <mat-icon aria-hidden="true">info</mat-icon>
                 {{ 'PRODUCT_DETAILS.BASIC_INFO_TITLE' | translate }}
               </h3>
               
-              <div class="info-grid">
-                <mat-chip class="info-chip" *ngIf="product.category">
-                  <mat-icon matChipAvatar>category</mat-icon>
+              <div class="info-grid" role="list">
+
+                <mat-chip class="info-chip" *ngIf="product.category" role="listitem" itemprop="category">
+                  <mat-icon matChipAvatar aria-hidden="true">category</mat-icon>
                   {{ product.category | categoryTranslate }}
                 </mat-chip>
                 
-                <mat-chip class="info-chip" *ngIf="product.year">
-                  <mat-icon matChipAvatar>calendar_today</mat-icon>
-                  {{ product.year }}
+                <mat-chip class="info-chip" *ngIf="product.year" role="listitem">
+                  <mat-icon matChipAvatar aria-hidden="true">calendar_today</mat-icon>
+                  <span itemprop="productionDate">{{ product.year }}</span>
                 </mat-chip>
                 
-                <mat-chip class="info-chip" *ngIf="product.cities">
-  <mat-icon matChipAvatar>location_on</mat-icon>
-  {{ product.cities | cityTranslate }}
-</mat-chip>
+                <mat-chip class="info-chip" *ngIf="product.cities" role="listitem" itemprop="areaServed">
+                  <mat-icon matChipAvatar aria-hidden="true">location_on</mat-icon>
+                  {{ product.cities | cityTranslate }}
+                </mat-chip>
 
-                <!-- Enhanced Views chip with more details -->
-                <mat-chip class="info-chip views-chip" [class.loading]="isLoadingViews">
-                  <mat-icon matChipAvatar>visibility</mat-icon>
+                <mat-chip 
+                  class="info-chip views-chip" 
+                  [class.loading]="isLoadingViews"
+                  role="listitem"
+                  aria-live="polite">
+                  <mat-icon matChipAvatar aria-hidden="true">visibility</mat-icon>
                   <span *ngIf="!isLoadingViews">{{ getFormattedViewsWithDetails() }}</span>
                   <span *ngIf="isLoadingViews">{{ 'PRODUCT_DETAILS.LOADING_SHORT' | translate }}</span>
                 </mat-chip>
 
-                <!-- Additional view statistics if available -->
-                <mat-chip class="info-chip today-views-chip" *ngIf="getTodayViews() > 0">
-                  <mat-icon matChipAvatar>today</mat-icon>
+                <mat-chip class="info-chip today-views-chip" *ngIf="getTodayViews() > 0" role="listitem">
+                  <mat-icon matChipAvatar aria-hidden="true">today</mat-icon>
                   {{ 'PRODUCT_DETAILS.VIEWS.TODAY' | translate }}: {{ getTodayViews() }}
                 </mat-chip>
 
-                <mat-chip class="info-chip week-views-chip" *ngIf="getWeekViews() > 0">
-                  <mat-icon matChipAvatar>date_range</mat-icon>
+                <mat-chip class="info-chip week-views-chip" *ngIf="getWeekViews() > 0" role="listitem">
+                  <mat-icon matChipAvatar aria-hidden="true">date_range</mat-icon>
                   {{ 'PRODUCT_DETAILS.VIEWS.WEEK' | translate }}: {{ getWeekViews() }}
                 </mat-chip>
 
-                <mat-chip class="info-chip month-views-chip" *ngIf="getMonthViews() > 0">
-                  <mat-icon matChipAvatar>event</mat-icon>
+                <mat-chip class="info-chip month-views-chip" *ngIf="getMonthViews() > 0" role="listitem">
+                  <mat-icon matChipAvatar aria-hidden="true">event</mat-icon>
                   {{ 'PRODUCT_DETAILS.VIEWS.MONTH' | translate }}: {{ getMonthViews() }}
                 </mat-chip>
+
               </div>
-            </div>
+            </section>
 
             <!-- Description -->
-            <div class="info-section" *ngIf="product.description">
+            <section class="info-section" *ngIf="product.description" aria-label="აღწერა">
               <h3 class="section-title">
-                <mat-icon>description</mat-icon>
+                <mat-icon aria-hidden="true">description</mat-icon>
                 {{ 'PRODUCT_DETAILS.DESCRIPTION_TITLE' | translate }}
               </h3>
-              <div class="description-text">{{ product.description }}</div>
-            </div>
+              <div class="description-text" itemprop="description">{{ product.description }}</div>
+            </section>
 
             <!-- Seller Info -->
-            <div class="info-section seller-section">
+            <section class="info-section seller-section" aria-label="გამყიდველის ინფორმაცია">
               <h3 class="section-title">
-                <mat-icon>person</mat-icon>
+                <mat-icon aria-hidden="true">person</mat-icon>
                 {{ 'PRODUCT_DETAILS.SELLER_INFO_TITLE' | translate }}
               </h3>
               
-              <div class="seller-info">
+              <div class="seller-info" itemprop="seller" itemscope itemtype="https://schema.org/Person">
+
                 <div class="seller-detail" *ngIf="product.userName">
-                  <mat-icon class="seller-icon">account_circle</mat-icon>
+                  <mat-icon class="seller-icon" aria-hidden="true">account_circle</mat-icon>
                   <span class="seller-label">{{ 'PRODUCT_DETAILS.SELLER_NAME' | translate }}:</span>
-                  <span class="seller-value">{{ product.userName }}</span>
+                  <span class="seller-value" itemprop="name">{{ product.userName }}</span>
                 </div>
                 
                 <div class="seller-detail" *ngIf="product.phone && product.phone !== ('PRODUCT_DETAILS.INFO.NOT_SPECIFIED' | translate)">
-                  <mat-icon class="seller-icon">phone</mat-icon>
+                  <mat-icon class="seller-icon" aria-hidden="true">phone</mat-icon>
                   <span class="seller-label">{{ 'PRODUCT_DETAILS.SELLER_PHONE' | translate }}:</span>
-                  <span class="seller-value">{{ product.phone }}</span>
+                  <a 
+                    class="seller-value"
+                    [href]="'tel:' + product.phone"
+                    itemprop="telephone"
+                    [attr.aria-label]="'დარეკვა: ' + product.phone">
+                    {{ product.phone }}
+                  </a>
                 </div>
                 
                 <div class="seller-detail" *ngIf="product.email && product.email !== ('PRODUCT_DETAILS.INFO.NOT_SPECIFIED' | translate)">
-                  <mat-icon class="seller-icon">email</mat-icon>
+                  <mat-icon class="seller-icon" aria-hidden="true">email</mat-icon>
                   <span class="seller-label">{{ 'PRODUCT_DETAILS.SELLER_EMAIL' | translate }}:</span>
-                  <span class="seller-value">{{ product.email }}</span>
+                  <a 
+                    class="seller-value"
+                    [href]="'mailto:' + product.email"
+                    itemprop="email"
+                    [attr.aria-label]="'იმეილი: ' + product.email">
+                    {{ product.email }}
+                  </a>
                 </div>
+
               </div>
-            </div>
+            </section>
+
           </mat-card-content>
 
           <!-- Contact Actions -->
@@ -199,8 +285,9 @@
               color="primary" 
               class="contact-button"
               *ngIf="product.phone && product.phone !== ('PRODUCT_DETAILS.INFO.NOT_SPECIFIED' | translate)"
-              (click)="callPhone()">
-              <mat-icon>phone</mat-icon>
+              (click)="callPhone()"
+              [attr.aria-label]="('PRODUCT_DETAILS.ACTIONS.CALL' | translate) + ': ' + product.phone">
+              <mat-icon aria-hidden="true">phone</mat-icon>
               <span>{{ 'PRODUCT_DETAILS.ACTIONS.CALL' | translate }}</span>
             </button>
             
@@ -209,62 +296,96 @@
               color="accent"
               class="contact-button"
               *ngIf="product.email && product.email !== ('PRODUCT_DETAILS.INFO.NOT_SPECIFIED' | translate)"
-              (click)="sendEmail()">
-              <mat-icon>email</mat-icon>
+              (click)="sendEmail()"
+              [attr.aria-label]="('PRODUCT_DETAILS.ACTIONS.EMAIL' | translate) + ': ' + product.email">
+              <mat-icon aria-hidden="true">email</mat-icon>
               <span>{{ 'PRODUCT_DETAILS.ACTIONS.EMAIL' | translate }}</span>
             </button>
-             <button 
+
+            <button 
               mat-raised-button 
               color="accent"
               class="contact-button"
-              (click)="shareProduct()">
-              <mat-icon>share</mat-icon>
+              (click)="shareProduct()"
+              [attr.aria-label]="'PRODUCT_DETAILS.ACTIONS.SHARE' | translate">
+              <mat-icon aria-hidden="true">share</mat-icon>
               <span>{{ 'PRODUCT_DETAILS.ACTIONS.SHARE' | translate }}</span>
             </button>
           </mat-card-actions>
+
           <mat-card-actions class="message-action">
             <button 
               mat-raised-button 
               color="warn"
               class="message-button"
-              (click)="openMessageDialog()">
-              <mat-icon>chat</mat-icon>
+              (click)="openMessageDialog()"
+              [attr.aria-label]="'PRODUCT_DETAILS.SEND_MESSAGE' | translate">
+              <mat-icon aria-hidden="true">chat</mat-icon>
               <span>{{ 'PRODUCT_DETAILS.SEND_MESSAGE' | translate }}</span>
             </button>
           </mat-card-actions>
+
         </mat-card>
-      </div>
+      </main>
     </div>
   </div>
 
-  <!-- Image Modal for Full Screen View -->
-  <div class="image-modal" *ngIf="showImageModal" (click)="closeImageModal()">
-    <div class="modal-backdrop"></div>
+  <!-- ══════════════════════════════════════════ -->
+  <!-- Image Modal                                -->
+  <!-- ══════════════════════════════════════════ -->
+  <div 
+    class="image-modal" 
+    *ngIf="showImageModal" 
+    (click)="closeImageModal()"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="product?.title + ' - სურათების სრული ხედი'"
+    aria-live="polite">
+
+    <div class="modal-backdrop" aria-hidden="true"></div>
+
     <div class="modal-content" (click)="$event.stopPropagation()">
-      <button class="modal-close" (click)="closeImageModal()">
-        <mat-icon>close</mat-icon>
+      <button 
+        class="modal-close" 
+        (click)="closeImageModal()"
+        aria-label="დახურვა">
+        <mat-icon aria-hidden="true">close</mat-icon>
       </button>
       
-      <div class="modal-navigation" *ngIf="productImages.length > 1">
-        <button class="nav-button prev" (click)="prevModalImage()" [disabled]="currentModalIndex === 0">
-          <mat-icon>chevron_left</mat-icon>
+      <nav class="modal-navigation" *ngIf="productImages.length > 1" aria-label="სურათების გადართვა">
+        <button 
+          class="nav-button prev" 
+          (click)="prevModalImage()" 
+          [disabled]="currentModalIndex === 0"
+          aria-label="წინა სურათი">
+          <mat-icon aria-hidden="true">chevron_left</mat-icon>
         </button>
-        <button class="nav-button next" (click)="nextModalImage()" [disabled]="currentModalIndex === productImages.length - 1">
-          <mat-icon>chevron_right</mat-icon>
+        <button 
+          class="nav-button next" 
+          (click)="nextModalImage()" 
+          [disabled]="currentModalIndex === productImages.length - 1"
+          aria-label="შემდეგი სურათი">
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
         </button>
-      </div>
+      </nav>
       
       <div class="modal-image-container">
         <img 
           [src]="productImages[currentModalIndex]" 
-          [alt]="product?.title + ' - ' + ('PRODUCT_DETAILS.IMAGE' | translate) + ' ' + (currentModalIndex + 1)"
+          [alt]="product?.title + ' - სურათი ' + (currentModalIndex + 1) + ' ' + productImages.length + '-დან'"
           class="modal-image"
-          (error)="onImageError($event)" />
+          (error)="onImageError($event)"
+          loading="eager" />
       </div>
       
-      <div class="modal-indicator" *ngIf="productImages.length > 1">
+      <div 
+        class="modal-indicator" 
+        *ngIf="productImages.length > 1"
+        role="status"
+        aria-live="polite">
         {{ currentModalIndex + 1 }} / {{ productImages.length }}
       </div>
     </div>
   </div>
+
 </div>

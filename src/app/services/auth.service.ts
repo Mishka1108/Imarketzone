@@ -27,6 +27,9 @@ export class AuthService {
   private apiUrl = environment.apiUrl;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+profileEditVisible: boolean = false;
+
+
 
   constructor(
     private http: HttpClient,
@@ -36,6 +39,9 @@ export class AuthService {
     this.loadUserFromStorage();
   }
 
+
+
+  
   private isBrowser(): boolean {
     return isPlatformBrowser(this.platformId);
   }
