@@ -274,18 +274,32 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   // Lifecycle
   // ══════════════════════════════════════════════════════════════════════════
 
-  ngOnInit(): void {
-    const rawSlug = this.route.snapshot.paramMap.get('slug');
+ngOnInit(): void {
+  // ✅ Resolver-იდან პირდაპირ მიიღება - SSR-ში სერვერზე უკვე ჩატვირთულია
+  const resolvedData = this.route.snapshot.data['productData'];
 
-    if (!rawSlug || rawSlug.trim() === '') {
-      console.error('❌ პროდუქტის Slug არ არის მოძიებული');
-      this.error = 'პროდუქტის Slug არ არის მითითებული';
+  if (resolvedData) {
+    // Resolver-მა წარმატებით დააბრუნა პროდუქტი
+    this.product = resolvedData.product || resolvedData;
+
+    if (this.product) {
+      this.productImages = this.getAllProductImages(this.product);
+      this.setSEOData(this.product);  // ← SSR-ში meta tags სერვერზე დაიყენება
       this.isLoading = false;
-      return;
+      this.loadProductViews();        // ← views მხოლოდ client-ზე
+    } else {
+      this.handleNoProductFound();
     }
-
-    this.tryLoadProduct(rawSlug);
+  } else {
+    // Resolver ვერ მოიძია (fallback)
+    const rawSlug = this.route.snapshot.paramMap.get('slug');
+    if (rawSlug) {
+      this.tryLoadProduct(rawSlug);
+    } else {
+      this.handleNoProductFound();
+    }
   }
+}
 
   ngOnDestroy(): void {
     this.destroy$.next();

@@ -1,13 +1,17 @@
-// app.config.ts - COMPATIBLE VERSION
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors, HttpClient } from '@angular/common/http';
+import {
+  provideHttpClient,
+  withInterceptors,
+  withFetch,
+  HttpClient
+} from '@angular/common/http';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { httpErrorInterceptor } from './interceptors/http-error.interceptor';
 import { routes } from './app.routes';
 import { Observable } from 'rxjs';
 
-// ✅ Custom Translation Loader (Compatible with all versions)
 export class CustomTranslateLoader implements TranslateLoader {
   constructor(private http: HttpClient) {}
 
@@ -16,7 +20,6 @@ export class CustomTranslateLoader implements TranslateLoader {
   }
 }
 
-// ✅ Factory function
 export function createTranslateLoader(http: HttpClient) {
   return new CustomTranslateLoader(http);
 }
@@ -24,10 +27,16 @@ export function createTranslateLoader(http: HttpClient) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
+
+    // ✅ SSR Hydration - კლიენტზე სერვერის HTML-ს სწორად აღადგენს
+    provideClientHydration(withEventReplay()),
+
+    // ✅ withFetch() - SSR-ში fetch API-ს იყენებს (XMLHttpRequest SSR-ში არ მუშაობს)
     provideHttpClient(
+      withFetch(),
       withInterceptors([httpErrorInterceptor])
     ),
-    // ✅ Translation configuration with custom loader
+
     importProvidersFrom(
       TranslateModule.forRoot({
         defaultLanguage: 'ka',

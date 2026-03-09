@@ -1,28 +1,32 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProfileImageService {
-  // ✅ Default avatar URL
   private readonly DEFAULT_AVATAR = 'https://i.ibb.co/GvshXkLK/307ce493-b254-4b2d-8ba4-d12c080d6651.jpg';
-  
+
   private profileImageSubject = new BehaviorSubject<string>(this.DEFAULT_AVATAR);
   public profileImage$: Observable<string> = this.profileImageSubject.asObservable();
 
-  constructor() {
-    // ✅ Load saved avatar from localStorage if exists
-    const savedAvatar = localStorage.getItem('userAvatar');
-    if (savedAvatar && savedAvatar.trim() !== '') {
-      this.profileImageSubject.next(savedAvatar);
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+    // ✅ localStorage მხოლოდ browser-ში
+    if (isPlatformBrowser(this.platformId)) {
+      const savedAvatar = localStorage.getItem('userAvatar');
+      if (savedAvatar && savedAvatar.trim() !== '') {
+        this.profileImageSubject.next(savedAvatar);
+      }
     }
   }
 
   updateProfileImage(imageUrl: string): void {
     if (imageUrl && imageUrl.trim() !== '') {
       this.profileImageSubject.next(imageUrl);
-      localStorage.setItem('userAvatar', imageUrl);
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.setItem('userAvatar', imageUrl);
+      }
     }
   }
 
@@ -36,6 +40,8 @@ export class ProfileImageService {
 
   resetToDefault(): void {
     this.profileImageSubject.next(this.DEFAULT_AVATAR);
-    localStorage.removeItem('userAvatar');
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('userAvatar');
+    }
   }
 }

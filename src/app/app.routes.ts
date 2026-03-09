@@ -9,6 +9,7 @@ import { LoginComponent } from './login/login.component';
 import { ForgotpasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { RulesComponent } from './rules/rules.component';
+import { productResolver } from './resolvers/resolvers.component';
 
 export const routes: Routes = [
   {
@@ -31,8 +32,7 @@ export const routes: Routes = [
       }
     ]
   },
-  
-  // ✅ COMPLETE PROFILE ROUTE - Google რეგისტრაციის შემდეგ
+
   {
     path: 'complete-profile',
     loadComponent: () =>
@@ -40,13 +40,14 @@ export const routes: Routes = [
     canActivate: [() => authGuard()],
     title: 'პროფილის შევსება - MarketZone'
   },
-  
+
   {
     path: 'dashboard',
     loadComponent: () =>
       import('./dashboard/dashboard.component').then((m) => m.DashboardComponent),
     canActivate: [() => authGuard()]
   },
+
   {
     path: 'admin',
     children: [
@@ -63,43 +64,43 @@ export const routes: Routes = [
       }
     ]
   },
+
   { path: '', component: HomeComponent },
   { path: 'home', component: HomeComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'login', component: LoginComponent },
   { path: 'public-products', component: PublicProductsComponent },
-  
-  // ✅ ახალი slug-based URL (მხოლოდ slug)
-  { 
-    path: 'product-details/:slug', 
+
+  // ✅ Resolver დამატებულია - SSR-ში პროდუქტი HTML-ში ჩაიშენება
+  {
+    path: 'product-details/:slug',
     component: ProductDetailsComponent,
-    runGuardsAndResolvers: 'paramsOrQueryParamsChange'
+    resolve: { productData: productResolver },
+    runGuardsAndResolvers: 'paramsOrQueryParamsChange',
+    title: 'პროდუქტი - Imarketzone'
   },
-  
-  // ✅ ძველი URL-ების redirect (უკუთავსებადობისთვის)  
-  { 
-    path: 'product/:id/:slug', 
-    redirectTo: '/product-details/:slug', 
-    pathMatch: 'full' 
+
+  // ✅ ძველი URL რედირექტები
+  {
+    path: 'product/:id/:slug',
+    redirectTo: '/product-details/:slug',
+    pathMatch: 'full'
   },
-  { 
-    path: 'products/:id/:slug', 
-    redirectTo: '/product-details/:slug', 
-    pathMatch: 'full' 
+  {
+    path: 'products/:id/:slug',
+    redirectTo: '/product-details/:slug',
+    pathMatch: 'full'
   },
-  
-  // ✅ ID-only რედირექტი (ძველი ლინკები)
-  { 
-    path: 'product-details/:id/:slug', 
-    redirectTo: '/product-details/:slug', 
-    pathMatch: 'full' 
+  {
+    path: 'product-details/:id/:slug',
+    redirectTo: '/product-details/:slug',
+    pathMatch: 'full'
   },
-  
+
   { path: 'forgot-password', component: ForgotpasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'auth/reset-password/:token', component: ResetPasswordComponent },
   { path: 'rules', component: RulesComponent },
 
-  // ✅ Wildcard route - ბოლოში
   { path: '**', redirectTo: '/home' }
 ];

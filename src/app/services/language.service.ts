@@ -1,5 +1,5 @@
-// src/app/services/language.service.ts
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -10,19 +10,27 @@ export class LanguageService {
   private currentLangSubject = new BehaviorSubject<string>('ka');
   public currentLang$ = this.currentLangSubject.asObservable();
 
-  constructor(private translate: TranslateService) {
-    // Load saved language or default to Georgian
-    const savedLang = localStorage.getItem('selectedLanguage') || 'ka';
+  constructor(
+    private translate: TranslateService,
+    @Inject(PLATFORM_ID) private platformId: Object  // ✅ დამატება
+  ) {
+    // ✅ localStorage მხოლოდ browser-ში
+    const savedLang = isPlatformBrowser(this.platformId)
+      ? (localStorage.getItem('selectedLanguage') || 'ka')
+      : 'ka';
+
     this.setLanguage(savedLang);
   }
 
   setLanguage(lang: string): void {
     this.translate.use(lang);
     this.currentLangSubject.next(lang);
-    localStorage.setItem('selectedLanguage', lang);
-    
-    // Update HTML lang attribute for accessibility
-    document.documentElement.lang = lang;
+
+    // ✅ localStorage და document მხოლოდ browser-ში
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('selectedLanguage', lang);
+      document.documentElement.lang = lang;
+    }
   }
 
   getCurrentLanguage(): string {
