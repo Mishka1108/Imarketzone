@@ -4,12 +4,12 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build && ng run Imarketzone:server",
+    "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:Imarketzone": "node dist/imarketzone/server/server.mjs",
+    "serve:ssr:Imarketzone": "node dist/imarketzone/browser/server/server.mjs",
     "build:ssr": "ng build && ng run Imarketzone:server",
-    "serve:ssr": "node dist/imarketzone/server/server.mjs",
+    "serve:ssr": "node dist/imarketzone/server/main.js",
     "prerender": "ng run Imarketzone:prerender"
   },
   "private": true,
