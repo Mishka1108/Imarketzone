@@ -1,5 +1,17 @@
 {
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "version": 2,
+  "buildCommand": "ng build && ng run Imarketzone:server",
+  "outputDirectory": "dist/imarketzone",
+  "builds": [
+    {
+      "src": "dist/imarketzone/server/server.mjs",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/imarketzone/server/server.mjs"
+    }
   ]
 }
