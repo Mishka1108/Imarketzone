@@ -1,0 +1,129 @@
+<div class="qr-generator-container">
+  <div class="header">
+    <h2>{{ 'QR.TITLE' | translate }}</h2>
+    <p class="subtitle">{{ 'QR.SUBTITLE' | translate }}</p>
+  </div>
+  
+  <div class="input-section">
+    <div class="form-group">
+      <label for="qrInput">{{ 'QR.INPUT_LABEL' | translate }}</label>
+      <textarea 
+        id="qrInput"
+        [(ngModel)]="qrCodeValue" 
+        [placeholder]="'QR.INPUT_PLACEHOLDER' | translate"
+        rows="3"
+        (input)="generateQRCode($any($event.target).value)"
+      ></textarea>
+    </div>
+    
+    <div class="settings-row">
+      <div class="form-group">
+        <label for="sizeRange">
+          {{ 'QR.SIZE_LABEL' | translate }} <span class="value-badge">{{ qrCodeSize }}px</span>
+        </label>
+        <input id="sizeRange" type="range" [(ngModel)]="qrCodeSize" min="128" max="512" step="64" class="range-slider"/>
+        <div class="range-labels">
+          <span>128px</span>
+          <span>512px</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="errorLevel">{{ 'QR.ERROR_LEVEL_LABEL' | translate }}</label>
+        <select id="errorLevel" [(ngModel)]="errorCorrectionLevel" class="select-input">
+          <option value="L">{{ 'QR.ERROR_LOW' | translate }}</option>
+          <option value="M">{{ 'QR.ERROR_MEDIUM' | translate }}</option>
+          <option value="Q">{{ 'QR.ERROR_HIGH' | translate }}</option>
+          <option value="H">{{ 'QR.ERROR_HIGHEST' | translate }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="logo-section">
+      <div class="form-group">
+        <label for="logoInput">
+          <span class="icon">🖼️</span>
+          {{ 'QR.LOGO_LABEL' | translate }}
+        </label>
+        <div class="logo-upload-container">
+          <input type="file" id="logoInput" accept="image/*" (change)="onFileSelected($event)" #fileInput style="display: none;"/>
+          
+          <button type="button" (click)="fileInput.click()" class="btn btn-upload" *ngIf="!logoImage">
+            <span class="icon">📁</span>
+            {{ 'QR.CHOOSE_FILE' | translate }}
+          </button>
+          
+          <div class="logo-preview" *ngIf="logoImage">
+            <img [src]="logoImage" alt="Logo Preview" />
+            <button type="button" (click)="removeLogo()" class="btn btn-remove">
+              <span class="icon">❌</span>
+              {{ 'QR.REMOVE' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="logoImage">
+        <label for="logoSizeRange">
+          {{ 'QR.LOGO_SIZE_LABEL' | translate }} <span class="value-badge">{{ logoSize }}px</span>
+        </label>
+        <input id="logoSizeRange" type="range" [(ngModel)]="logoSize" min="40" max="100" step="10" class="range-slider" (input)="addLogoToQR()"/>
+        <div class="range-labels">
+          <span>{{ 'QR.LOGO_SIZE_SMALL' | translate }}</span>
+          <span>{{ 'QR.LOGO_SIZE_LARGE' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="qr-display-section" *ngIf="qrCodeValue">
+    <div class="qr-wrapper">
+      <div class="qr-canvas">
+        <qrcode 
+          [qrdata]="qrCodeValue" 
+          [width]="qrCodeSize" 
+          [errorCorrectionLevel]="errorCorrectionLevel"
+          [elementType]="'canvas'"
+          [margin]="2"
+          (qrCodeURL)="logoImage ? addLogoToQR() : null"
+        ></qrcode>
+      </div>
+      
+      <div class="qr-info">
+        <p class="info-text">
+          <strong>{{ 'QR.CONTENT_LABEL' | translate }}</strong> 
+          <span class="content-preview">{{ qrCodeValue.length > 50 ? (qrCodeValue | slice:0:50) + '...' : qrCodeValue }}</span>
+        </p>
+        <p class="info-text">
+          <strong>{{ 'QR.CHARS_LABEL' | translate }}</strong> {{ qrCodeValue.length }}
+        </p>
+        <p class="info-text" *ngIf="logoImage">
+          <strong>{{ 'QR.LOGO_STATUS' | translate }}</strong> <span class="success-badge">{{ 'QR.LOGO_ADDED' | translate }}</span>
+        </p>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <button (click)="downloadPDF()" class="btn btn-primary">
+        <span class="icon">📄</span>
+        {{ 'QR.DOWNLOAD_PDF' | translate }}
+      </button>
+      
+      <button (click)="downloadImage()" class="btn btn-secondary">
+        <span class="icon">🖼️</span>
+        {{ 'QR.DOWNLOAD_PNG' | translate }}
+      </button>
+      
+      <button (click)="clearQRCode()" class="btn btn-danger">
+        <span class="icon">🗑️</span>
+        {{ 'QR.CLEAR' | translate }}
+      </button>
+    </div>
+  </div>
+  
+  <div class="empty-state" *ngIf="!qrCodeValue">
+    <div class="empty-icon">📱</div>
+    <p>{{ 'QR.EMPTY_TEXT' | translate }}</p>
+    <p class="hint">{{ 'QR.EMPTY_HINT' | translate }}</p>
+  </div>
+</div>

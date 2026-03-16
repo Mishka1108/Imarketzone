@@ -43,7 +43,14 @@
             routerLink="rules">
       {{ 'NAV.RULES' | translate }}
     </button>
-  </div>
+      <button mat-raised-button 
+            class="btn" 
+            routerLinkActive="active" 
+            (click)="closeMenu()" 
+            routerLink="qrcode">
+      {{ 'NAV.QRCODE' | translate}}
+    </button>
+  </div> 
 
   <!-- ✨ BEAUTIFUL LANGUAGE TRANSLATOR -->
   <div class="translator">

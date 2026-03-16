@@ -5,7 +5,8 @@
     "CONTACT": "Contact",
     "RULES": "Rules",
     "PROFILE": "Profile",
-    "UNREAD_MESSAGES": "Unread Messages"
+    "UNREAD_MESSAGES": "Unread Messages",
+    "QRCODE": "qrcode"
   },
   "NOTIFICATIONS": {
     "NEW_MESSAGE": "New Message",
@@ -523,5 +524,32 @@
     "CONFIRM_MESSAGE": "Are you sure you want to logout?",
     "CANCEL": "Cancel",
     "CONFIRM": "Logout"
+  },
+    "QR": {
+    "TITLE": "QR Code Generator",
+    "SUBTITLE": "Generate a QR code with logo or image",
+    "INPUT_LABEL": "Enter text or URL:",
+    "INPUT_PLACEHOLDER": "e.g. https://example.com or any text...",
+    "SIZE_LABEL": "Size:",
+    "ERROR_LEVEL_LABEL": "Error correction:",
+    "ERROR_LOW": "Low (7%)",
+    "ERROR_MEDIUM": "Medium (15%)",
+    "ERROR_HIGH": "High (25%)",
+    "ERROR_HIGHEST": "Very High (30%) - Recommended for logo",
+    "LOGO_LABEL": "Add logo/image (optional):",
+    "CHOOSE_FILE": "Choose image",
+    "REMOVE": "Remove",
+    "LOGO_SIZE_LABEL": "Logo size:",
+    "LOGO_SIZE_SMALL": "Small",
+    "LOGO_SIZE_LARGE": "Large",
+    "CONTENT_LABEL": "Content:",
+    "CHARS_LABEL": "Character count:",
+    "LOGO_ADDED": "✓ Added",
+    "LOGO_STATUS": "Logo:",
+    "DOWNLOAD_PDF": "Download PDF",
+    "DOWNLOAD_PNG": "Download PNG",
+    "CLEAR": "Clear",
+    "EMPTY_TEXT": "Enter text or URL to generate a QR code",
+    "EMPTY_HINT": "💡 You can also add a logo to the center of the QR code!"
   }
 }

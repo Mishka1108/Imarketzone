@@ -5,7 +5,8 @@
     "CONTACT": "დაკავშირება",
     "RULES": "წესები",
     "PROFILE": "პროფილი",
-    "UNREAD_MESSAGES": "წაუკითხავი შეტყობინება"
+    "UNREAD_MESSAGES": "წაუკითხავი შეტყობინება",
+    "QRCODE" :"QR-კოდი"
   },
   "NOTIFICATIONS": {
     "NEW_MESSAGE": "ახალი შეტყობინება",
@@ -577,6 +578,33 @@
     "CONFIRM_MESSAGE": "დარწმუნებული ხართ, რომ გსურთ პროფილიდან გასვლა?",
     "CANCEL": "გაუქმება",
     "CONFIRM": "გასვლა"
+  },
+   "QR": {
+    "TITLE": "QR კოდის გენერატორი",
+    "SUBTITLE": "შექმენით QR კოდი ლოგოთი ან სურათით",
+    "INPUT_LABEL": "შეიყვანეთ ტექსტი ან URL:",
+    "INPUT_PLACEHOLDER": "მაგ: https://example.com ან ნებისმიერი ტექსტი...",
+    "SIZE_LABEL": "ზომა:",
+    "ERROR_LEVEL_LABEL": "შეცდომის კორექცია:",
+    "ERROR_LOW": "დაბალი (7%)",
+    "ERROR_MEDIUM": "საშუალო (15%)",
+    "ERROR_HIGH": "მაღალი (25%)",
+    "ERROR_HIGHEST": "ძალიან მაღალი (30%) - რეკომენდებული ლოგოსთვის",
+    "LOGO_LABEL": "ლოგო/სურათის დამატება (არჩევითი):",
+    "CHOOSE_FILE": "სურათის არჩევა",
+    "REMOVE": "წაშლა",
+    "LOGO_SIZE_LABEL": "ლოგოს ზომა:",
+    "LOGO_SIZE_SMALL": "მცირე",
+    "LOGO_SIZE_LARGE": "დიდი",
+    "CONTENT_LABEL": "შემცველობა:",
+    "CHARS_LABEL": "სიმბოლოების რაოდენობა:",
+    "LOGO_ADDED": "✓ დამატებულია",
+    "LOGO_STATUS": "ლოგო:",
+    "DOWNLOAD_PDF": "PDF-ად გადმოწერა",
+    "DOWNLOAD_PNG": "PNG-ად გადმოწერა",
+    "CLEAR": "გასუფთავება",
+    "EMPTY_TEXT": "შეიყვანეთ ტექსტი ან URL QR კოდის გენერაციისთვის",
+    "EMPTY_HINT": "💡 შეგიძლიათ დაამატოთ ლოგოც QR კოდის ცენტრში!"
   }
 }
 

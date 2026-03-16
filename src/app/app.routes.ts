@@ -10,6 +10,7 @@ import { ForgotpasswordComponent } from './forgot-password/forgot-password.compo
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { RulesComponent } from './rules/rules.component';
 import { productResolver } from './resolvers/resolvers.component';
+import { QrCodeComponent } from './qr-code/qr-code.component';
 
 export const routes: Routes = [
   {
@@ -101,6 +102,9 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'auth/reset-password/:token', component: ResetPasswordComponent },
   { path: 'rules', component: RulesComponent },
+  {
+    path: 'qrcode', component: QrCodeComponent
+  },
 
   { path: '**', redirectTo: '/home' }
 ];
