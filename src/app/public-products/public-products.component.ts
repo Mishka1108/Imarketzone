@@ -1,5 +1,5 @@
-import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, ViewChild, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,6 +17,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CityTranslatePipe } from '../pipes/city-translate.pipe';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
+import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-public-products',
@@ -48,12 +49,10 @@ export class PublicProductsComponent implements OnInit {
   isLoading: boolean = true;
   pibliccurrentUser: User | null = null;
   
-  // Pagination პარამეტრები
   pageSize: number = 10;
   pageIndex: number = 0;
   totalProducts: number = 0;
   
-  // ფილტრების პარამეტრები  
   searchTerm: string = '';
   selectedCategory: string = '';
   selectedCity: string = '';
@@ -61,14 +60,8 @@ export class PublicProductsComponent implements OnInit {
   maxPrice: number | null = null;
   filteredCities: string[] = [];
   
-  // კატეგორიების სია
   categories: string[] = [
-    'ტელეფონები',
-    'ტექნიკა',
-    'ავტომობილები',
-    'ტანსაცმელი',
-    'სათამაშოები',
-    'კომპიუტერები'
+    'ტელეფონები', 'ტექნიკა', 'ავტომობილები', 'ტანსაცმელი', 'სათამაშოები', 'კომპიუტერები'
   ];
   
   public cities: string[] = [
@@ -87,10 +80,15 @@ export class PublicProductsComponent implements OnInit {
     private router: Router,
     private snackBar: MatSnackBar,
     private route: ActivatedRoute,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private meta: Meta,
+    private title: Title,
+    @Inject(PLATFORM_ID) private platformId: Object,
+    @Inject(DOCUMENT) private document: Document
   ) {}
 
   ngOnInit(): void {
+    this.setupSEO();
     this.route.queryParams.subscribe(params => {
       if (params['category']) {
         this.selectedCategory = params['category'];
@@ -103,16 +101,38 @@ export class PublicProductsComponent implements OnInit {
     this.filterCities();
   }
 
-  // Pagination ივენთის დამუშავება
+  private setupSEO(): void {
+    this.title.setTitle('პროდუქტები საქართველოში | ყიდვა გაყიდვა - iMarketZone');
+    
+    this.meta.updateTag({ name: 'description', content: 'იპოვე სასურველი პროდუქტი iMarketZone-ზე - ტელეფონები, ავტომობილები, ტექნიკა, ტანსაცმელი და ათასობით სხვა განცხადება საქართველოში.' });
+    this.meta.updateTag({ name: 'keywords', content: 'პროდუქტები საქართველოში, ყიდვა გაყიდვა, განცხადებები, ტელეფონები, ავტომობილები, ტექნიკა, imarketzone' });
+    this.meta.updateTag({ name: 'robots', content: 'index, follow' });
+    
+    this.meta.updateTag({ property: 'og:title', content: 'პროდუქტები საქართველოში | iMarketZone' });
+    this.meta.updateTag({ property: 'og:description', content: 'იპოვე სასურველი პროდუქტი iMarketZone-ზე - ყიდვა გაყიდვა მარტივად!' });
+    this.meta.updateTag({ property: 'og:url', content: 'https://imarketzone.ge/public-products' });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+
+    if (isPlatformBrowser(this.platformId)) {
+      let canonical = this.document.querySelector('link[rel="canonical"]');
+      if (canonical) {
+        canonical.setAttribute('href', 'https://imarketzone.ge/public-products');
+      } else {
+        const link = this.document.createElement('link');
+        link.setAttribute('rel', 'canonical');
+        link.setAttribute('href', 'https://imarketzone.ge/public-products');
+        this.document.head.appendChild(link);
+      }
+    }
+  }
+
   onPageChange(event: PageEvent): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
     this.loadProducts();
-    // გვერდის ზემოთ სქროლი
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // განახლებული loadProducts ფუნქცია pagination-ით
   loadProducts(): void {
     this.isLoading = true;
 
@@ -131,7 +151,6 @@ export class PublicProductsComponent implements OnInit {
       next: (response) => {
         let productsArray: Product[] = [];
 
-        // Response handling
         if (response?.success && Array.isArray(response.data)) {
           productsArray = response.data;
           this.totalProducts = response.total || response.count || productsArray.length;
@@ -156,7 +175,6 @@ export class PublicProductsComponent implements OnInit {
           return;
         }
 
-        // ID normalization
         productsArray = productsArray.map(product => ({
           ...product,
           id: product.id || product._id || product.productId || product.product_id || '',
@@ -165,10 +183,6 @@ export class PublicProductsComponent implements OnInit {
         }));
 
         this.products = productsArray;
-        
-        const productsWithViews = this.products.filter(p => this.getViewCount(p) > 0);
-
-
         this.isLoading = false;
       },
       error: (error) => {
@@ -183,9 +197,8 @@ export class PublicProductsComponent implements OnInit {
     });
   }
 
-  // ფილტრების გამოყენება
   applyFilters(): void {
-    this.pageIndex = 0; // ფილტრის შემდეგ პირველ გვერდზე დაბრუნება
+    this.pageIndex = 0;
     if (this.paginator) {
       this.paginator.firstPage();
     }
@@ -193,7 +206,6 @@ export class PublicProductsComponent implements OnInit {
     this.filterCities();
   }
 
-  // ძიების გასუფთავება
   clearSearch(): void {
     this.searchTerm = '';
     this.applyFilters();
@@ -206,7 +218,6 @@ export class PublicProductsComponent implements OnInit {
     );
   }
 
-  // ფილტრების გასუფთავება
   resetFilters(): void {
     this.searchTerm = '';
     this.selectedCategory = '';
@@ -220,7 +231,6 @@ export class PublicProductsComponent implements OnInit {
     this.loadProducts();
   }
 
-  // პროდუქტის დეტალების გახსნა
   openProductDetails(product: Product): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     const productId = this.getProductId(product);
@@ -234,11 +244,10 @@ export class PublicProductsComponent implements OnInit {
     }
 
     const slug = this.generateSlug(product.title);
-    
     this.router.navigate(['/product-details', productId, slug]);
     
     this.productService.recordView(productId).subscribe({
-      next: (response) => {
+      next: () => {
         const productIndex = this.products.findIndex(p => this.getProductId(p) === productId);
         if (productIndex !== -1) {
           const currentViews = this.getViewCount(this.products[productIndex]);
@@ -284,50 +293,31 @@ export class PublicProductsComponent implements OnInit {
     const images = this.getAllProductImages(product);
     return images.slice(1, 4);
   }
- 
+
   getAllProductImages(product: Product): string[] {
     const images: string[] = [];
     
-    if (product.image) {
-      images.push(product.image);
-    }
+    if (product.image) images.push(product.image);
     
     if (product.images && Array.isArray(product.images)) {
       product.images.forEach(image => {
-        if (image && !images.includes(image)) {
-          images.push(image);
-        }
+        if (image && !images.includes(image)) images.push(image);
       });
     }
     
     [product.productImage1, product.productImage2, product.productImage3].forEach(image => {
-      if (image && !images.includes(image)) {
-        images.push(image);
-      }
+      if (image && !images.includes(image)) images.push(image);
     });
     
     const limitedImages = images.slice(0, 3);
-    
-    if (limitedImages.length === 0) {
-      limitedImages.push('assets/images/placeholder.jpg');
-    }
+    if (limitedImages.length === 0) limitedImages.push('assets/images/placeholder.jpg');
     
     return limitedImages;
   }
 
   getViewCount(product: Product): number {
-    if (!product) {
-      console.warn('⚠️ Product is null/undefined');
-      return 0;
-    }
-
-    const viewCount = product.viewCount || product.views || 0;
-    
-    if (viewCount > 0) {
-    
-    }
-    
-    return viewCount;
+    if (!product) return 0;
+    return product.viewCount || product.views || 0;
   }
 
   formatViewCount(count: number): string {

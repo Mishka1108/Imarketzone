@@ -8,6 +8,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { DOCUMENT } from '@angular/common';
 
 // PrimeNG Imports
 import { CarouselModule } from 'primeng/carousel';
@@ -60,14 +61,15 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
  popularSwiperInstance: Swiper | null = null;
   
   constructor(
-    private router: Router, 
+     private router: Router, 
     private seoService: SeoService,
     private productService: ProductService,
     private meta: Meta,
     private title: Title,
     private snackBar: MatSnackBar,
     private translate: TranslateService,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    @Inject(DOCUMENT) private document: Document
   ) {
     this.responsiveOptions = [
       { breakpoint: '1400px', numVisible: 4, numScroll: 1 },
@@ -187,8 +189,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.meta.updateTag({ name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' });
     this.meta.updateTag({ name: 'googlebot', content: 'index, follow' });
     
-    // Canonical URL
-    this.meta.updateTag({ rel: 'canonical', href: 'https://imarketzone.ge/' });
+
     
     // Open Graph
     this.meta.updateTag({ property: 'og:locale', content: 'ka_GE' });

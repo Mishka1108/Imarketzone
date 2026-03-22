@@ -158,27 +158,27 @@
         </div>
       </div>
       
-      <div class="btndiv">
-        <button 
-          mat-flat-button 
-          class="btn add-product-btn" 
-          (click)="toggleProductForm()" 
-          [disabled]="(!canAddMoreProducts() && !productFormVisible) || isLoadingProducts || isUploading || !currentUser?.phone || !currentUser?.personalNumber"
-          [ngClass]="{
-            'btn-disabled': (!canAddMoreProducts() && !productFormVisible) || isLoadingProducts || (!currentUser?.phone || !currentUser?.personalNumber),
-            'btn-close': productFormVisible,
-            'btn-add': !productFormVisible && canAddMoreProducts(),
-            'btn-loading': isLoadingProducts
-          }">
-          
-          <span *ngIf="isLoadingProducts">⏳ {{ 'PROFILE.LOADING' | translate }}...</span>
-          <span *ngIf="isUploading && !isLoadingProducts">📤 {{ 'PROFILE.UPLOADING' | translate }}...</span>
-          <span *ngIf="!isLoadingProducts && !isUploading && productFormVisible">❌ {{ 'PROFILE.CLOSE_FORM' | translate }}</span>
-          <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && canAddMoreProducts() && currentUser?.phone && currentUser?.personalNumber">➕ {{ 'PROFILE.ADD_PRODUCT' | translate }}</span>
-          <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && !canAddMoreProducts()">🚫 {{ 'PROFILE.LIMIT_REACHED_SHORT' | translate }}</span>
-          <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && canAddMoreProducts() && (!currentUser?.phone || !currentUser?.personalNumber)">⚠️ შეავსეთ პროფილი</span>
-        </button>
-      </div>
+<div class="btndiv">
+  <button 
+    mat-flat-button 
+    class="btn add-product-btn" 
+    (click)="toggleProductForm()" 
+    [disabled]="(!canAddMoreProducts() && !productFormVisible) || isLoadingProducts || isUploading || !currentUser.phone || !currentUser.personalNumber"
+    [ngClass]="{
+      'btn-disabled': (!canAddMoreProducts() && !productFormVisible) || isLoadingProducts || (!currentUser.phone || !currentUser.personalNumber),
+      'btn-close': productFormVisible,
+      'btn-add': !productFormVisible && canAddMoreProducts(),
+      'btn-loading': isLoadingProducts
+    }">
+    
+    <span *ngIf="isLoadingProducts">⏳ {{ 'PROFILE.LOADING' | translate }}...</span>
+    <span *ngIf="isUploading && !isLoadingProducts">📤 {{ 'PROFILE.UPLOADING' | translate }}...</span>
+    <span *ngIf="!isLoadingProducts && !isUploading && productFormVisible">❌ {{ 'PROFILE.CLOSE_FORM' | translate }}</span>
+    <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && canAddMoreProducts() && currentUser.phone && currentUser.personalNumber">➕ {{ 'PROFILE.ADD_PRODUCT' | translate }}</span>
+    <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && !canAddMoreProducts()">🚫 {{ 'PROFILE.LIMIT_REACHED_SHORT' | translate }}</span>
+    <span *ngIf="!isLoadingProducts && !isUploading && !productFormVisible && canAddMoreProducts() && (!currentUser.phone || !currentUser.personalNumber)">⚠️ შეავსეთ პროფილი</span>
+  </button>
+</div>
     </div>
   </div>
 </div>

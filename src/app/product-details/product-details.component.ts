@@ -59,7 +59,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   // ─── SEO: საიტის ბაზური URL ───────────────────────────────────────────────
-  private readonly SITE_URL = 'https://www.imarketzone.ge';
+  private readonly SITE_URL = 'https://imarketzone.ge';
   private readonly SITE_NAME = 'Imarketzone';
   private readonly FALLBACK_IMAGE = `${this.SITE_URL}/assets/images/placeholder.jpg`;
 
