@@ -91,9 +91,6 @@
   <meta property="og:locale:alternate" content="en_US">
   <meta property="og:locale:alternate" content="ru_RU">
   
-  <!-- Facebook App ID (თუ გაქვთ) -->
-  <!-- <meta property="fb:app_id" content="YOUR_FACEBOOK_APP_ID"> -->
-  
   <!-- ============================================
        TWITTER CARDS
        ============================================ -->
@@ -259,9 +256,42 @@
           "@type": "OfferCatalog",
           "name": "ტელეფონები და აქსესუარები",
           "itemListElement": [
-            {"@type": "Offer", "itemOffered": {"@type": "Product", "name": "iPhone"}},
-            {"@type": "Offer", "itemOffered": {"@type": "Product", "name": "Samsung"}},
-            {"@type": "Offer", "itemOffered": {"@type": "Product", "name": "Xiaomi"}}
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Product",
+                "name": "iPhone",
+                "offers": {
+                  "@type": "Offer",
+                  "priceCurrency": "GEL",
+                  "availability": "https://schema.org/InStock"
+                }
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Product",
+                "name": "Samsung",
+                "offers": {
+                  "@type": "Offer",
+                  "priceCurrency": "GEL",
+                  "availability": "https://schema.org/InStock"
+                }
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Product",
+                "name": "Xiaomi",
+                "offers": {
+                  "@type": "Offer",
+                  "priceCurrency": "GEL",
+                  "availability": "https://schema.org/InStock"
+                }
+              }
+            }
           ]
         },
         {
@@ -316,7 +346,7 @@
         "name": "როგორ გავყიდო პროდუქტი iMarketZone-ზე?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "პროდუქტის გასაყიდად: 1) დარეგისტრირდით უფასოდ (30 წამში), 2) დააჭირეთ 'ახალი განცხადება' ღილაკს, 3) ატვირთეთ პროდუქტის ფოტოები (მინიმუმ 3), 4) შეავსეთ ინფორმაცია (სათაური, აღწერა, ფასი, კატეგორია, ქალაქი), 5) დააჭირეთ 'გამოქვეყნება' და თქვენი განცხადება დაუყოვნებლივ გახდება აქტიური. პირველი 5 განცხადება სრულიად უფასოა!"
+          "text": "პროდუქტის გასაყიდად: 1) დარეგისტრირდით უფასოდ (30 წამში), 2) დააჭირეთ ახალი განცხადება ღილაკს, 3) ატვირთეთ პროდუქტის ფოტოები (მინიმუმ 3), 4) შეავსეთ ინფორმაცია (სათაური, აღწერა, ფასი, კატეგორია, ქალაქი), 5) დააჭირეთ გამოქვეყნება და თქვენი განცხადება დაუყოვნებლივ გახდება აქტიური. პირველი 5 განცხადება სრულიად უფასოა!"
         }
       },
       {
@@ -324,7 +354,7 @@
         "name": "რა კატეგორიების პროდუქტები შემიძლია გავყიდო?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "iMarketZone-ზე შეგიძლიათ გაყიდოთ: • ტელეფონები და აქსესუარები (iPhone, Samsung, Xiaomi, Huawei), • ბითოვი ტექნიკა (მაცივარი, სარეცხი მანქანა, ტელევიზორი, მიკროტალღური), • ავტომობილები (მსუბუქი, სამუშაო, ჯიპები, მოტოციკლები), • ტანსაცმელი და ფეხსაცმელი (ქალბატონებისთვის, მამაკაცებისთვის, ბავშვებისთვის), • სათამაშოები და ბავშვთა ნივთები, • კომპიუტერები, ლეპტოპები და აქსესუარები, • სპორტი და დასვენება, • სახლის ნივთები და ავეჯი, • უძრავი ქონება (ბინები, სახლები, მიწის ნაკვეთები), • სამუშაო ვაკანსიები და სერვისები, და ათასობით სხვა კატეგორია!"
+          "text": "iMarketZone-ზე შეგიძლიათ გაყიდოთ: ტელეფონები და აქსესუარები (iPhone, Samsung, Xiaomi, Huawei), ბითოვი ტექნიკა (მაცივარი, სარეცხი მანქანა, ტელევიზორი), ავტომობილები, ტანსაცმელი, ფეხსაცმელი, სათამაშოები, კომპიუტერები და ათასობით სხვა პროდუქტი."
         }
       },
       {
@@ -332,7 +362,7 @@
         "name": "იხდის თუ არა iMarketZone საკომისიოს?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "არა! iMarketZone-ზე განცხადების განთავსება 100% უფასოა. არ არსებობს: ❌ რეგისტრაციის საფასური, ❌ განცხადების განთავსების საფასური, ❌ საკომისიო გაყიდვიდან. პირველი 5 განცხადება სრულიად უფასოა ყოველთვის!"
+          "text": "არა! iMarketZone-ზე განცხადების განთავსება 100% უფასოა. არ არსებობს რეგისტრაციის საფასური, განცხადების განთავსების საფასური ან საკომისიო გაყიდვიდან."
         }
       },
       {
@@ -340,7 +370,7 @@
         "name": "რამდენი ხნით რჩება განცხადება აქტიური?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "თქვენი განცხადება რჩება აქტიური 30 დღე უფასოდ. ამის შემდეგ შეგიძლიათ: ✅ განაახლოთ განცხადება ერთი დაჭერით უფასოდ (განცხადება კვლავ გახდება აქტიური 30 დღით), ✅ წაშალოთ განცხადება თუ პროდუქტი უკვე გაიყიდა, ✅ დაარედაქტიროთ ფასი, ფოტოები ან სხვა ინფორმაცია."
+          "text": "თქვენი განცხადება რჩება აქტიური 30 დღე უფასოდ. შემდეგ შეგიძლიათ განაახლოთ განცხადება ერთი დაჭერით უფასოდ."
         }
       },
       {
@@ -348,7 +378,7 @@
         "name": "როგორ ვიყიდო პროდუქტი iMarketZone-ზე?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "პროდუქტის საყიდად: 1) გამოიყენეთ ძებნის ველი და ჩაწერეთ რასაც ეძებთ (მაგ: iPhone 15, Toyota Camry, ლეპტოპი), 2) შეარჩიეთ კატეგორია ან ქალაქი გაფილტვრისთვის, 3) დაათვალიერეთ განცხადებები, იხილეთ ფოტოები, ფასები, აღწერილობები, 4) დაუკავშირდით გამყიდველს მითითებული ტელეფონის ნომრით ან მესენჯერით, 5) შეთანხმდით ფასზე, შეხვედრის ადგილზე და დროზე. რჩევა: ყოველთვის ნახეთ პროდუქტი პირადად გადახდამდე!"
+          "text": "გამოიყენეთ ძებნის ველი და მოძებნეთ სასურველი პროდუქტი. დაათვალიერეთ განცხადებები, იხილეთ ფოტოები და დაუკავშირდით გამყიდველს მითითებული საკონტაქტო ინფორმაციით."
         }
       },
       {
@@ -356,7 +386,7 @@
         "name": "უსაფრთხოა თუ არა iMarketZone-ზე ყიდვა გაყიდვა?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "კი, iMarketZone უსაფრთხო პლატფორმაა, მაგრამ რეკომენდებულია: ✅ პროდუქტის პირადად ნახვა გადახდამდე, ✅ საჯარო ადგილას შეხვედრა (კაფე, შოპინგ ცენტრი), ✅ პროდუქტის ყოვლისმომცველი შემოწმება, ✅ არასანდო შეთავაზებების თავიდან აცილება, ✅ არ გადაიხადოთ წინასწარ უცხო ანგარიშზე. გამყიდველის რეიტინგის და მიმოხილვების შემოწმება ასევე რეკომენდებულია."
+          "text": "კი, iMarketZone უსაფრთხო პლატფორმაა. რეკომენდებულია პროდუქტის პირადად ნახვა გადახდამდე და საჯარო ადგილას შეხვედრა."
         }
       }
     ]
@@ -417,7 +447,6 @@
        FONTS
        ============================================ -->
   
-  <!-- Google Fonts -->
   <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   
@@ -435,9 +464,6 @@
   <meta http-equiv="X-XSS-Protection" content="1; mode=block">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  
-  <!-- Content Security Policy (Optional but recommended) -->
-  <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com;"> -->
   
   <!-- ============================================
        THEME & MOBILE APP
@@ -468,18 +494,13 @@
        ADDITIONAL SCRIPTS
        ============================================ -->
   
-  <!-- Google Platform Library -->
   <script src="https://apis.google.com/js/platform.js" async defer></script>
-  
-  <!-- Structured Data Testing (Remove in production) -->
-  <!-- <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage"}</script> -->
+
 </head>
 
 <body>
-  <!-- Main Application -->
   <app-root></app-root>
   
-  <!-- Noscript Fallback -->
   <noscript>
     <div style="padding: 2rem; text-align: center; background: #fff3cd; border: 2px solid #ffc107;">
       <h1 style="color: #856404;">JavaScript აუცილებელია</h1>
@@ -491,8 +512,5 @@
       </p>
     </div>
   </noscript>
-  
-  <!-- Google Tag Manager (Optional - if you want GTM instead of GA) -->
-  <!-- <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript> -->
 </body>
 </html>
