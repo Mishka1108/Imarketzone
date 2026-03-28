@@ -1,5 +1,6 @@
 // navbar.component.ts - WITH TRANSLATION SUPPORT
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { Router, RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -27,7 +28,7 @@ import { LanguageService } from '../services/language.service';
     RouterModule, 
     MatIcon,
     MatSnackBarModule,
-    TranslateModule // ✅ დაამატეთ TranslateModule
+    TranslateModule
   ],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
@@ -55,7 +56,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   profileImageUrl: string = 'https://i.ibb.co/GvshXkLK/307ce493-b254-4b2d-8ba4-d12c080d6651.jpg';
   
   unreadMessagesCount: number = 0;
-  currentLang: string = 'ka'; // ✅ Current language
+  currentLang: string = 'ka';
   
   showNotification: boolean = false;
   notificationData: {
@@ -74,30 +75,27 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private socketService: SocketService,
     private router: Router,
     private snackBar: MatSnackBar,
-    private translate: TranslateService, // ✅ დაამატეთ
-    private languageService: LanguageService // ✅ დაამატეთ
-  ) {
-  }
+    private translate: TranslateService,
+    private languageService: LanguageService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit(): void {
     
-    // ✅ Subscribe to language changes
     const langSub = this.languageService.currentLang$.subscribe(lang => {
       this.currentLang = lang;
     });
     
-    // Profile image subscription
     const profileSub = this.profileImageService.profileImage$.subscribe(
       (imageUrl: string) => {
         this.profileImageUrl = imageUrl;
       }
     );
 
-    // Auth subscription
     const authSub = this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
       
-      if (user) {
+      if (user && isPlatformBrowser(this.platformId)) {
         const userId = localStorage.getItem('userId');
         if (userId) {
           this.connectToSocket(userId);
@@ -110,18 +108,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
       }
     });
 
-    const savedImage = localStorage.getItem('userProfileImage');
-    if (savedImage) {
-      this.profileImageUrl = savedImage;
+    if (isPlatformBrowser(this.platformId)) {
+      const savedImage = localStorage.getItem('userProfileImage');
+      if (savedImage) {
+        this.profileImageUrl = savedImage;
+      }
     }
 
     this.subscriptions.add(langSub);
     this.subscriptions.add(profileSub);
     this.subscriptions.add(authSub);
-    
   }
 
-  // ✅ Change Language Method
   changeLanguage(lang: 'ka' | 'en'): void {
     this.languageService.setLanguage(lang);
   }
@@ -159,8 +157,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
       next: (count) => {
         this.unreadMessagesCount = count;
       },
-      error: (err) => {
-      }
+      error: (err) => {}
     });
 
     const unreadSub = this.messageService.unreadCount$.subscribe({
@@ -182,7 +179,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
       if (data && data.message) {
         const msg = data.message;
         const senderId = typeof msg.senderId === 'object' ? msg.senderId._id : msg.senderId;
-        const userId = localStorage.getItem('userId');
+        const userId = isPlatformBrowser(this.platformId) 
+          ? localStorage.getItem('userId') 
+          : null;
         
         if (senderId !== userId) {
           
@@ -238,13 +237,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   private playNotificationSound(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
     try {
       const audio = new Audio('assets/sounds/notification.mp3');
       audio.volume = 0.3;
-      audio.play().catch(err => {
-      });
-    } catch (err) {
-    }
+      audio.play().catch(err => {});
+    } catch (err) {}
   }
 
   onImageError(event: Event): void {
@@ -259,7 +257,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   closeMenu(): void {
-    window.scrollTo(0, 0);
+    if (isPlatformBrowser(this.platformId)) {
+      window.scrollTo(0, 0);
+    }
     this.isShow = false;
   }
 
@@ -286,5 +286,4 @@ export class NavbarComponent implements OnInit, OnDestroy {
       clearTimeout(this.notificationTimeout);
     }
   }
-  
 }
