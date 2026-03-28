@@ -15,7 +15,7 @@ const commonEngine = new CommonEngine();
 const SITE_URL = 'https://www.imarketzone.ge';
 
 // ══════════════════════════════════════════════════════
-// Slug გენერატორი (იგივე ლოგიკა Angular-ში)
+// Slug გენერატორი
 // ══════════════════════════════════════════════════════
 function generateSlug(title: string) {
   if (!title) return '';
@@ -55,7 +55,6 @@ Sitemap: ${SITE_URL}/sitemap.xml`);
 // ══════════════════════════════════════════════════════
 app.get('/sitemap.xml', async (req, res) => {
   try {
-    // ✅ შენი API-დან ყველა პროდუქტის მოძიება
     const apiUrl = process.env['API_URL'] || 'http://localhost:5000/api';
 
     const response = await fetch(`${apiUrl}/products?page=0&limit=10000`);
@@ -63,7 +62,6 @@ app.get('/sitemap.xml', async (req, res) => {
 
     const products = data.products || data.data || data || [];
 
-    // ── სტატიკური გვერდები ──────────────────────────
     const staticUrls = `
   <url>
     <loc>${SITE_URL}/</loc>
@@ -83,7 +81,6 @@ app.get('/sitemap.xml', async (req, res) => {
     <changefreq>monthly</changefreq>
   </url>`;
 
-    // ── პროდუქტების URL-ები ──────────────────────────
     const productUrls = Array.isArray(products)
       ? products.map(product => {
           const slug = generateSlug(product.title || '');
@@ -112,13 +109,12 @@ app.get('/sitemap.xml', async (req, res) => {
 </urlset>`;
 
     res.header('Content-Type', 'application/xml');
-    res.header('Cache-Control', 'public, max-age=3600'); // 1 საათი cache
+    res.header('Cache-Control', 'public, max-age=3600');
     res.send(sitemap);
 
   } catch (err) {
     console.error('❌ Sitemap error:', err);
 
-    // Fallback - მინიმალური sitemap
     const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -137,18 +133,18 @@ app.get('/sitemap.xml', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════
-// სტატიკური ფაილები /browser-დან
+// სტატიკური ფაილები — index: false აუცილებელია SSR-ისთვის!
 // ══════════════════════════════════════════════════════
 app.get(
   '**',
   express.static(browserDistFolder, {
     maxAge: '1y',
-    index: 'index.html'
+    index: false  // ✅ SSR-ს აძლევს კონტროლს index.html-ზე
   }),
 );
 
 // ══════════════════════════════════════════════════════
-// Angular SSR - ყველა დანარჩენი request
+// Angular SSR — ყველა დანარჩენი request
 // ══════════════════════════════════════════════════════
 app.get('**', (req, res, next) => {
   const { protocol, originalUrl, baseUrl, headers } = req;
