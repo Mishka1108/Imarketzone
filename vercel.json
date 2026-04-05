@@ -1,6 +1,4 @@
 {
-  "framework": "angular",
-  "outputDirectory": "dist/imarketzone/browser",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
