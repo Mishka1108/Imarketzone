@@ -1,19 +1,7 @@
 {
   "framework": "angular",
-  "outputDirectory": "dist/imarketzone",
-  "functions": {
-    "dist/imarketzone/server/server.mjs": {
-      "runtime": "nodejs20.x"
-    }
-  },
-  "routes": [
-    {
-      "src": "/browser/(.*)",
-      "dest": "/browser/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/imarketzone/server/server.mjs"
-    }
+  "outputDirectory": "dist/imarketzone/browser",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
