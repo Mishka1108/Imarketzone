@@ -2,12 +2,6 @@
   command = "ng build --configuration production"
   publish = "dist/imarketzone/browser"
 
-[[plugins]]
-  package = "@netlify/angular-runtime"
-  
-  [plugins.inputs]
-    ssr = false
-
 [[redirects]]
   from = "/*"
   to = "/index.html"
