@@ -1,13 +1,6 @@
 {
   "framework": "angular",
-  "routes": [
-    {
-      "src": "/browser/(.*)",
-      "dest": "/browser/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/server/server.mjs"
-    }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
