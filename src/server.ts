@@ -1,22 +1,12 @@
-import { APP_BASE_HREF } from '@angular/common';
-import { CommonEngine, isMainModule } from '@angular/ssr/node';
-import express from 'express';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import bootstrap from './main.server';
+/// <reference types="node" />
 
-const serverDistFolder = dirname(fileURLToPath(import.meta.url));
-const browserDistFolder = resolve(serverDistFolder, '../browser');
-const indexHtml = join(serverDistFolder, 'index.server.html');
+import { CommonEngine } from '@angular/ssr/node';
+import { render } from '@netlify/angular-runtime/common-engine.mjs';
 
-const app = express();
 const commonEngine = new CommonEngine();
 
 const SITE_URL = 'https://www.imarketzone.ge';
 
-// ══════════════════════════════════════════════════════
-// Slug გენერატორი
-// ══════════════════════════════════════════════════════
 function generateSlug(title: string) {
   if (!title) return '';
   return title
@@ -27,12 +17,17 @@ function generateSlug(title: string) {
     .replace(/^-+|-+$/g, '');
 }
 
-// ══════════════════════════════════════════════════════
-// ROBOTS.TXT
-// ══════════════════════════════════════════════════════
-app.get('/robots.txt', (req, res) => {
-  res.type('text/plain');
-  res.send(`User-agent: *
+export async function netlifyCommonEngineHandler(
+  request: Request,
+  _context: any
+): Promise<Response> {
+
+  const pathname = new URL(request.url).pathname;
+
+  // ✅ robots.txt
+  if (pathname === '/robots.txt') {
+    return new Response(
+      `User-agent: *
 Allow: /
 Allow: /product-details/
 Allow: /public-products
@@ -47,128 +42,75 @@ Disallow: /complete-profile
 Disallow: /reset-password
 Disallow: /forgot-password
 
-Sitemap: ${SITE_URL}/sitemap.xml`);
-});
+Sitemap: ${SITE_URL}/sitemap.xml`,
+      { headers: { 'Content-Type': 'text/plain' } }
+    );
+  }
 
-// ══════════════════════════════════════════════════════
-// SITEMAP.XML
-// ══════════════════════════════════════════════════════
-app.get('/sitemap.xml', async (req, res) => {
-  try {
-    const apiUrl = process.env['API_URL'] || 'http://localhost:5000/api';
+  // ✅ sitemap.xml
+  if (pathname === '/sitemap.xml') {
+    try {
+      const apiUrl = process.env['API_URL'] || 'http://localhost:5000/api';
 
-    const response = await fetch(`${apiUrl}/products?page=0&limit=10000`);
-    const data = await response.json();
+      const response = await fetch(`${apiUrl}/products?page=0&limit=10000`);
+      const data = await response.json();
 
-    const products = data.products || data.data || data || [];
+      const products = data.products || data.data || data || [];
+      const today = new Date().toISOString().split('T')[0];
 
-    const staticUrls = `
-  <url>
-    <loc>${SITE_URL}/</loc>
-    <priority>1.0</priority>
-    <changefreq>daily</changefreq>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-  </url>
-  <url>
-    <loc>${SITE_URL}/public-products</loc>
-    <priority>0.9</priority>
-    <changefreq>hourly</changefreq>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-  </url>
-  <url>
-    <loc>${SITE_URL}/contact</loc>
-    <priority>0.5</priority>
-    <changefreq>monthly</changefreq>
-  </url>`;
+      const staticUrls = `
+  <url><loc>${SITE_URL}/</loc><priority>1.0</priority><changefreq>daily</changefreq><lastmod>${today}</lastmod></url>
+  <url><loc>${SITE_URL}/public-products</loc><priority>0.9</priority><changefreq>hourly</changefreq><lastmod>${today}</lastmod></url>
+  <url><loc>${SITE_URL}/contact</loc><priority>0.5</priority><changefreq>monthly</changefreq></url>`;
 
-    const productUrls = Array.isArray(products)
-      ? products.map(product => {
-          const slug = generateSlug(product.title || '');
-          if (!slug) return '';
+      const productUrls = Array.isArray(products)
+        ? products.map((product: any) => {
+            const slug = generateSlug(product.title || '');
+            if (!slug) return '';
 
-          const lastmod = product.updatedAt || product.createdAt
-            ? new Date(product.updatedAt || product.createdAt)
-                .toISOString().split('T')[0]
-            : new Date().toISOString().split('T')[0];
+            const lastmod = product.updatedAt || product.createdAt
+              ? new Date(product.updatedAt || product.createdAt)
+                  .toISOString()
+                  .split('T')[0]
+              : today;
 
-          return `
+            return `
   <url>
     <loc>${SITE_URL}/product-details/${encodeURIComponent(slug)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`;
-        }).filter(Boolean).join('')
-      : '';
+          }).filter(Boolean).join('')
+        : '';
 
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${staticUrls}
   ${productUrls}
 </urlset>`;
 
-    res.header('Content-Type', 'application/xml');
-    res.header('Cache-Control', 'public, max-age=3600');
-    res.send(sitemap);
+      return new Response(sitemap, {
+        headers: {
+          'Content-Type': 'application/xml',
+          'Cache-Control': 'public, max-age=3600'
+        }
+      });
 
-  } catch (err) {
-    console.error('❌ Sitemap error:', err);
+    } catch (err) {
+      console.error('Sitemap error:', err);
 
-    const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+      const fallback = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${SITE_URL}/</loc>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>${SITE_URL}/public-products</loc>
-    <priority>0.9</priority>
-  </url>
+  <url><loc>${SITE_URL}/</loc></url>
 </urlset>`;
 
-    res.header('Content-Type', 'application/xml');
-    res.status(200).send(fallbackSitemap);
+      return new Response(fallback, {
+        headers: { 'Content-Type': 'application/xml' }
+      });
+    }
   }
-});
 
-// ══════════════════════════════════════════════════════
-// სტატიკური ფაილები — index: false აუცილებელია SSR-ისთვის!
-// ══════════════════════════════════════════════════════
-app.get(
-  '**',
-  express.static(browserDistFolder, {
-    maxAge: '1y',
-    index: false  // ✅ SSR-ს აძლევს კონტროლს index.html-ზე
-  }),
-);
-
-// ══════════════════════════════════════════════════════
-// Angular SSR — ყველა დანარჩენი request
-// ══════════════════════════════════════════════════════
-app.get('**', (req, res, next) => {
-  const { protocol, originalUrl, baseUrl, headers } = req;
-
-  commonEngine
-    .render({
-      bootstrap,
-      documentFilePath: indexHtml,
-      url: `${protocol}://${headers.host}${originalUrl}`,
-      publicPath: browserDistFolder,
-      providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
-    })
-    .then((html) => res.send(html))
-    .catch((err) => next(err));
-});
-
-// ══════════════════════════════════════════════════════
-// სერვერის გაშვება
-// ══════════════════════════════════════════════════════
-if (isMainModule(import.meta.url)) {
-  const port = process.env['PORT'] || 4000;
-  app.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
-  });
+  // ✅ SSR render
+  return await render(commonEngine);
 }
-
-export default app;
