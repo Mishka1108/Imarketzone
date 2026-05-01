@@ -1,27 +1,5 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "dist/imarketzone/server/server.mjs",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "dist/imarketzone/browser/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/dist/imarketzone/browser/assets/$1"
-    },
-    {
-      "src": "/(.*\\..*)",
-      "dest": "/dist/imarketzone/browser/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/imarketzone/server/server.mjs"
-    }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
