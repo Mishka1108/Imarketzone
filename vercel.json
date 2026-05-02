@@ -1,5 +1,6 @@
 {
+  "framework": "angular",
   "buildCommand": "ng build",
-  "outputDirectory": "dist/imarketzone",
-  "framework": "angular"
+  "devCommand": "ng serve",
+  "installCommand": "npm install"
 }
