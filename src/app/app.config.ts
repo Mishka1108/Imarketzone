@@ -1,6 +1,5 @@
 import { ApplicationConfig, importProvidersFrom } from '@angular/core';
-// დაამატე withHashLocation აქ:
-import { provideRouter, withHashLocation } from '@angular/router'; 
+import { provideRouter } from '@angular/router';
 import {
   provideHttpClient,
   withInterceptors,
@@ -27,13 +26,12 @@ export function createTranslateLoader(http: HttpClient) {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // აქ დავამატეთ withHashLocation():
-    provideRouter(routes, withHashLocation()),
+    provideRouter(routes),
 
-    // ✅ SSR Hydration
+    // ✅ SSR Hydration - კლიენტზე სერვერის HTML-ს სწორად აღადგენს
     provideClientHydration(withEventReplay()),
 
-    // ✅ withFetch()
+    // ✅ withFetch() - SSR-ში fetch API-ს იყენებს (XMLHttpRequest SSR-ში არ მუშაობს)
     provideHttpClient(
       withFetch(),
       withInterceptors([httpErrorInterceptor])
