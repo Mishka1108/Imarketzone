@@ -2,7 +2,15 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/imarketzone",
   "framework": "angular",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+  "functions": {
+    "dist/imarketzone/server/server.mjs": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/imarketzone/server/server.mjs"
+    }
   ]
 }
