@@ -26,7 +26,6 @@
     "@angular/platform-server": "^19.2.0",
     "@angular/router": "^19.2.0",
     "@angular/ssr": "^19.2.11",
-    "@netlify/angular-runtime": "^3.0.1",
     "@nguniversal/express-engine": "^7.0.2",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
