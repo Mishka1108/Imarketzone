@@ -1,2 +1,2 @@
-const server = require('../dist/imarketzone/server.mjs');
-module.exports = server.app();
+export default import('../dist/imarketzone/server/server.mjs')
+  .then((module) => module.default || module.app || module);
