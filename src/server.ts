@@ -4,14 +4,13 @@ import { CommonEngine } from '@angular/ssr/node';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
-// @ts-ignore
-import bootstrap from './src/main.server.js';
+import bootstrap from './main.server';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = join(__filename, '..');
 
 const SITE_URL = 'https://www.imarketzone.ge';
-const DIST_FOLDER = join(__dirname, '../browser');
+const DIST_FOLDER = join(__dirname, '../../browser');
 
 function generateSlug(title: string) {
   if (!title) return '';
