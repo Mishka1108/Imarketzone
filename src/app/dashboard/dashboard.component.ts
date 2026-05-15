@@ -251,83 +251,85 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  loadUserProducts(): void {
-    this.isLoadingProducts = true;
+loadUserProducts(): void {
+  if (!isPlatformBrowser(this.platformId)) return; // ← SSR-ზე არ გაეშვება
 
-    this.productService.getUserProducts()
-      .pipe(
-        timeout(20000),
-        retry({ count: 3, delay: 1000 }),
-        finalize(() => {
-          this.isLoadingProducts = false;
-        }),
-        catchError((error) => {
-          console.error('❌ Error loading products:', error);
+  this.isLoadingProducts = true;
 
-          let errorMessage = 'პროდუქტების ჩატვირთვა ვერ მოხერხდა';
-          if (error.name === 'TimeoutError') {
-            errorMessage = 'სერვერთან კავშირი ხანგრძლივად არ მოწყდა';
-          } else if (error.status === 401) {
-            errorMessage = 'ავტორიზაციის შეცდომა - ხელახლა შეხვდით';
-            this.authService.logout();
-            this.router.navigate(['/auth/login']);
-          } else if (error.status === 404) {
-            errorMessage = 'API endpoint ვერ მოიძებნა';
-          } else if (error.status === 500) {
-            errorMessage = 'სერვერის შიდა შეცდომა';
-          } else if (error.status === 0) {
-            errorMessage = 'ქსელის კავშირის პრობლემა';
-          }
+  this.productService.getUserProducts()
+    .pipe(
+      timeout(10000), // 20000 → 10000
+      retry({ count: 1, delay: 1000 }), // 3 → 1
+      finalize(() => {
+        this.isLoadingProducts = false;
+      }),
+      catchError((error) => {
+        console.error('❌ Error loading products:', error);
 
-          this.showSnackBar(errorMessage);
-          return of({ products: [] });
-        })
-      )
-      .subscribe({
-        next: (response) => {
-          try {
-            let products: Product[] = [];
-
-            if (response && Array.isArray(response.products)) {
-              products = response.products;
-            } else if (response && Array.isArray(response.data)) {
-              products = response.data;
-            } else if (Array.isArray(response)) {
-              products = response;
-            } else if (response && response.result && Array.isArray(response.result)) {
-              products = response.result;
-            } else {
-              products = [];
-            }
-
-            if (products && Array.isArray(products)) {
-              this.userProducts = products.filter(product =>
-                product &&
-                (product._id || product.id) &&
-                product.title
-              );
-            } else {
-              this.userProducts = [];
-            }
-
-            if (this.userProducts.length >= this.MAX_PRODUCTS_ALLOWED && this.productFormVisible) {
-              this.productFormVisible = false;
-              this.resetProductForm();
-              this.showSnackBar(`მიღწეულია პროდუქტების მაქსიმალური რაოდენობა (${this.MAX_PRODUCTS_ALLOWED})`);
-            }
-
-          } catch (processingError) {
-            console.error('❌ Error processing response:', processingError);
-            this.userProducts = [];
-            this.showSnackBar('მონაცემების დამუშავების შეცდომა');
-          }
-        },
-        error: (error) => {
-          console.error('❌ Final subscription error:', error);
-          this.userProducts = [];
+        let errorMessage = 'პროდუქტების ჩატვირთვა ვერ მოხერხდა';
+        if (error.name === 'TimeoutError') {
+          errorMessage = 'სერვერთან კავშირი ხანგრძლივად არ მოწყდა';
+        } else if (error.status === 401) {
+          errorMessage = 'ავტორიზაციის შეცდომა - ხელახლა შეხვდით';
+          this.authService.logout();
+          this.router.navigate(['/auth/login']);
+        } else if (error.status === 404) {
+          errorMessage = 'API endpoint ვერ მოიძებნა';
+        } else if (error.status === 500) {
+          errorMessage = 'სერვერის შიდა შეცდომა';
+        } else if (error.status === 0) {
+          errorMessage = 'ქსელის კავშირის პრობლემა';
         }
-      });
-  }
+
+        this.showSnackBar(errorMessage);
+        return of({ products: [] });
+      })
+    )
+    .subscribe({
+      next: (response) => {
+        try {
+          let products: Product[] = [];
+
+          if (response && Array.isArray(response.products)) {
+            products = response.products;
+          } else if (response && Array.isArray(response.data)) {
+            products = response.data;
+          } else if (Array.isArray(response)) {
+            products = response;
+          } else if (response && response.result && Array.isArray(response.result)) {
+            products = response.result;
+          } else {
+            products = [];
+          }
+
+          if (products && Array.isArray(products)) {
+            this.userProducts = products.filter(product =>
+              product &&
+              (product._id || product.id) &&
+              product.title
+            );
+          } else {
+            this.userProducts = [];
+          }
+
+          if (this.userProducts.length >= this.MAX_PRODUCTS_ALLOWED && this.productFormVisible) {
+            this.productFormVisible = false;
+            this.resetProductForm();
+            this.showSnackBar(`მიღწეულია პროდუქტების მაქსიმალური რაოდენობა (${this.MAX_PRODUCTS_ALLOWED})`);
+          }
+
+        } catch (processingError) {
+          console.error('❌ Error processing response:', processingError);
+          this.userProducts = [];
+          this.showSnackBar('მონაცემების დამუშავების შეცდომა');
+        }
+      },
+      error: (error) => {
+        console.error('❌ Final subscription error:', error);
+        this.userProducts = [];
+      }
+    });
+}
 
   toggleProductForm(): void {
     if (!this.productFormVisible) {
