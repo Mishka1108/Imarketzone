@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from "./navbar/navbar.component";
 import { FooterComponent } from "./footer/footer.component";
 import { filter } from 'rxjs/internal/operators/filter';
 import { GoogleAnalyticsService } from './services/google-analytics.service';
 import { ProductService } from './services/product.service';
+import { isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -18,30 +19,29 @@ export class AppComponent implements OnInit {
   constructor(
     private router: Router,
     private ga: GoogleAnalyticsService,
-    private productService: ProductService // ✅ ProductService დამატება
+    private productService: ProductService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-    // Google Analytics tracking
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       this.ga.trackPageView(event.urlAfterRedirects);
     });
 
-    // ✅ პროდუქტების პრელოად აპლიკაციის გაშვებისთანავე
     this.preloadProducts();
   }
 
-  // ✅ პროდუქტების პრელოად მეთოდი
   private preloadProducts(): void {
+    if (!isPlatformBrowser(this.platformId)) return; // ← SSR-ზე არ გაეშვება
+    
     console.log('🚀 Preloading products on app init...');
     
     this.productService.getAllProducts().subscribe({
       next: (response) => {
         console.log('✅ Products preloaded successfully');
         
-        // შევინახოთ პროდუქტები cache-ში
         const products = response.products || response.data || response || [];
         
         if (products.length > 0) {
@@ -53,7 +53,6 @@ export class AppComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Failed to preload products:', error);
-        // აპლიკაცია მაინც გაგრძელდება, მაგრამ cache ცარიელი იქნება
       }
     });
   }

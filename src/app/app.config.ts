@@ -1,59 +1,51 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { NavbarComponent } from "./navbar/navbar.component";
-import { FooterComponent } from "./footer/footer.component";
-import { filter } from 'rxjs/internal/operators/filter';
-import { GoogleAnalyticsService } from './services/google-analytics.service';
-import { ProductService } from './services/product.service';
-import { isPlatformBrowser } from '@angular/common';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import {
+  provideHttpClient,
+  withInterceptors,
+  withFetch,
+  HttpClient
+} from '@angular/common/http';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { httpErrorInterceptor } from './interceptors/http-error.interceptor';
+import { routes } from './app.routes';
+import { Observable } from 'rxjs';
 
-@Component({
-  selector: 'app-root',
-  imports: [RouterOutlet, NavbarComponent, FooterComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
-})
-export class AppComponent implements OnInit {
-  title = 'imarketzone';
-  
-  constructor(
-    private router: Router,
-    private ga: GoogleAnalyticsService,
-    private productService: ProductService,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+export class CustomTranslateLoader implements TranslateLoader {
+  constructor(private http: HttpClient) {}
 
-  ngOnInit(): void {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.ga.trackPageView(event.urlAfterRedirects);
-    });
-
-    this.preloadProducts();
-  }
-
-  private preloadProducts(): void {
-    if (!isPlatformBrowser(this.platformId)) return; // ← SSR-ზე არ გაეშვება
-    
-    console.log('🚀 Preloading products on app init...');
-    
-    this.productService.getAllProducts().subscribe({
-      next: (response) => {
-        console.log('✅ Products preloaded successfully');
-        
-        const products = response.products || response.data || response || [];
-        
-        if (products.length > 0) {
-          this.productService.setCachedProducts(products);
-          console.log(`📦 Cached ${products.length} products`);
-        } else {
-          console.warn('⚠️ No products received from API');
-        }
-      },
-      error: (error) => {
-        console.error('❌ Failed to preload products:', error);
-      }
-    });
+  getTranslation(lang: string): Observable<any> {
+    return this.http.get(`./assets/i18n/${lang}.json`);
   }
 }
+
+export function createTranslateLoader(http: HttpClient) {
+  return new CustomTranslateLoader(http);
+}
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+
+    // ✅ SSR Hydration - კლიენტზე სერვერის HTML-ს სწორად აღადგენს
+    provideClientHydration(withEventReplay()),
+
+    // ✅ withFetch() - SSR-ში fetch API-ს იყენებს (XMLHttpRequest SSR-ში არ მუშაობს)
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([httpErrorInterceptor])
+    ),
+
+    importProvidersFrom(
+      TranslateModule.forRoot({
+        defaultLanguage: 'ka',
+        loader: {
+          provide: TranslateLoader,
+          useFactory: createTranslateLoader,
+          deps: [HttpClient]
+        }
+      })
+    )
+  ]
+};
