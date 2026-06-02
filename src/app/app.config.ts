@@ -6,7 +6,6 @@ import {
   withFetch,
   HttpClient
 } from '@angular/common/http';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { httpErrorInterceptor } from './interceptors/http-error.interceptor';
 import { routes } from './app.routes';
@@ -28,10 +27,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
 
-    // ✅ SSR Hydration - კლიენტზე სერვერის HTML-ს სწორად აღადგენს
-    provideClientHydration(withEventReplay()),
-
-    // ✅ withFetch() - SSR-ში fetch API-ს იყენებს (XMLHttpRequest SSR-ში არ მუშაობს)
+    // ✅ უბრალო CSR კონფიგი
     provideHttpClient(
       withFetch(),
       withInterceptors([httpErrorInterceptor])
